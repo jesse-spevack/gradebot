@@ -1,24 +1,13 @@
-# README
+# GradeBot
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+AI-powered assignment grading system that automates feedback for student work in Google Docs. Built with Rails 8, integrates with Google Drive, and uses LLM technology for intelligent grading.
 
-Things you may want to cover:
+## Features
+- Google Drive integration
+- Automated grading with rubric support
+- Individual and class-wide feedback
+- Real-time progress tracking
+- Mobile-responsive interface
 
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+## Setup
+Requires Google OAuth credentials and LLM API key.
