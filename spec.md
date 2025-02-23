@@ -174,7 +174,14 @@ The Automated Assignment Grading System is a web-based tool that enables teacher
 - Temporary storage only during processing
 - Automatic cleanup after delivery
 
-### 4.2 Error Handling
+### 4.2 Session Management
+- Persistent session storage in database
+- Session tracking with user_id, IP address, and user agent
+- Session-based authentication for all requests
+- Automatic session cleanup for inactive users
+- Multiple concurrent sessions support per user
+
+### 4.3 Error Handling
 - Validation errors:
   - Clear error messages
   - Processing stops on first error

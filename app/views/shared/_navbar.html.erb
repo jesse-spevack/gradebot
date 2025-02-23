@@ -1,0 +1,32 @@
+<!-- Navigation bar -->
+<nav class="bg-white shadow-sm">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="flex h-16 justify-between items-center">
+      <!-- Logo -->
+      <div class="flex-shrink-0">
+        <%= link_to root_path, class: "flex items-center" do %>
+          <h1 class="font-display font-black text-3xl tracking-tight text-blue-950">
+            GradeB<span class="inline-block align-baseline w-[1.4em] h-[1.4em] translate-y-[0.55em] -mx-[0.3em]" style="transform-origin: center;"><%= render "shared/robot" %></span>t
+          </h1>
+        <% end %>
+      </div>
+
+      <!-- Navigation links (can be added later) -->
+      <div class="hidden sm:ml-6 sm:flex sm:items-center sm:space-x-8">
+        <!-- Add navigation links here -->
+      </div>
+
+      <!-- Authentication -->
+      <div class="flex items-center">
+        <% unless authenticated? %>
+          <%= button_to "/auth/google_oauth2",
+              method: :post,
+              data: { turbo: false },
+              class: "inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700" do %>
+            Sign in with Google
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</nav>

@@ -27,6 +27,19 @@ Generate the initial User model with:
 - token_expires_at (datetime)
 - timestamps
 
+Create the Session model with:
+- user_id (references users)
+- ip_address (string)
+- user_agent (string)
+- timestamps
+- index on user_id
+
+Implement session management:
+- Create sessions on successful authentication
+- Track user sessions with IP and user agent
+- Support multiple concurrent sessions
+- Clean up expired sessions
+
 Write comprehensive model tests for:
 - Validations
 - Associations

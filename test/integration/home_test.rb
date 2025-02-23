@@ -5,7 +5,7 @@ class HomeTest < ActionDispatch::IntegrationTest
     get root_path
     assert_response :success
     assert_select "h1" do |h1|
-      text = h1.text.gsub(/\s+/, '')
+      text = h1.text.gsub(/\s+/, "")
       assert_match(/GradeB.*t/, text)
     end
     assert_select "form"

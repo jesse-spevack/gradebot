@@ -25,7 +25,8 @@
   </head>
 
   <body class="font-sans">
-    <main class="flex flex-col min-h-screen items-center justify-start px-4 pt-12">
+    <%= render "shared/navbar" %>
+    <main class="flex flex-col min-h-screen items-center justify-start">
       <%= yield %>
     </main>
   </body>

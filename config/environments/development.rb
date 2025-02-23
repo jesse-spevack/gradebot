@@ -1,5 +1,8 @@
 require "active_support/core_ext/integer/time"
 
+# Load local development configuration if present
+require_relative "development.local" if File.exist?(File.expand_path("development.local.rb", __dir__))
+
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
