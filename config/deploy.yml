@@ -2,7 +2,8 @@
 service: gradebot
 
 # Name of the container image.
-image: gradebot/repository-1/gradebot
+# Note gradebot-451722 is the GCP project ID, NOT the project name.
+image: gradebot-451722/repository-1/gradebot
 
 # Deploy to these servers.
 servers:
