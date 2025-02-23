@@ -6,23 +6,23 @@
 - [x] Create new Rails 8 application
 - [x] Configure SQLite database
 - [x] Set up Minitest
-- [ ] Install Devise
 - [x] Install and configure Tailwind CSS
 - [x] Set up Git repository
 - [x] Create initial README.md
 - [x] Configure CI/CD pipeline
+- [x] Configure Google OAuth2
 
 ### User Model
-- [ ] Generate User model with required fields
-- [ ] Write model specs
-  - [ ] Email validation
-  - [ ] OAuth token handling
-  - [ ] Association tests
-- [ ] Implement model
-- [ ] Add necessary indexes
-- [ ] Create factories
-- [ ] Test OAuth-related methods
-- [ ] Document model
+- [x] Generate User model with required fields
+- [x] Write model specs
+  - [x] Email validation
+  - [x] OAuth token handling
+  - [x] Association tests
+- [x] Implement model
+- [x] Add necessary indexes
+- [x] Create factories
+- [x] Test OAuth-related methods
+- [x] Document model
 
 ### GradingJob Model
 - [ ] Generate GradingJob model
@@ -52,15 +52,15 @@
 ## Phase 2: Google Integration
 
 ### Google OAuth
-- [ ] Register application with Google
-- [ ] Configure OAuth credentials
-- [ ] Set up environment variables
-- [ ] Configure Devise OmniAuth
-- [ ] Write OAuth controller specs
-- [ ] Implement OAuth controller
-- [ ] Add token refresh logic
-- [ ] Test error scenarios
-- [ ] Document OAuth setup
+- [x] Register application with Google
+- [x] Configure OAuth credentials
+- [x] Set up environment variables with Kamal secrets
+- [x] Configure OmniAuth with Google OAuth2
+- [x] Write OAuth controller specs
+- [x] Implement OAuth controller
+- [x] Add token refresh logic
+- [x] Test error scenarios
+- [x] Document OAuth setup
 
 ### Drive Picker
 - [ ] Create Drive Picker Stimulus controller
