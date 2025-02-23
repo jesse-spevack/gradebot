@@ -1,29 +1,79 @@
-<div class="relative flex flex-col items-center py-16">
+<!-- Background gradients and texture -->
+<div class="relative overflow-hidden">
+  <div class="absolute inset-0 bg-gradient-to-b from-blue-50 to-white">
+    <div class="absolute inset-0 opacity-20" style="background-image: url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h20v20H0z\' fill=\'%23000\' fill-opacity=\'.03\'/%3E%3C/svg%3E');"></div>
+  </div>
 
-  <h1 class="font-mono font-black text-6xl sm:text-7xl md:text-8xl lg:text-mega xl:text-super tracking-tight text-black">
-    GradeB<span class="inline-block animate-bounce hover:animate-spin">🤖</span>t
-  </h1>
+  <!-- Accent shapes -->
+  <div aria-hidden="true" class="absolute inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-96 h-96 bg-blue-100 rounded-full opacity-20 blur-3xl transform rotate-12"></div>
+    <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-blue-200 rounded-full opacity-20 blur-3xl"></div>
+  </div>
 
-  <p class="max-w-2xl text-center text-lg text-gray-600 mt-8">
-    Transform your grading workflow with AI-powered assistance that helps you provide personalized feedback in minutes, not hours.
-  </p>
+  <!-- Main content container -->
+  <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24 md:py-32">
+    <div class="text-center space-y-12">
+      <!-- Premium badge -->
+      <div class="inline-flex items-center gap-2 bg-blue-50 px-3 py-1 rounded-full text-blue-700 text-sm font-medium mb-8 border border-blue-100">
+        <span class="flex-none w-2 h-2 rounded-full bg-green-500"></span>
+        New: AI-Powered Feedback Assistant
+      </div>
 
-  <%# Social proof %>
-  <p class="text-sm text-gray-500 mt-4">
-    Trusted by 1000+ teachers across 500+ schools
-  </p>
+      <!-- Main heading -->
+      <div>
+        <h1 class="font-display font-black text-6xl sm:text-7xl md:text-8xl tracking-tight text-blue-950 mb-6">
+          GradeB<span class="inline-block align-baseline hover:animate-spin transition-transform duration-300 w-[1.6em] h-[1.6em] translate-y-[0.65em] -mx-[0.3em]" style="transform-origin: center;"><%= render "shared/robot" %></span>t
+        </h1>
+        <p class="max-w-2xl mx-auto text-xl text-blue-800/80 font-medium">
+          Focus on planning and insights. Transform hours of grading into 
+          <span class="text-blue-950 font-semibold">minutes of strategic review</span>.
+        </p>
+      </div>
 
-  <div class="w-full max-w-md mt-8 space-y-4">
-    <%= render "shared/email_signup_form", form_id: "hero-form" %>
-    
-    <%# Secondary CTA %>
-    <div class="text-center">
-      <a href="#how-it-works" class="inline-flex items-center text-blue-600 hover:text-blue-700">
-        Watch Demo
-        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-        </svg>
-      </a>
+      <!-- Social proof -->
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-8">
+        <!-- Stats -->
+        <div class="flex items-center gap-8">
+          <div>
+            <div class="text-2xl font-bold text-blue-950">0+</div>
+            <div class="text-sm text-blue-700">Active Teachers</div>
+          </div>
+          <div class="h-8 w-px bg-blue-200"></div>
+          <div>
+            <div class="text-2xl font-bold text-blue-950">0+</div>
+            <div class="text-sm text-blue-700">Partner Schools</div>
+          </div>
+        </div>
+        
+        <!-- Trust badges -->
+        <div class="flex items-center gap-3 text-sm text-blue-700">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-blue-500">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          <span>FERPA Compliant (pending)</span>
+          <span class="w-1 h-1 rounded-full bg-blue-300"></span>
+          <span>COPPA Certified (pending)</span>
+        </div>
+      </div>
+
+      <!-- CTA section -->
+      <div class="max-w-md mx-auto space-y-4">
+        <!-- Email signup -->
+        <%= render "shared/email_signup_form", form_id: "hero-form" %>
+
+        <!-- Secondary CTA -->
+        <a 
+          href="#how-it-works" 
+          class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium group"
+        >
+          Watch Demo
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 transition-transform group-hover:translate-x-1">
+            <path d="M5 12h14"></path>
+            <path d="m12 5 7 7-7 7"></path>
+          </svg>
+        </a>
+      </div>
     </div>
   </div>
 </div>

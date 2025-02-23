@@ -1,23 +1,24 @@
 <div id="<%= local_assigns[:form_id] || 'email-form' %>">
-  <%= form_with(model: @email_signup, url: email_signups_path) do |f| %>
+  <%= form_with(model: @email_signup, url: email_signups_path, class: "flex gap-2", data: { turbo: false }) do |f| %>
     <% if @email_signup.errors.any? %>
       <div class="mb-4 text-sm text-red-600 text-center">
         <%= @email_signup.errors.full_messages.join(", ") %>
       </div>
     <% end %>
 
-    <div class="relative">
-      <%= f.email_field :email, 
-          class: "w-full rounded-lg border px-4 py-2 focus:ring-2 focus:ring-black",
-          placeholder: "Enter your email for updates",
-          required: true %>
-      <%= f.hidden_field :form_id, value: local_assigns[:form_id] %>
-      <%= f.submit "Sign Up", 
-          class: "absolute right-0 top-0 h-full rounded-r-lg px-6 bg-black text-white hover:bg-gray-800" %>
-    </div>
+    <%= f.hidden_field :form_id, value: local_assigns[:form_id] %>
+
+    <%= f.email_field :email,
+      placeholder: "Enter your email",
+      required: true,
+      class: "flex-1 px-4 py-3 rounded-lg border border-blue-200 bg-white/80 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-blue-400"
+    %>
+    <%= f.submit "Get Started",
+      class: "px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all duration-200 hover:shadow-lg hover:shadow-blue-600/20"
+    %>
   <% end %>
 
   <% if flash[:notice] && flash[:target_form] == local_assigns[:form_id] %>
-    <div class="mt-4 text-green-600 text-center"><%= flash[:notice] %></div>
+    <div class="mt-4 text-sm text-blue-600 text-center font-medium"><%= flash[:notice] %></div>
   <% end %>
 </div>
