@@ -13,10 +13,8 @@ This implementation plan breaks down the GradeBot project into discrete, testabl
 Create a new Rails application for GradeBot with the following requirements:
 - Ruby on Rails 8
 - SQLite database
-- RSpec for testing
-- FactoryBot for test data
-- Shoulda Matchers for model testing
-- SimpleCov for test coverage
+- Minitest for testing
+- Fixtures for test data
 - Devise for authentication
 - Stimulus for JavaScript
 - Tailwind CSS for styling

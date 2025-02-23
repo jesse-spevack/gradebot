@@ -1,0 +1,84 @@
+<div class="min-h-screen bg-gradient-to-b from-blue-50/30 via-white to-blue-50/30">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <%= render "shared/hero_section" %>
+
+<section class="w-full max-w-5xl mt-32 px-4">
+  <%= render "shared/section_header", text: "Why Teachers Choose GradeBot" %>
+  
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <%= render "shared/feature_card",
+               title: "Grade 30 Essays in Under an Hour",
+               description: "Upload your Google Doc assignments, rubric, and let GradeBot handle the rest. Focus on teaching, not grading." %>
+
+    <%= render "shared/feature_card",
+               title: "Consistent, Thoughtful Feedback",
+               description: "Every student receives detailed, personalized feedback based on your rubric. No more rushing through the last few papers." %>
+
+    <%= render "shared/feature_card",
+               title: "Simple Setup, Powerful Results",
+               description: "Works directly with Google Docs. No new systems to learn, no complicated setup. Just select your folder and start grading." %>
+  </div>
+</section>
+
+<section id="how-it-works" class="w-full max-w-5xl mt-32 px-4">
+  <%= render "shared/section_header", text: "Three Steps to Better Grading" %>
+  
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mt-12">
+    
+    <%= render "shared/step_card",
+               step_number: 1,
+               title: "Connect Your Google Drive",
+               description: "Select the folder with your student assignments. Works with your existing Google Docs." %>
+
+    <%= render "shared/step_card",
+               step_number: 2,
+               title: "Add Your Rubric",
+               description: "Paste in your assignment prompt and grading rubric. Use your existing materials." %>
+
+    <%= render "shared/step_card",
+               step_number: 3,
+               title: "Get Comprehensive Feedback",
+               description: "Receive detailed grades and personalized feedback for each student, plus a class-wide analysis." %>
+  </div>
+  
+  <div class="text-center mt-12">
+    <a href="#" class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10">
+      Get Started Now
+    </a>
+  </div>
+</section>
+
+<section class="w-full max-w-5xl mt-32 px-4">
+  <%= render "shared/section_header", text: "Everything You Need, Nothing You Don't" %>
+  
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-12 gap-y-6 mt-12">
+    <%= render "shared/feature_check", text: "Direct Google Drive integration" %>
+    
+    <%= render "shared/feature_check", text: "Rubric-based grading" %>
+    
+    <%= render "shared/feature_check", text: "Personalized student feedback" %>
+    
+    <%= render "shared/feature_check", text: "Class performance insights" %>
+    
+    <%= render "shared/feature_check", text: "Comment directly in Google Docs" %>
+    
+    <%= render "shared/feature_check", text: "Email notifications when complete" %>
+    
+    <%= render "shared/feature_check", text: "Grade anywhere, anytime" %>
+    
+    <%= render "shared/feature_check", text: "Support when you need it" %>
+  </div>
+</section>
+
+<%= render "shared/testimonial_section" %>
+
+<%= render "shared/faq_section" %>
+
+  <section class="w-full max-w-5xl mt-32 px-4 mb-32">
+    <%= render "shared/section_header", text: "Be the first to find out when we launch." %>
+    
+    <div class="w-full max-w-md mx-auto">
+      <%= render "shared/email_signup_form", form_id: "footer-form" %>
+    </div>
+  </section>
+  </div>

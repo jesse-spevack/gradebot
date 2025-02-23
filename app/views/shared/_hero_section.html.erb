@@ -1,0 +1,29 @@
+<div class="relative flex flex-col items-center py-16">
+
+  <h1 class="font-mono font-black text-6xl sm:text-7xl md:text-8xl lg:text-mega xl:text-super tracking-tight text-black">
+    GradeB<span class="inline-block animate-bounce hover:animate-spin">🤖</span>t
+  </h1>
+
+  <p class="max-w-2xl text-center text-lg text-gray-600 mt-8">
+    Transform your grading workflow with AI-powered assistance that helps you provide personalized feedback in minutes, not hours.
+  </p>
+
+  <%# Social proof %>
+  <p class="text-sm text-gray-500 mt-4">
+    Trusted by 1000+ teachers across 500+ schools
+  </p>
+
+  <div class="w-full max-w-md mt-8 space-y-4">
+    <%= render "shared/email_signup_form", form_id: "hero-form" %>
+    
+    <%# Secondary CTA %>
+    <div class="text-center">
+      <a href="#how-it-works" class="inline-flex items-center text-blue-600 hover:text-blue-700">
+        Watch Demo
+        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+</div>

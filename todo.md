@@ -3,17 +3,13 @@
 ## Phase 1: Core Infrastructure
 
 ### Project Setup
-- [ ] Create new Rails 8 application
-- [ ] Configure SQLite database
-- [ ] Set up RSpec
-- [ ] Install and configure FactoryBot
-- [ ] Set up Shoulda Matchers
-- [ ] Configure SimpleCov
+- [x] Create new Rails 8 application
+- [x] Configure SQLite database
+- [x] Set up Minitest
 - [ ] Install Devise
-- [ ] Set up Stimulus
-- [ ] Install and configure Tailwind CSS
-- [ ] Set up Git repository
-- [ ] Create initial README.md
+- [x] Install and configure Tailwind CSS
+- [x] Set up Git repository
+- [x] Create initial README.md
 - [ ] Configure CI/CD pipeline
 
 ### User Model

@@ -1,0 +1,23 @@
+<div id="<%= local_assigns[:form_id] || 'email-form' %>">
+  <%= form_with(model: @email_signup, url: email_signups_path) do |f| %>
+    <% if @email_signup.errors.any? %>
+      <div class="mb-4 text-sm text-red-600 text-center">
+        <%= @email_signup.errors.full_messages.join(", ") %>
+      </div>
+    <% end %>
+
+    <div class="relative">
+      <%= f.email_field :email, 
+          class: "w-full rounded-lg border px-4 py-2 focus:ring-2 focus:ring-black",
+          placeholder: "Enter your email for updates",
+          required: true %>
+      <%= f.hidden_field :form_id, value: local_assigns[:form_id] %>
+      <%= f.submit "Sign Up", 
+          class: "absolute right-0 top-0 h-full rounded-r-lg px-6 bg-black text-white hover:bg-gray-800" %>
+    </div>
+  <% end %>
+
+  <% if flash[:notice] && flash[:target_form] == local_assigns[:form_id] %>
+    <div class="mt-4 text-green-600 text-center"><%= flash[:notice] %></div>
+  <% end %>
+</div>
