@@ -18,7 +18,7 @@ class HomeTest < ActionDispatch::IntegrationTest
     end
     assert_redirected_to root_path
     follow_redirect!
-    assert_select ".text-green-600", text: "Thanks for signing up! We'll keep you posted."
+    assert_select ".text-green-600", text: "✓"
   end
 
   test "signing up with invalid email" do

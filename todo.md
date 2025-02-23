@@ -10,7 +10,7 @@
 - [x] Install and configure Tailwind CSS
 - [x] Set up Git repository
 - [x] Create initial README.md
-- [ ] Configure CI/CD pipeline
+- [x] Configure CI/CD pipeline
 
 ### User Model
 - [ ] Generate User model with required fields
@@ -120,13 +120,13 @@
 ## Phase 5: Frontend
 
 ### Basic UI
-- [ ] Create layout templates
-- [ ] Design landing page
+- [x] Create layout templates
+- [x] Design landing page
 - [ ] Build submission form
 - [ ] Add progress display
 - [ ] Create results view
-- [ ] Write view specs
-- [ ] Add error displays
+- [x] Write view specs
+- [x] Add error displays
 - [ ] Document UI components
 
 ### Progress Tracking
