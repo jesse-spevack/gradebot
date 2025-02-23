@@ -19,6 +19,8 @@
   <% end %>
 
   <% if flash[:notice] && flash[:target_form] == local_assigns[:form_id] %>
-    <div class="mt-4 text-sm text-blue-600 text-center font-medium"><%= flash[:notice] %></div>
+    <div class="mt-4 text-green-600 text-center">
+      <%= flash[:notice] %>
+    </div>
   <% end %>
 </div>

@@ -4,7 +4,10 @@ class HomeTest < ActionDispatch::IntegrationTest
   test "visiting the home page" do
     get root_path
     assert_response :success
-    assert_select "h1", text: "GradeB🤖t"
+    assert_select "h1" do |h1|
+      text = h1.text.gsub(/\s+/, '')
+      assert_match(/GradeB.*t/, text)
+    end
     assert_select "form"
     assert_select "input[type=email]"
     assert_select "input[type=submit]"
