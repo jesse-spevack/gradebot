@@ -57,6 +57,43 @@ The Automated Assignment Grading System is a web-based tool that enables teacher
   - drive.file (read/write access to selected files)
   - drive.metadata.readonly (file listing)
 
+#### 3.1.1 Folder Picker Implementation
+1. **Test Infrastructure**
+   - System tests for picker modal interaction
+   - Mock Google Picker API responses
+   - Test folder selection workflow
+
+2. **API Configuration**
+   - Configure required OAuth scopes:
+     - drive.readonly (view files)
+     - drive.file (access selected files)
+   - Load Google Picker API scripts
+   - Initialize API client
+
+3. **Frontend Components**
+   - Stimulus controller for picker interaction
+   - Loading states and error handling
+   - Selected folder display
+   - Folder validation
+
+4. **Backend Infrastructure**
+   - Database fields for folder tracking
+   - API endpoint for folder selection
+   - Folder permission validation
+   - Token refresh handling
+
+5. **Error Handling**
+   - API loading failures
+   - Picker initialization errors
+   - Selection cancellation
+   - Permission issues
+   - Token expiration
+
+6. **Performance Optimization**
+   - Folder metadata caching
+   - Minimize API calls
+   - Handle large folder structures
+
 ### 3.2 Document Processing
 - Input validation:
   - Verify all files are Google Docs

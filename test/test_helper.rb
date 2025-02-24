@@ -5,6 +5,19 @@ require "omniauth"
 
 module SignInHelper
   def sign_in_with_google
+    OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new({
+      provider: "google_oauth2",
+      uid: "123456789",
+      info: {
+        email: "test@example.com",
+        name: "Test User",
+        image: "https://example.com/photo.jpg"
+      },
+      credentials: {
+        token: "mock_access_token",
+        expires_at: 1.hour.from_now.to_i
+      }
+    })
     Rails.application.env_config["omniauth.auth"] = OmniAuth.config.mock_auth[:google_oauth2]
     visit "/auth/google_oauth2/callback"
   end

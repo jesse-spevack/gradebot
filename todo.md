@@ -63,15 +63,22 @@
 - [x] Document OAuth setup
 
 ### Drive Picker
-- [ ] Create Drive Picker Stimulus controller
-- [ ] Write controller specs
-- [ ] Implement Google Picker API
-- [ ] Add folder selection logic
-- [ ] Create picker UI
-- [ ] Implement form updates
-- [ ] Add loading states
-- [ ] Test error handling
-- [ ] Document usage
+- [x] Create Drive Picker Stimulus controller
+- [x] Implement Google Picker API
+- [x] Add folder selection logic
+- [x] Create picker UI
+- [x] Implement file counting
+- [x] Add loading states
+- [x] Basic error handling
+
+### Grading Job Page
+- [ ] Implement folder validation
+- [ ] Add well designed UI components to represent folder structure
+- [ ] Add validation if folder contains too many files or files are not google docs.
+- [ ] Add an input field for the assignment text. 
+- [ ] Add an input field for the rubric text.
+- [ ] Allow user to submit folder with assignment and rubric. This will create a grading job.
+- [ ] After the user creates a grading job, they should be redirected to the grading job page which shows that the job is "processing". 
 
 ## Phase 3: Job Processing
 

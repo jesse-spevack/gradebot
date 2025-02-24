@@ -22,4 +22,9 @@ class User < ApplicationRecord
   def token_expired?
     token_expires_at.nil? || token_expires_at < Time.current
   end
+
+  def google_token
+    return nil if token_expired?
+    access_token
+  end
 end

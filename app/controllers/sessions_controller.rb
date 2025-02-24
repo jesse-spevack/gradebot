@@ -7,7 +7,8 @@ class SessionsController < ApplicationController
   def create
     if auth = request.env["omniauth.auth"]
       user = User.from_google_auth(auth)
-      start_new_session_for(user)
+      session = start_new_session_for(user)
+      session.update!(access_token: auth.credentials.token)
       redirect_to grading_job_path, notice: "Successfully signed in!"
     else
       redirect_to new_session_path, alert: "Authentication failed."

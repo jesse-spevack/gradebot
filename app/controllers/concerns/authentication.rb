@@ -21,6 +21,14 @@ module Authentication
       resume_session || request_authentication
     end
 
+    def authenticate_user!
+      unless Current.user
+        render json: { error: "Authentication required" }, status: :unauthorized
+        return false
+      end
+      true
+    end
+
     def resume_session
       Current.session ||= find_session_by_cookie
     end
