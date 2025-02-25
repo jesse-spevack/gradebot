@@ -1,5 +1,6 @@
 class User < ApplicationRecord
   has_many :sessions
+  has_many :grading_tasks
 
   validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :name, presence: true

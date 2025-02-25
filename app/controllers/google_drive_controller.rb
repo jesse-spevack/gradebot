@@ -11,11 +11,11 @@ class GoogleDriveController < ApplicationController
         oauth_token: oauth_token
       }
     else
-      render json: { error: "Failed to generate credentials" }, status: :service_unavailable
+      render json: { error: "Sign out and then sign back in." }, status: :service_unavailable
     end
   rescue => e
     Rails.logger.error("Google Drive credentials error: #{e.message}")
-    render json: { error: "Failed to generate credentials" }, status: :service_unavailable
+    render json: { error: "Sign out and then sign back in." }, status: :service_unavailable
   end
 
   def folder_contents

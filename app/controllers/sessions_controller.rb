@@ -9,7 +9,7 @@ class SessionsController < ApplicationController
       user = User.from_google_auth(auth)
       session = start_new_session_for(user)
       session.update!(access_token: auth.credentials.token)
-      redirect_to grading_job_path, notice: "Successfully signed in!"
+      redirect_to new_grading_task_path, notice: "Successfully signed in!"
     else
       redirect_to new_session_path, alert: "Authentication failed."
     end

@@ -5,12 +5,7 @@ export default class extends Controller {
   static classes = ["loading", "error"]
 
   connect() {
-    this.initializeGoogleApi()
-  }
-
-  connect() {
     console.log('FolderPicker connecting...')
-    console.log('window.gapi:', window.gapi)
     if (!window.gapi) {
       console.log('No gapi found, showing error')
       this.handleError('Failed to load Google Picker API')
@@ -112,7 +107,14 @@ export default class extends Controller {
         }
 
         const folderStats = await response.json()
-        this.selectedFolderTarget.textContent = `Selected: ${folder.name} (${folderStats.file_count} files)`
+        const fileCount = folderStats.file_count || 0
+
+        // Update form fields
+        document.getElementById('grading_task_folder_id').value = folder.id;
+        document.getElementById('grading_task_folder_name').value = folder.name;
+
+        // Update display
+        this.selectedFolderTarget.textContent = `Selected: ${folder.name} (${fileCount} files)`
 
         // Dispatch custom event with folder data
         this.dispatch('folderSelected', { 
@@ -124,7 +126,7 @@ export default class extends Controller {
             isShared: folder.isShared,
             owners: folder.owners,
             description: folder.description,
-            fileCount: folderStats.file_count
+            fileCount: fileCount
           }
         })
       } catch (error) {

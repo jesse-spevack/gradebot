@@ -48,11 +48,11 @@ Write comprehensive model tests for:
 Implement the model and ensure all tests pass.
 ```
 
-### Step 2: GradingJob Model
+### Step 2: GradingTask Model
 **Goal**: Implement the core grading job model with validations and state management
 
 ```
-Create the GradingJob model with:
+Create the GradingTask model with:
 - status (enum: pending, processing, completed, failed)
 - folder_id (string)
 - assignment_prompt (text)
@@ -86,12 +86,12 @@ Create the StudentSubmission model with:
 - feedback (text)
 - status (string, enum: pending, processed, error)
 - error_message (text)
-- belongs_to :grading_job association
+- belongs_to :grading_task association
 
 Write tests for:
 - Validations
 - Status management
-- Association with GradingJob
+- Association with GradingTask
 - Grade calculations
 - Error handling methods
 

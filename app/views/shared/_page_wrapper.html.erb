@@ -1,0 +1,20 @@
+<%# Usage: render "shared/page_wrapper" do |wrapper| %>
+<%#   wrapper.header { render "header_content" } %>
+<%#   wrapper.content { render "main_content" } %>
+<%# end %>
+
+<div class="min-h-screen bg-gradient-to-b from-blue-50/30 via-white to-blue-50/30">
+  <div class="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
+    <div id="flash">
+      <%= render "shared/flash" %>
+    </div>
+
+    <% if content_for?(:header) %>
+      <div class="mb-6 sm:mb-12">
+        <%= content_for(:header) %>
+      </div>
+    <% end %>
+
+    <%= content_for?(:content) ? content_for(:content) : yield %>
+  </div>
+</div>

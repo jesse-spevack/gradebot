@@ -19,6 +19,6 @@ class HomeController < ApplicationController
   private
 
   def email_signup_params
-    params.require(:email_signup).permit(:email, :form_id)
+    params.expect(email_signup: [ :email, :form_id ])
   end
 end

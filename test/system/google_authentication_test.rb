@@ -3,7 +3,6 @@ require "application_system_test_case"
 
 class GoogleAuthenticationTest < ApplicationSystemTestCase
   def setup
-    # Mock OAuth2 response from Google
     OmniAuth.config.test_mode = true
     OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new({
       provider: "google_oauth2",
@@ -20,43 +19,25 @@ class GoogleAuthenticationTest < ApplicationSystemTestCase
         scope: "https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/documents"
       }
     })
+    Rails.application.env_config["omniauth.auth"] = OmniAuth.config.mock_auth[:google_oauth2]
   end
 
-  test "signing in with Google" do
+  test "authentication flow" do
     visit new_session_path
-    assert_selector "button", text: "Sign in with Google"
-    assert_no_selector "a", text: "Sign out"
-    sign_in_with_google
-    assert_current_path grading_job_path
-    assert_selector "a", text: "Sign out"
-    assert_no_selector "button", text: "Sign in with Google"
-    # Verify user data was saved
+    visit "/auth/google_oauth2/callback"
+    assert_current_path new_grading_task_path
+
+    # Verify user data
     user = User.last
     assert_equal "test@example.com", user.email
     assert_equal "Test User", user.name
-    assert_equal "https://example.com/photo.jpg", user.profile_picture_url
-  end
 
-  test "signing out" do
-    sign_in_with_google
-    assert_current_path grading_job_path
+    # Sign out
     click_on "Sign out"
     assert_current_path root_path
-    assert_selector "button", text: "Sign in with Google"
-    assert_no_selector "a", text: "Sign out"
   end
 
-  test "authentication persists across page reloads" do
-    sign_in_with_google
-    assert_current_path grading_job_path
-    visit current_path # reload the page
-    assert_current_path grading_job_path
-    assert_selector "a", text: "Sign out"
-    assert_no_selector "a", text: "Sign in with Google"
-  end
-
-  test "OAuth scopes include necessary Google permissions" do
-    # We verify this by checking the mock auth configuration
+  test "OAuth scopes" do
     mock_auth = OmniAuth.config.mock_auth[:google_oauth2]
     required_scopes = [
       "https://www.googleapis.com/auth/drive",

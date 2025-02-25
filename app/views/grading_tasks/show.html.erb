@@ -1,0 +1,41 @@
+<% content_for :header do %>
+  <div class="flex items-center justify-between">
+    <div class="flex items-center space-x-4">
+      <%= link_to grading_tasks_path, class: "text-gray-500 hover:text-gray-700 transition-colors duration-150" do %>
+        <%= render "shared/icons/back" %>
+      <% end %>
+      <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-blue-950"><%= @grading_task.folder_name %></h1>
+    </div>
+
+    <%= button_to grading_task_path(@grading_task),
+        method: :delete,
+        class: "px-4 py-2 text-sm font-medium text-red-600 hover:text-red-900 transition-colors duration-150",
+        form: { data: { turbo: false } },
+        data: { confirm: "Are you sure you want to delete this task?" } do %>
+      Delete Task
+    <% end %>
+  </div>
+<% end %>
+
+<% content_for :content do %>
+  <%= render "shared/card" do %>
+    <div class="space-y-6">
+      <%= render "shared/card", title: "Assignment Prompt" do %>
+        <p class="text-gray-600"><%= @grading_task.assignment_prompt %></p>
+      <% end %>
+
+      <%= render "shared/card", title: "Grading Rubric" do %>
+        <p class="text-gray-600"><%= @grading_task.grading_rubric %></p>
+      <% end %>
+
+      <%= render "shared/card", title: "Student Assignments" do %>
+        <div class="mt-2">
+          <!-- This will be implemented in a future update -->
+          <p class="text-gray-500 italic">Student assignments will be displayed here.</p>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>
+
+<%= render "shared/page_wrapper" %>

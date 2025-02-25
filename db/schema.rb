@@ -10,12 +10,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_02_23_222618) do
+ActiveRecord::Schema[8.0].define(version: 2025_02_25_053534) do
   create_table "email_signups", force: :cascade do |t|
     t.string "email"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_email_signups_on_email", unique: true
+  end
+
+  create_table "grading_tasks", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.text "assignment_prompt"
+    t.string "folder_id"
+    t.string "folder_name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.text "grading_rubric"
+    t.index ["user_id"], name: "index_grading_tasks_on_user_id"
   end
 
   create_table "sessions", force: :cascade do |t|
@@ -42,5 +53,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_23_222618) do
     t.index ["google_uid"], name: "index_users_on_google_uid", unique: true
   end
 
+  add_foreign_key "grading_tasks", "users"
   add_foreign_key "sessions", "users"
 end

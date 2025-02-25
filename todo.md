@@ -24,18 +24,20 @@
 - [x] Test OAuth-related methods
 - [x] Document model
 
-### GradingJob Model
-- [ ] Generate GradingJob model
-- [ ] Write model specs
-  - [ ] Status enum tests
-  - [ ] Validation tests
-  - [ ] Association tests
-  - [ ] Scope tests
-- [ ] Implement status transitions
-- [ ] Add callback hooks
-- [ ] Create factories
-- [ ] Add helper methods
-- [ ] Document model and methods
+### GradingTask Model
+- [x] Generate GradingTask model
+- [x] Write model specs
+  - [x] Validation tests
+  - [x] Association tests
+- [x] Implement model
+- [x] Create factories
+- [x] Add basic CRUD operations
+- [x] Document model
+- [ ] Add task processing
+  - [ ] Add status enum (pending, processing, completed, failed)
+  - [ ] Add state machine for status transitions
+  - [ ] Add status-based scopes
+  - [ ] Add background job to process tasks
 
 ### StudentSubmission Model
 - [ ] Generate StudentSubmission model
@@ -70,15 +72,21 @@
 - [x] Implement file counting
 - [x] Add loading states
 - [x] Basic error handling
+- [x] Improve error messages for authentication issues
 
-### Grading Job Page
-- [ ] Implement folder validation
-- [ ] Add well designed UI components to represent folder structure
-- [ ] Add validation if folder contains too many files or files are not google docs.
-- [ ] Add an input field for the assignment text. 
-- [ ] Add an input field for the rubric text.
-- [ ] Allow user to submit folder with assignment and rubric. This will create a grading job.
-- [ ] After the user creates a grading job, they should be redirected to the grading job page which shows that the job is "processing". 
+### Grading Task Management
+- [x] Create grading task form
+- [x] Add folder selection with Google Drive Picker
+- [x] Add input fields for assignment prompt and rubric
+- [x] Implement task creation
+- [x] Add task listing page
+- [x] Add task details page
+- [x] Implement task deletion
+- [ ] Add task progress tracking
+  - [ ] Add status indicators to task cards
+  - [ ] Add progress bar to task details
+  - [ ] Add error handling and retry options
+  - [ ] Add task cancellation
 
 ## Phase 3: Job Processing
 
@@ -93,12 +101,15 @@
 - [ ] Document job system
 
 ### Document Processing
-- [ ] Create DocumentProcessingJob
-- [ ] Write job specs
-- [ ] Implement Google Drive API calls
-- [ ] Add document parsing
-- [ ] Create record management
-- [ ] Implement error handling
+- [ ] Create ProcessGradingTaskJob
+  - [ ] Write job specs
+  - [ ] Add retries and error handling
+  - [ ] Add job status tracking
+- [ ] Implement Google Drive integration
+  - [ ] List all files in task folder
+  - [ ] Download and parse documents
+  - [ ] Extract student information
+  - [ ] Create student submissions
 - [ ] Add retry logic
 - [ ] Document processing flow
 

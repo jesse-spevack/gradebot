@@ -1,0 +1,30 @@
+<%# Usage: render "grading_tasks/task_card", task: task %>
+
+<div data-task-id="<%= task.id %>" class="p-4 space-y-3">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center space-x-3 min-w-0">
+      <div class="flex-shrink-0">
+        <div class="p-2 bg-blue-50 rounded-lg">
+          <%= render "shared/icons/folder", class: "h-5 w-5 text-blue-600" %>
+        </div>
+      </div>
+      <div class="min-w-0">
+        <h3 class="text-base font-medium text-gray-900 truncate"><%= task.folder_name %></h3>
+      </div>
+    </div>
+    <div class="flex items-center space-x-4">
+      <%= link_to grading_task_path(task), class: "text-blue-600 hover:text-blue-900" do %>
+        View
+      <% end %>
+    </div>
+  </div>
+
+  <p class="text-sm text-gray-600 line-clamp-2">
+    <%= truncate(task.assignment_prompt, length: 120) %>
+  </p>
+
+  <div class="flex items-center text-xs text-gray-500">
+    <%= render "shared/icons/clock", class: "h-4 w-4 mr-1.5 text-gray-400" %>
+    <%= time_ago_in_words(task.created_at) %> ago
+  </div>
+</div>

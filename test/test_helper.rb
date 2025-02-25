@@ -3,25 +3,7 @@ require_relative "../config/environment"
 require "rails/test_help"
 require "omniauth"
 
-module SignInHelper
-  def sign_in_with_google
-    OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new({
-      provider: "google_oauth2",
-      uid: "123456789",
-      info: {
-        email: "test@example.com",
-        name: "Test User",
-        image: "https://example.com/photo.jpg"
-      },
-      credentials: {
-        token: "mock_access_token",
-        expires_at: 1.hour.from_now.to_i
-      }
-    })
-    Rails.application.env_config["omniauth.auth"] = OmniAuth.config.mock_auth[:google_oauth2]
-    visit "/auth/google_oauth2/callback"
-  end
-end
+Dir[Rails.root.join("test/support/**/*.rb")].each { |f| require f }
 
 module ActiveSupport
   class TestCase
@@ -36,5 +18,15 @@ module ActiveSupport
 end
 
 class ActionDispatch::SystemTestCase
-  include SignInHelper
+  include AuthenticationHelper
+
+  def before_setup
+    super
+    OmniAuth.config.test_mode = true
+  end
+
+  def after_teardown
+    super
+    OmniAuth.config.mock_auth[:google_oauth2] = nil
+  end
 end

@@ -403,7 +403,7 @@ export default class extends Controller {
 ```ruby
 # app/models/user.rb
 class User < ApplicationRecord
-  has_many :grading_jobs
+  has_many :grading_tasks
   
   # Columns:
   # - email: string
@@ -416,8 +416,8 @@ class User < ApplicationRecord
   # - timestamps
 end
 
-# app/models/grading_job.rb
-class GradingJob < ApplicationRecord
+# app/models/grading_task.rb
+class GradingTask < ApplicationRecord
   belongs_to :user
   has_many :student_submissions
   has_one :class_report
@@ -434,7 +434,7 @@ end
 
 # app/models/student_submission.rb
 class StudentSubmission < ApplicationRecord
-  belongs_to :grading_job
+  belongs_to :grading_task
   has_many :criterion_grades
   
   # Columns:
@@ -460,7 +460,7 @@ end
 
 # app/models/class_report.rb
 class ClassReport < ApplicationRecord
-  belongs_to :grading_job
+  belongs_to :grading_task
   
   # Columns:
   # - strengths: text[]

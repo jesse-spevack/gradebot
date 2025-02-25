@@ -21,7 +21,7 @@ Rails.application.routes.draw do
   # Application routes
   root "home#index"
   post "/signup", to: "home#create_signup", as: :email_signups
-  get "/grading-job", to: "grading_jobs#index", as: :grading_job
+  resources :grading_tasks, only: [ :new, :create, :index, :show, :destroy ]
   get "/privacy", to: "pages#privacy", as: :privacy
   get "/terms", to: "pages#terms", as: :terms
 end
