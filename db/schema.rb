@@ -10,12 +10,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_02_25_053534) do
+ActiveRecord::Schema[8.0].define(version: 2025_02_26_041958) do
   create_table "email_signups", force: :cascade do |t|
     t.string "email"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_email_signups_on_email", unique: true
+  end
+
+  create_table "feature_flags", force: :cascade do |t|
+    t.string "key", null: false
+    t.string "name", null: false
+    t.text "description"
+    t.boolean "enabled", default: false, null: false
+    t.datetime "last_changed_at", default: -> { "CURRENT_TIMESTAMP" }
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["key"], name: "index_feature_flags_on_key", unique: true
   end
 
   create_table "grading_tasks", force: :cascade do |t|
