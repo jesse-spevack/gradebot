@@ -50,4 +50,19 @@ Rails.application.configure do
 
   # Raise error when a before_action's only/except options reference missing actions.
   config.action_controller.raise_on_missing_callback_actions = true
+
+  # Set log level to :warn to reduce noise in test output
+  config.log_level = :warn
+
+  # Silence the STATS_DIRECTORIES warning by suppressing warnings during test runs
+  config.after_initialize do
+    # Temporarily suppress warnings during test runs
+    $VERBOSE = nil
+
+    # Set Rails logger level to WARN to reduce noise
+    Rails.logger.level = Logger::WARN
+
+    # Silence Capybara output
+    Capybara.server = :puma, { Silent: true }
+  end
 end

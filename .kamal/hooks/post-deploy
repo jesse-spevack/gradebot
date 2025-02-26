@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# Run the admin:seed rake task after deployment
+# This will set the admin flag for the user with the email specified in ADMIN_EMAIL
+
+echo "Running admin:seed rake task..."
+kamal app exec "bin/rails admin:seed"
+echo "Admin seed task completed."

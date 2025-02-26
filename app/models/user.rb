@@ -20,6 +20,10 @@ class User < ApplicationRecord
     user
   end
 
+  def admin?
+    admin
+  end
+
   def token_expired?
     token_expires_at.nil? || token_expires_at < Time.current
   end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_02_26_041958) do
+ActiveRecord::Schema[8.0].define(version: 2025_02_26_054308) do
   create_table "email_signups", force: :cascade do |t|
     t.string "email"
     t.datetime "created_at", null: false
@@ -60,6 +60,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_26_041958) do
     t.datetime "token_expires_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "admin", default: false, null: false
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["google_uid"], name: "index_users_on_google_uid", unique: true
   end

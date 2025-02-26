@@ -18,6 +18,11 @@ Rails.application.routes.draw do
     end
   end
 
+  # Admin routes
+  namespace :admin do
+    resources :feature_flags
+  end
+
   # Application routes
   root "home#index"
   post "/signup", to: "home#create_signup", as: :email_signups

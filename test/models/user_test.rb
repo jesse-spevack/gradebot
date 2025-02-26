@@ -41,6 +41,19 @@ class UserTest < ActiveSupport::TestCase
     assert_includes duplicate_user.errors[:google_uid], "has already been taken"
   end
 
+  test "admin defaults to false" do
+    user = User.new
+    assert_equal false, user.admin
+  end
+
+  test "admin? returns admin attribute value" do
+    @user.admin = false
+    assert_not @user.admin?
+
+    @user.admin = true
+    assert @user.admin?
+  end
+
   test "token_expired? returns true when token is expired" do
     @user.token_expires_at = 1.hour.ago
     assert @user.token_expired?

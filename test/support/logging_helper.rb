@@ -18,7 +18,8 @@ module LoggingHelper
   end
 
   def teardown
-    Rails.logger = ActiveSupport::Logger.new(STDOUT)
+    # Don't reset to STDOUT in test environment to keep logs quiet
+    Rails.logger = ActiveSupport::Logger.new(STDOUT) unless Rails.env.test?
     super
   end
 
