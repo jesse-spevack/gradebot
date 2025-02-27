@@ -5,9 +5,33 @@
 # This service provides methods for checking, enabling, and disabling feature flags.
 # It includes caching for better performance and audit logging for all changes.
 #
+# ## Caching Behavior
+#
+# Feature flag statuses are cached to reduce database load:
+#
+# 1. When checking a flag status with `enabled?`, the service first checks the cache
+# 2. If found in cache, it returns the cached value
+# 3. If not found or force_refresh is true, it reads from the database and updates the cache
+# 4. When a flag is enabled/disabled, the cache is automatically updated
+# 5. Cache expires after the configured time (default: 1 hour)
+#
+# ## Audit Logging
+#
+# All changes to feature flags are recorded with:
+# - Which user made the change
+# - What the previous state was
+# - What the new state is
+# - When the change was made
+#
 # @example Check if a feature is enabled
 #   service = FeatureFlagService.new
 #   if service.enabled?("new_feature")
+#     # Do something when feature is enabled
+#   end
+#
+# @example Check if a feature is enabled (bypass cache)
+#   service = FeatureFlagService.new
+#   if service.enabled?("new_feature", force_refresh: true)
 #     # Do something when feature is enabled
 #   end
 #
@@ -26,6 +50,11 @@ class FeatureFlagService
   DEFAULT_CACHE_EXPIRATION = 1.hour
 
   # Check if a feature is enabled by its key
+  #
+  # This method implements a cache-first strategy:
+  # 1. Look for the flag status in the cache
+  # 2. If found, return the cached value
+  # 3. If not found or force_refresh is true, fetch from the database and update cache
   #
   # @param key [String] the feature flag key
   # @param force_refresh [Boolean] whether to bypass the cache and check the database directly
@@ -48,6 +77,12 @@ class FeatureFlagService
 
   # Enable a feature flag
   #
+  # This method:
+  # 1. Finds the feature flag by key
+  # 2. Updates its enabled status to true
+  # 3. Creates an audit log entry
+  # 4. Updates the cache
+  #
   # @param key [String] the feature flag key
   # @param user [User] the user performing the action
   # @return [Boolean] true if the flag was enabled, false if it doesn't exist
@@ -57,6 +92,12 @@ class FeatureFlagService
 
   # Disable a feature flag
   #
+  # This method:
+  # 1. Finds the feature flag by key
+  # 2. Updates its enabled status to false
+  # 3. Creates an audit log entry
+  # 4. Updates the cache
+  #
   # @param key [String] the feature flag key
   # @param user [User] the user performing the action
   # @return [Boolean] true if the flag was disabled, false if it doesn't exist
@@ -65,6 +106,9 @@ class FeatureFlagService
   end
 
   # Set the enabled status of a feature flag
+  #
+  # This is a lower-level method that both enable and disable use
+  # to set a feature flag to a specific state.
   #
   # @param key [String] the feature flag key
   # @param enabled [Boolean] the new enabled state
@@ -95,6 +139,9 @@ class FeatureFlagService
 
   # Refresh all cached flags from the database
   #
+  # Use this method to ensure all cached values match the database.
+  # Useful after bulk operations or when cache might be stale.
+  #
   # @return [Boolean] true if the refresh was successful
   def refresh_all_cache
     FeatureFlag.find_each do |flag|
@@ -104,6 +151,9 @@ class FeatureFlagService
   end
 
   # Get all features flags with their current status
+  #
+  # Returns a hash of all feature flags with their keys and enabled status.
+  # Can force a database refresh of cache if needed.
   #
   # @param force_refresh [Boolean] whether to bypass the cache
   # @return [Hash{String => Boolean}] hash of feature keys and their statuses
@@ -121,7 +171,7 @@ class FeatureFlagService
       FeatureFlag.select(:id, :key, :enabled).find_each do |flag|
         cache_key = cache_key_for(flag.key)
         cached_value = Rails.cache.read(cache_key)
-        
+
         if cached_value.nil?
           # Not in cache, add it
           update_cache(flag.key, flag.enabled)
@@ -178,7 +228,7 @@ class FeatureFlagService
   # @return [Boolean] the cached value
   def update_cache(key, value = nil)
     cache_key = cache_key_for(key)
-    
+
     # If value not provided, get it from the database
     unless value.nil?
       Rails.cache.write(cache_key, value, expires_in: DEFAULT_CACHE_EXPIRATION)
