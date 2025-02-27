@@ -53,10 +53,7 @@ Let's implement the feature flag service. First, write a test for the FeatureFla
 1. Returns false for non-existent flags
 2. Returns the enabled state for existing flags
 3. Can enable and disable flags
-4. Records who made the change
-5. Supports context-based flag evaluation (even if the initial implementation is simple)
-6. Can list all flags
-7. Ensures predefined flags exist in the database
+4. Records who made the change (We need a feature flag audit log model for this)
 After writing and seeing the test fail:
 Now implement the FeatureFlags::FlagService class. The implementation should:
 1. Define class methods for checking flag status
