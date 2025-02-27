@@ -10,12 +10,25 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_02_26_054308) do
+ActiveRecord::Schema[8.0].define(version: 2025_02_27_042310) do
   create_table "email_signups", force: :cascade do |t|
     t.string "email"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_email_signups_on_email", unique: true
+  end
+
+  create_table "feature_flag_audit_logs", force: :cascade do |t|
+    t.integer "feature_flag_id", null: false
+    t.integer "user_id", null: false
+    t.string "action", null: false
+    t.boolean "previous_state", null: false
+    t.boolean "new_state", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_feature_flag_audit_logs_on_created_at"
+    t.index ["feature_flag_id"], name: "index_feature_flag_audit_logs_on_feature_flag_id"
+    t.index ["user_id"], name: "index_feature_flag_audit_logs_on_user_id"
   end
 
   create_table "feature_flags", force: :cascade do |t|
@@ -65,6 +78,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_26_054308) do
     t.index ["google_uid"], name: "index_users_on_google_uid", unique: true
   end
 
+  add_foreign_key "feature_flag_audit_logs", "feature_flags"
+  add_foreign_key "feature_flag_audit_logs", "users"
   add_foreign_key "grading_tasks", "users"
   add_foreign_key "sessions", "users"
 end
