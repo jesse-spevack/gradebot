@@ -60,7 +60,9 @@ export default class extends Controller {
     })
 
     if (!response.ok) {
-      throw new Error('Failed to fetch credentials')
+      const errorData = await response.json()
+      console.error('Error fetching credentials:', errorData)
+      throw new Error('Please sign out and sign back in.')
     }
 
     return response.json()
@@ -103,7 +105,8 @@ export default class extends Controller {
         })
 
         if (!response.ok) {
-          throw new Error('Failed to fetch folder contents')
+          const errorData = await response.json()
+          throw new Error(errorData.error || 'Failed to fetch folder contents')
         }
 
         const folderStats = await response.json()
@@ -139,6 +142,7 @@ export default class extends Controller {
     if (this.hasErrorTarget) {
       this.errorTarget.textContent = message
       this.errorTarget.classList.remove('hidden')
+      this.errorTarget.classList.add(...this.errorClass.split(' '))
     }
     console.error('Folder Picker Error:', message)
   }
