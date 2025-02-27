@@ -8,7 +8,7 @@ class CreateFeatureFlagAuditLogs < ActiveRecord::Migration[8.0]
       t.boolean :new_state, null: false
       t.timestamps
     end
-    
+
     add_index :feature_flag_audit_logs, :created_at
   end
 end

@@ -24,13 +24,13 @@ class FeatureFlagServiceTest < ActiveSupport::TestCase
 
   test "can enable flags and records who made the change" do
     flag = FeatureFlag.create!(key: "test_flag", name: "Test Flag", enabled: false)
-    
+
     assert_difference "FeatureFlagAuditLog.count", 1 do
       @service.enable("test_flag", @user)
     end
-    
+
     assert flag.reload.enabled?
-    
+
     audit_log = FeatureFlagAuditLog.last
     assert_equal flag.id, audit_log.feature_flag_id
     assert_equal @user.id, audit_log.user_id
@@ -41,13 +41,13 @@ class FeatureFlagServiceTest < ActiveSupport::TestCase
 
   test "can disable flags and records who made the change" do
     flag = FeatureFlag.create!(key: "test_flag", name: "Test Flag", enabled: true)
-    
+
     assert_difference "FeatureFlagAuditLog.count", 1 do
       @service.disable("test_flag", @user)
     end
-    
+
     assert_not flag.reload.enabled?
-    
+
     audit_log = FeatureFlagAuditLog.last
     assert_equal flag.id, audit_log.feature_flag_id
     assert_equal @user.id, audit_log.user_id
@@ -69,4 +69,4 @@ class FeatureFlagServiceTest < ActiveSupport::TestCase
       assert_not result
     end
   end
-end 
+end

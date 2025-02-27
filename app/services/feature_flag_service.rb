@@ -60,4 +60,4 @@ class FeatureFlagService
 
     true
   end
-end 
+end

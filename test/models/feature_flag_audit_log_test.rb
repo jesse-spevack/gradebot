@@ -84,4 +84,4 @@ class FeatureFlagAuditLogTest < ActiveSupport::TestCase
     assert_equal 1, user_logs.count
     assert_equal log1.id, user_logs.first.id
   end
-end 
+end
