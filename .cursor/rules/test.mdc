@@ -1,0 +1,41 @@
+---
+description: Consistent test structure for better readability.
+globs: test/**/*_test.rb
+---
+# Rails Test Format
+
+Tests should follow this structure:
+- Setup
+- Exercise
+- Verify
+- Teardown (if needed)
+
+Tests are to be used to drive development.
+
+Tests should be considered documentation.
+
+Use descriptive test names that explain the behavior being tested.
+Favor simplicity over complexity in test cases.
+
+Example:
+```ruby
+require 'test_helper'
+
+class UserTest < ActiveSupport::TestCase
+  test "should be valid with valid attributes" do
+    # Setup
+    user = User.new(name: "Test User", email: "test@example.com")
+    
+    # Exercise & Verify
+    assert user.valid?
+  end
+  
+  test "should not be valid without email" do
+    # Setup
+    user = User.new(name: "Test User")
+    
+    # Exercise & Verify
+    assert_not user.valid?
+    assert_includes user.errors[:email], "can't be blank"
+  end
+end

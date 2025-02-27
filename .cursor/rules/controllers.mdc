@@ -1,0 +1,34 @@
+---
+description: Ensures controllers follow a consistent structure with clear action definitions.
+globs: app/controllers/**/*.rb
+---
+# Rails Controller Format
+
+Controllers should follow this format:
+- Actions grouped by REST verb (GET, POST, etc.)
+- Clear separation between actions with a newline
+- Private methods at the bottom
+- Strong params defined using private method
+- Use expect for strong params, not require
+- Each action should do one thing well
+- Do not put business logic in the controller - move it to service objects or models instead.
+- Follow the law of delimiter
+- Double check authorization and authentication
+
+Example:
+```ruby
+class UsersController < ApplicationController
+  def index
+    @users = User.all
+  end
+
+  def show
+    @user = User.find(params[:id])
+  end
+
+  private
+
+  def user_params
+    params.require(:user).permit(:name, :email)
+  end
+end

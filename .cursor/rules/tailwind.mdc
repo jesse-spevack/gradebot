@@ -1,0 +1,35 @@
+---
+description: Guidelines for implementing consistent Tailwind CSS patterns
+globs: app/views/**/*.html.erb, app/components/**/*.html.erb, app/assets/stylesheets/**/*.css
+---
+# Tailwind CSS Usage
+
+## General Principles:
+- Use utility classes directly in markup instead of custom CSS when possible
+- Extract repeated patterns to components rather than creating custom classes
+- Use sensible defaults from the design system
+- Organize classes in a consistent order
+
+## Class Organization Order:
+1. Layout (display, position)
+2. Box model (width, height, padding, margin)
+3. Typography (font, text)
+4. Visual (colors, backgrounds, borders)
+5. Interactivity (hover, focus)
+
+## Responsive Design:
+- Use mobile-first approach with responsive prefixes (sm:, md:, lg:, xl:)
+- Avoid fixed heights when possible
+- Test layouts across all breakpoints
+
+## Examples:
+
+### Good:
+```erb
+<div class="flex flex-col sm:flex-row items-center p-4 mb-6 bg-white rounded-lg shadow">
+  <img class="w-16 h-16 rounded-full mr-4" src="<%= user.avatar_url %>" alt="">
+  <div>
+    <h3 class="text-lg font-medium text-gray-900"><%= user.name %></h3>
+    <p class="text-gray-500"><%= user.role %></p>
+  </div>
+</div>

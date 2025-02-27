@@ -1,0 +1,37 @@
+---
+description: Guidelines for organizing routes.rb
+globs: config/routes.rb
+---
+# Rails Routes Format
+
+Routes should be organized as follows:
+- Group routes by resource or feature
+- Use RESTful routes when possible
+- Add comments to clarify non-standard routes
+- Minimize custom routes
+
+Example:
+```ruby
+Rails.application.routes.draw do
+  # Authentication
+  devise_for :users
+  
+  # Public pages
+  root to: 'home#index'
+  get 'about', to: 'home#about'
+  
+  # Core resources
+  resources :organizations do
+    resources :members, only: [:index, :create, :destroy]
+  end
+  
+  resources :posts do
+    resources :comments, shallow: true
+  end
+  
+  # Admin section
+  namespace :admin do
+    resources :users
+    resources :settings, only: [:index, :update]
+  end
+end

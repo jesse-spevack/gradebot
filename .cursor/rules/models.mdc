@@ -1,0 +1,46 @@
+---
+description: Guidelines for keeping models clean and focused.
+globs: app/models/**/*.rb
+---
+# Rails Model Format
+
+Models should be organized as follows:
+- Constants first
+- Associations second
+- Validations third
+- Scopes fourth
+- Class methods fifth
+- Instance methods sixth
+- Private methods last.
+
+Prefer simple validations and scopes over complex ones.
+
+Keep models encapsulated. Use service objects for any complicated business logic.
+
+Example:
+```ruby
+class User < ApplicationRecord
+  # Constants
+  ROLES = %w[admin member guest].freeze
+  
+  # Associations
+  belongs_to :organization
+  has_many :posts
+  
+  # Validations
+  validates :email, presence: true, uniqueness: true
+  validates :name, presence: true
+  
+  # Scopes
+  scope :active, -> { where(active: true) }
+  
+  # Class methods
+  def self.find_by_email(email)
+    find_by(email: email.downcase)
+  end
+  
+  # Instance methods
+  def full_name
+    "#{first_name} #{last_name}"
+  end
+end
