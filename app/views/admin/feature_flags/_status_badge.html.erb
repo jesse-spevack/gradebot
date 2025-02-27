@@ -1,0 +1,10 @@
+<%# 
+  Displays a status badge for feature flags
+  
+  Parameters:
+  - enabled: Boolean indicating if the feature flag is enabled
+%>
+
+<span class="<%= enabled ? 'text-green-600 bg-green-100' : 'text-gray-600 bg-gray-100' %> inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
+  <%= enabled ? 'Enabled' : 'Disabled' %>
+</span> 

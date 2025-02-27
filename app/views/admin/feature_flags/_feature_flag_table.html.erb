@@ -1,0 +1,53 @@
+<%#
+  Displays feature flags in a table format for desktop views
+  
+  Parameters:
+  - feature_flags: Collection of feature flags to display
+%>
+
+<div class="hidden sm:block overflow-x-auto">
+  <table class="min-w-full divide-y divide-gray-200">
+    <thead>
+      <tr class="bg-gray-50">
+        <th scope="col" class="py-4 pl-6 pr-3 text-left text-sm font-semibold text-gray-900">Status</th>
+        <th scope="col" class="px-3 py-4 text-left text-sm font-semibold text-gray-900">Key</th>
+        <th scope="col" class="px-3 py-4 text-left text-sm font-semibold text-gray-900">Name</th>
+        <th scope="col" class="px-3 py-4 text-left text-sm font-semibold text-gray-900">Description</th>
+        <th scope="col" class="relative py-4 pl-3 pr-6 text-right">
+          <span class="sr-only">Actions</span>
+        </th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-200">
+      <% feature_flags.each do |flag| %>
+        <tr class="hover:bg-gray-50 transition-colors duration-150">
+          <td class="whitespace-nowrap py-4 pl-6 pr-3">
+            <div class="flex items-center">
+              <%= render "admin/feature_flags/status_badge", enabled: flag.enabled? %>
+            </div>
+          </td>
+          <td class="whitespace-nowrap px-3 py-4">
+            <code class="text-xs bg-gray-100 px-1.5 py-1 rounded"><%= flag.key %></code>
+          </td>
+          <td class="px-3 py-4">
+            <p class="text-sm font-medium text-gray-900"><%= flag.name %></p>
+          </td>
+          <td class="px-3 py-4">
+            <p class="text-sm text-gray-600 line-clamp-2">
+              <%= truncate(flag.description, length: 100) %>
+            </p>
+          </td>
+          <td class="relative whitespace-nowrap py-4 pl-3 pr-6 text-right text-sm">
+            <div class="flex items-center justify-end space-x-4">
+              <%= link_to "View", admin_feature_flag_path(flag), class: "text-blue-600 hover:text-blue-900" %>
+              <%= link_to "Edit", edit_admin_feature_flag_path(flag), class: "text-blue-600 hover:text-blue-900" %>
+              <%= form_with url: admin_feature_flag_path(flag), method: :delete, data: { confirm: "Are you sure you want to delete this feature flag? This cannot be undone." }, class: "inline" do %>
+                <%= submit_tag "Delete", class: "text-red-600 hover:text-red-900 bg-white cursor-pointer" %>
+              <% end %>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div> 

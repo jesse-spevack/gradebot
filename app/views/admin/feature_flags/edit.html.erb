@@ -1,0 +1,15 @@
+<% content_for :header do %>
+  <div class="space-y-4">
+    <%= render "admin/feature_flags/back_link", url: admin_feature_flag_path(@feature_flag), text: "Back to Feature Flag" %>
+    
+    <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-blue-950">Edit Feature Flag</h1>
+  </div>
+<% end %>
+
+<% content_for :content do %>
+  <div class="max-w-4xl mx-auto">
+    <%= render "form", feature_flag: @feature_flag %>
+  </div>
+<% end %>
+
+<%= render "shared/page_wrapper" %> 

@@ -47,6 +47,7 @@
 2. **Admin Notifications**: Implement a notification system for admins about important system events
 3. **Bulk Operations**: Add functionality for admins to perform bulk operations on users or other resources
 
+Done
 # Prompts to work through
 Prompt 4: Feature Flag Service
 Let's implement the feature flag service. First, write a test for the FeatureFlagService class that:
@@ -69,6 +70,7 @@ Let's refactor the feature flag service. Consider:
 4. Ensuring clear documentation for future expansion
 
 Then run Rubocop to ensure it meets Ruby style guidelines.
+
 Prompt 5: Student Submission Model
 Let's implement the StudentSubmission model. First, write a test that:
 1. Validates the model belongs to a GradingTask
@@ -93,6 +95,7 @@ Let's refactor the StudentSubmission model. Consider:
 4. Ensuring validation error messages are helpful
 
 Then run Rubocop to ensure it meets Ruby style guidelines.
+
 Phase 2: LLM Integration
 Prompt 6: LLM Configuration
 Let's implement the LLM configuration class. First, write a test for LLM::Configuration that:

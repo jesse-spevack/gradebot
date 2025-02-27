@@ -1,0 +1,22 @@
+<%# 
+  Displays an empty state with icon, title, description, and action button
+  
+  Parameters:
+  - title: The title for the empty state
+  - description: The descriptive text
+  - icon_class: (optional) Additional classes for the icon
+  - button: The button HTML to display (passed as a block)
+%>
+
+<div class="text-center py-12 px-4">
+  <div class="p-3 bg-blue-50 rounded-xl inline-flex">
+    <%= render "shared/icons/flag", class: "h-12 w-12 text-blue-600 #{local_assigns[:icon_class]}" rescue inline_svg_tag("icons/flag.svg", class: "h-12 w-12 text-blue-600 #{local_assigns[:icon_class]}") %>
+  </div>
+  <h3 class="mt-4 text-xl sm:text-2xl font-semibold text-gray-900"><%= title %></h3>
+  <p class="mt-2 text-base text-gray-600 max-w-sm mx-auto">
+    <%= description %>
+  </p>
+  <div class="mt-6">
+    <%= yield %>
+  </div>
+</div> 

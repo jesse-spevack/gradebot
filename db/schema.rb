@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_02_27_042310) do
+ActiveRecord::Schema[8.0].define(version: 2025_02_27_044838) do
   create_table "email_signups", force: :cascade do |t|
     t.string "email"
     t.datetime "created_at", null: false
@@ -63,6 +63,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_27_042310) do
     t.index ["user_id"], name: "index_sessions_on_user_id"
   end
 
+  create_table "student_submissions", force: :cascade do |t|
+    t.integer "grading_task_id", null: false
+    t.string "original_doc_id", null: false
+    t.integer "status", default: 0, null: false
+    t.text "feedback"
+    t.string "graded_doc_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["grading_task_id"], name: "index_student_submissions_on_grading_task_id"
+    t.index ["original_doc_id"], name: "index_student_submissions_on_original_doc_id"
+    t.index ["status"], name: "index_student_submissions_on_status"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", null: false
     t.string "name", null: false
@@ -82,4 +95,5 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_27_042310) do
   add_foreign_key "feature_flag_audit_logs", "users"
   add_foreign_key "grading_tasks", "users"
   add_foreign_key "sessions", "users"
+  add_foreign_key "student_submissions", "grading_tasks"
 end

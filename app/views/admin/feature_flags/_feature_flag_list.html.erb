@@ -1,0 +1,29 @@
+<%# 
+  Displays feature flags in a list format for mobile views
+  
+  Parameters:
+  - feature_flags: Collection of feature flags to display
+%>
+
+<div class="sm:hidden">
+  <div class="divide-y divide-gray-200">
+    <% feature_flags.each do |flag| %>
+      <div class="py-4 px-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="flex items-center">
+              <%= render "admin/feature_flags/status_badge", enabled: flag.enabled? %>
+            </div>
+            <h3 class="text-base font-medium text-gray-900 mt-2"><%= flag.name %></h3>
+            <p class="text-sm text-gray-500 mt-1"><code class="text-xs bg-gray-100 px-1 py-0.5 rounded"><%= flag.key %></code></p>
+            <p class="text-sm text-gray-600 mt-1 line-clamp-2"><%= flag.description.present? ? flag.description : "No description provided" %></p>
+          </div>
+          <div class="flex flex-col space-y-2">
+            <%= link_to "View", admin_feature_flag_path(flag), class: "text-blue-600 hover:text-blue-900 text-sm" %>
+            <%= link_to "Edit", edit_admin_feature_flag_path(flag), class: "text-blue-600 hover:text-blue-900 text-sm" %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div> 
