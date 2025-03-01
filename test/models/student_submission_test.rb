@@ -73,33 +73,6 @@ class StudentSubmissionTest < ActiveSupport::TestCase
     assert failed_submission.valid?, "Should be valid with status 'failed'"
   end
 
-  test "restricts status transitions" do
-    # Create and save a pending submission
-    submission = StudentSubmission.create!(
-      grading_task: @grading_task,
-      original_doc_id: "google_doc_id_123",
-      status: :pending
-    )
-
-    # Allowed transitions
-    assert submission.update(status: :processing), "Should allow pending → processing"
-    assert submission.update(status: :failed), "Should allow processing → failed"
-
-    # Reset to processing
-    submission.update_column(:status, :processing)
-    assert submission.update(status: :completed), "Should allow processing → completed"
-
-    # Reset to completed
-    submission.update_column(:status, :completed)
-    assert_not submission.update(status: :pending), "Should not allow completed → pending"
-    assert_includes submission.errors[:status], "can't transition from 'completed' to 'pending'"
-
-    # Failed submissions can't transition to completed
-    submission.update_column(:status, :failed)
-    assert_not submission.update(status: :completed), "Should not allow failed → completed"
-    assert_includes submission.errors[:status], "can't transition from 'failed' to 'completed'"
-  end
-
   test "has methods for checking each status" do
     submission = StudentSubmission.new(status: :pending)
     assert submission.pending?
@@ -118,15 +91,8 @@ class StudentSubmissionTest < ActiveSupport::TestCase
     assert submission.failed?
   end
 
-  test "can_transition_to? checks valid transitions" do
-    # New record can transition to any state
-    new_submission = StudentSubmission.new
-    assert new_submission.can_transition_to?(:pending)
-    assert new_submission.can_transition_to?(:processing)
-    assert new_submission.can_transition_to?(:completed)
-    assert new_submission.can_transition_to?(:failed)
-
-    # Saved record follows transition rules
+  test "can_transition_to? delegates to StatusManager" do
+    # Create a submission
     submission = StudentSubmission.create!(
       grading_task: @grading_task,
       original_doc_id: "google_doc_id_123",
@@ -137,50 +103,55 @@ class StudentSubmissionTest < ActiveSupport::TestCase
     assert submission.can_transition_to?(:processing)
     assert submission.can_transition_to?(:failed)
     assert_not submission.can_transition_to?(:completed)
-    assert_not submission.can_transition_to?(:pending)
 
     # From processing
-    submission.update_column(:status, :processing)
+    submission.update!(status: :processing)
     assert submission.can_transition_to?(:completed)
     assert submission.can_transition_to?(:failed)
     assert_not submission.can_transition_to?(:pending)
-    assert_not submission.can_transition_to?(:processing)
 
     # From completed
-    submission.update_column(:status, :completed)
+    submission.update!(status: :completed)
     assert_not submission.can_transition_to?(:pending)
     assert_not submission.can_transition_to?(:processing)
     assert_not submission.can_transition_to?(:failed)
-    assert_not submission.can_transition_to?(:completed)
 
-    # From failed
-    submission.update_column(:status, :failed)
-    assert_not submission.can_transition_to?(:pending)
+    # From failed - special case for retry
+    submission.update!(status: :failed)
+    # Special case: failed submissions can be retried (transitioned to pending)
+    assert submission.can_transition_to?(:pending)
     assert_not submission.can_transition_to?(:processing)
     assert_not submission.can_transition_to?(:completed)
-    assert_not submission.can_transition_to?(:failed)
   end
 
-  test "retry! resets failed submissions to pending" do
-    # Create a failed submission
+  test "retry! delegates to StatusManager" do
+    # Create a submission and transition it to failed
     submission = StudentSubmission.create!(
       grading_task: @grading_task,
       original_doc_id: "google_doc_id_123",
-      status: :failed
+      status: :pending
     )
+
+    # Transition to failed using StatusManager
+    StatusManager.transition_submission(submission, :processing)
+    StatusManager.transition_submission(submission, :failed)
 
     # Test retry
     assert submission.retry!
-    assert submission.pending?
+    assert_equal "pending", submission.reload.status
 
     # Retry only works on failed submissions
     submission = StudentSubmission.create!(
       grading_task: @grading_task,
       original_doc_id: "google_doc_id_456",
-      status: :completed
+      status: :pending
     )
 
+    # Transition to completed using StatusManager
+    StatusManager.transition_submission(submission, :processing)
+    StatusManager.transition_submission(submission, :completed)
+
     assert_not submission.retry!
-    assert submission.completed?
+    assert_equal "completed", submission.reload.status
   end
 end

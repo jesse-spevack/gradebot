@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_02_27_044838) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_01_180701) do
   create_table "email_signups", force: :cascade do |t|
     t.string "email"
     t.datetime "created_at", null: false
@@ -50,6 +50,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_27_044838) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "grading_rubric"
+    t.integer "status", default: 0
+    t.integer "lock_version", default: 0, null: false
     t.index ["user_id"], name: "index_grading_tasks_on_user_id"
   end
 
@@ -71,6 +73,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_27_044838) do
     t.string "graded_doc_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "lock_version", default: 0, null: false
+    t.index ["grading_task_id", "status"], name: "index_submissions_on_grading_task_id_and_status"
     t.index ["grading_task_id"], name: "index_student_submissions_on_grading_task_id"
     t.index ["original_doc_id"], name: "index_student_submissions_on_original_doc_id"
     t.index ["status"], name: "index_student_submissions_on_status"

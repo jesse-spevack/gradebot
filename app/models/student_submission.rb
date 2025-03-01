@@ -12,6 +12,7 @@
 #   pending -> failed (for direct failures)
 #
 # Once a submission is in completed or failed state, it cannot transition to other states.
+# Exception: Failed submissions can be retried using the retry! method which resets them to pending.
 #
 # == Attributes
 #   * grading_task - The grading task this submission belongs to
@@ -20,7 +21,10 @@
 #   * feedback - Textual feedback for the student
 #   * graded_doc_id - Google Doc ID of the graded document (when completed)
 class StudentSubmission < ApplicationRecord
-  # Constants
+  # Use optimistic locking
+  # This model has a lock_version column for this purpose
+
+  # Constants - kept for reference but actual transition logic moved to StatusManager
   ALLOWED_TRANSITIONS = {
     pending: [ :processing, :failed ],
     processing: [ :completed, :failed ],
@@ -33,7 +37,9 @@ class StudentSubmission < ApplicationRecord
 
   # Validations
   validates :original_doc_id, presence: true
-  validate :validate_status_transitions, if: :status_changed?
+
+  # Status transitions are now validated by StatusManager service
+  # Status updates should go through StatusManager.transition_submission
 
   # Enums
   enum :status, {
@@ -57,50 +63,19 @@ class StudentSubmission < ApplicationRecord
   scope :created_before, ->(date) { where("created_at <= ?", date) }
 
   # Returns true if this submission can transition to the given status
+  # Delegated to StatusManager
   #
   # @param new_status [Symbol, String] The status to check transition to
   # @return [Boolean] True if transition is allowed, false otherwise
   def can_transition_to?(new_status)
-    new_status = new_status.to_sym if new_status.is_a?(String)
-    return true if new_record?
-    return false unless status.present?
-
-    ALLOWED_TRANSITIONS[status.to_sym].include?(new_status)
+    StatusManager.can_transition_submission?(self, new_status)
   end
 
   # Retry a failed submission by resetting it to pending
+  # Delegated to StatusManager
   #
   # @return [Boolean] True if the retry succeeded, false otherwise
   def retry!
-    return false unless failed?
-
-    # Use update_column to bypass the transition validation
-    update_column(:status, :pending)
-  end
-
-  private
-
-  # Validates that status transitions follow the allowed paths defined in ALLOWED_TRANSITIONS
-  #
-  # Allow any status for new records
-  def validate_status_transitions
-    # New records can have any status
-    return if new_record?
-
-    # Get the status values before and after the change
-    old_status = status_was.to_sym if status_was.present?
-    new_status = status.to_sym
-
-    return if old_status.nil?
-
-    # Check if transition is allowed
-    unless ALLOWED_TRANSITIONS[old_status].include?(new_status)
-      errors.add(
-        :status,
-        :invalid_transition,
-        message: "can't transition from '#{old_status}' to '#{new_status}'",
-        allowed_transitions: ALLOWED_TRANSITIONS[old_status].join(", ")
-      )
-    end
+    StatusManager.retry_submission(self)
   end
 end

@@ -1,0 +1,26 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+pending_submission:
+  grading_task: one
+  original_doc_id: "doc123"
+  status: pending
+  feedback: ""
+
+processing_submission:
+  grading_task: one
+  original_doc_id: "doc456"
+  status: processing
+  feedback: ""
+
+completed_submission:
+  grading_task: one
+  original_doc_id: "doc789"
+  status: completed
+  feedback: "Great job! Your essay was well-structured and had excellent content."
+  graded_doc_id: "gdoc789"
+
+failed_submission:
+  grading_task: one
+  original_doc_id: "doc101112"
+  status: failed
+  feedback: "Unable to process this submission due to an error." 

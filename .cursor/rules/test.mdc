@@ -17,6 +17,9 @@ Tests should be considered documentation.
 Use descriptive test names that explain the behavior being tested.
 Favor simplicity over complexity in test cases.
 
+When a test fails, we should first ask, does the failure point to a legitimate issue or is the test
+not testing a valid case or feature we care about. If it is the latter, we should either update or remove the test.
+
 Example:
 ```ruby
 require 'test_helper'

@@ -1,0 +1,135 @@
+# frozen_string_literal: true
+
+# Service for managing status transitions and calculations
+#
+# This class centralizes all status management logic for GradingTask and StudentSubmission,
+# providing a single source of truth and simplified interface for status operations.
+class StatusManager
+  # Determine the current status of a grading task based on its submissions
+  # @param grading_task [GradingTask] the grading task to check
+  # @return [Symbol] the calculated status (:pending, :processing, :completed, :completed_with_errors)
+  def self.calculate_grading_task_status(grading_task)
+    # Get counts for different statuses
+    submission_counts = count_submissions_by_status(grading_task)
+    total = submission_counts.values.sum
+
+    # Determine status based on submission counts
+    if total.zero?
+      :pending
+    elsif submission_counts[:processing] > 0
+      :processing
+    elsif submission_counts[:pending] > 0
+      :pending
+    elsif submission_counts[:failed] > 0
+      :completed_with_errors
+    else
+      :completed
+    end
+  end
+
+  # Update a grading task's status based on its submissions
+  # @param grading_task [GradingTask] the grading task to update
+  # @return [Boolean] true if the status was updated, false otherwise
+  def self.update_grading_task_status(grading_task)
+    new_status = calculate_grading_task_status(grading_task)
+
+    # Only update if the status has changed
+    return true if grading_task.status.to_sym == new_status
+
+    Rails.logger.info("Updating grading task #{grading_task.id} status from #{grading_task.status} to #{new_status}")
+    grading_task.update(status: new_status)
+  end
+
+  # Check if a transition is allowed for a student submission
+  # @param submission [StudentSubmission] the submission to check
+  # @param new_status [Symbol, String] the desired new status
+  # @return [Boolean] true if the transition is allowed, false otherwise
+  def self.can_transition_submission?(submission, new_status)
+    new_status = new_status.to_sym if new_status.is_a?(String)
+
+    # Define allowed transitions
+    allowed_transitions = {
+      pending: [ :processing, :failed ],
+      processing: [ :completed, :failed ],
+      completed: [],
+      failed: []
+    }
+
+    # Special case for retry
+    return true if submission.failed? && new_status == :pending
+
+    # Check if transition is allowed
+    allowed_transitions[submission.status.to_sym].include?(new_status)
+  end
+
+  # Transition a student submission to a new status
+  # @param submission [StudentSubmission] the submission to transition
+  # @param new_status [Symbol, String] the desired new status
+  # @param attributes [Hash] additional attributes to update
+  # @return [Boolean] true if the transition was successful, false otherwise
+  def self.transition_submission(submission, new_status, attributes = {})
+    new_status = new_status.to_sym if new_status.is_a?(String)
+
+    # Skip if status isn't changing
+    return true if submission.status.to_sym == new_status
+
+    # Check if transition is allowed
+    unless can_transition_submission?(submission, new_status)
+      Rails.logger.error("Invalid transition from #{submission.status} to #{new_status} for submission #{submission.id}")
+      return false
+    end
+
+    # Update submission within transaction
+    ActiveRecord::Base.transaction do
+      # Update the submission
+      success = submission.update(attributes.merge(status: new_status))
+
+      # Update the grading task status if submission was updated
+      if success
+        update_grading_task_status(submission.grading_task)
+      end
+
+      success
+    end
+  end
+
+  # Retry a failed submission by resetting it to pending
+  # @param submission [StudentSubmission] the submission to retry
+  # @return [Boolean] true if the retry was successful, false otherwise
+  def self.retry_submission(submission)
+    return false unless submission.failed?
+
+    transition_submission(submission, :pending)
+  end
+
+  # Calculate the progress percentage for a grading task
+  # @param grading_task [GradingTask] the grading task to calculate progress for
+  # @return [Integer] the progress percentage (0-100)
+  def self.calculate_progress_percentage(grading_task)
+    submission_counts = count_submissions_by_status(grading_task)
+    total = submission_counts.values.sum
+
+    return 0 if total.zero?
+
+    completed = submission_counts[:completed] + submission_counts[:failed]
+    ((completed * 100.0) / total).to_i
+  end
+
+  # Get counts of submissions by status for a grading task
+  # @param grading_task [GradingTask] the grading task to count submissions for
+  # @return [Hash] counts of submissions by status
+  def self.count_submissions_by_status(grading_task)
+    # Query the submissions directly to avoid any caching issues
+    pending_count = grading_task.student_submissions.where(status: StudentSubmission.statuses[:pending]).count
+    processing_count = grading_task.student_submissions.where(status: StudentSubmission.statuses[:processing]).count
+    completed_count = grading_task.student_submissions.where(status: StudentSubmission.statuses[:completed]).count
+    failed_count = grading_task.student_submissions.where(status: StudentSubmission.statuses[:failed]).count
+
+    {
+      pending: pending_count,
+      processing: processing_count,
+      completed: completed_count,
+      failed: failed_count
+    }
+  end
+end

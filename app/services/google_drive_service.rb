@@ -77,6 +77,47 @@ class GoogleDriveService
     true
   end
 
+  # List all files in a folder
+  #
+  # @param folder_id [String] The ID of the Google Drive folder
+  # @return [Array<Hash>] Array of document information hashes
+  def list_files_in_folder(folder_id)
+    Rails.logger.info("Listing files in folder: #{folder_id}")
+
+    service = Google::Apis::DriveV3::DriveService.new
+    service.authorization = @access_token
+
+    # Query for all files in the folder (excluding subfolders)
+    query = "'#{folder_id}' in parents and trashed = false and mimeType != 'application/vnd.google-apps.folder'"
+
+    begin
+      response = service.list_files(
+        q: query,
+        fields: "files(id,name,mimeType)",
+        page_size: 1000,
+        order_by: "name"
+      )
+
+      # Convert the response to a simple array of hashes
+      files = response.files.map do |file|
+        {
+          id: file.id,
+          name: file.name,
+          mime_type: file.mime_type
+        }
+      end
+
+      Rails.logger.info("Found #{files.size} files in folder")
+      files
+    rescue Google::Apis::AuthorizationError => e
+      Rails.logger.error("Google Drive authorization error: #{e.message}")
+      raise AuthenticationError, "Invalid or expired access token"
+    rescue Google::Apis::ClientError => e
+      Rails.logger.error("Google Drive client error: #{e.message}")
+      raise ApiError, "Failed to list files in folder: #{e.message}"
+    end
+  end
+
   def count_files_in_folder(folder_id)
     Rails.logger.info("Starting count_files_in_folder for folder: #{folder_id}")
     Rails.logger.info("Using access token: #{@access_token[0..10]}...")
