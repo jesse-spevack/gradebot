@@ -6,7 +6,7 @@ Rails.application.config.middleware.use OmniAuth::Builder do
              scope: %w[
                email
                profile
-               https://www.googleapis.com/auth/drive.readonly
+               https://www.googleapis.com/auth/drive.file
              ].join(" "),
              access_type: "offline",
              prompt: "consent"
