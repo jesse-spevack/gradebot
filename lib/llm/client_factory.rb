@@ -63,7 +63,7 @@ module LLM
     # @param client_class_name [String] the full name of the client class
     def self.require_client_file(client_class_name)
       # Extract the path from the class name
-      # E.g., "LLM::OpenAI::Client" -> "llm/open_ai/client"
+      # E.g., "LLM::OpenAI::Client" -> "llm/open_AI/client"
       path = client_class_name.underscore
 
       # Require the file if it exists

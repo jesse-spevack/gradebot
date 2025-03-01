@@ -13,7 +13,7 @@ module LLM
       },
       openai: {
         default: {
-          provider: :openai,
+          provider: :openAI,
           model: "gpt-4-turbo",
           temperature: 0.7
         }

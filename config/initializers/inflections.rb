@@ -16,5 +16,5 @@
 # end
 ActiveSupport::Inflector.inflections(:en) do |inflect|
     inflect.acronym "LLM"  # This tells Rails that LLM is an acronym
-    inflect.acronym "AI"
+    inflect.acronym "OpenAI"  # This tells Rails that OpenAI is an acronym
 end
