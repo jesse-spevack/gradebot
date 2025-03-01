@@ -37,7 +37,7 @@ class LLM::ClientFactoryTest < ActiveSupport::TestCase
   end
 
   test ".create raises UnsupportedModelError for unknown model types" do
-    error = assert_raises(LLM::UnsupportedModelError) do
+    error = assert_raises(LLM::Errors::UnsupportedModelError) do
       LLM::ClientFactory.create("unknown-model")
     end
 

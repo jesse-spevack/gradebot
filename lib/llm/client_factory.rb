@@ -30,7 +30,7 @@ module LLM
     #
     # @param model_name [String] the name of the model to use
     # @return [Object] an instance of the appropriate client for the model
-    # @raise [LLM::UnsupportedModelError] if the model prefix is not recognized
+    # @raise [LLM::Errors::UnsupportedModelError] if the model prefix is not recognized
     def self.create(model_name)
       client_class = client_class_for(model_name)
 
@@ -47,12 +47,12 @@ module LLM
     #
     # @param model_name [String] the name of the model
     # @return [String] the class name of the appropriate client
-    # @raise [LLM::UnsupportedModelError] if the model prefix is not recognized
+    # @raise [LLM::Errors::UnsupportedModelError] if the model prefix is not recognized
     def self.client_class_for(model_name)
       prefix = MODEL_PREFIXES.keys.find { |prefix| model_name.to_s.start_with?(prefix) }
 
       unless prefix
-        raise UnsupportedModelError, model_name
+        raise LLM::Errors::UnsupportedModelError, model_name
       end
 
       MODEL_PREFIXES[prefix]
