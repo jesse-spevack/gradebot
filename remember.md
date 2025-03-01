@@ -25,7 +25,6 @@
 - Removed trailing whitespace
 - Fixed duplicate Capybara server configuration
 
-## Next Steps
 
 ### Admin Interface
 1. **Create Admin Dashboard**: Implement a central dashboard for admin users with links to various administrative functions
@@ -96,10 +95,11 @@ Let's refactor the StudentSubmission model. Consider:
 
 Then run Rubocop to ensure it meets Ruby style guidelines.
 
+
 Phase 2: LLM Integration
-Prompt 6: LLM Configuration
+LLM Configuration
 Let's implement the LLM configuration class. First, write a test for LLM::Configuration that:
-1. Returns the appropriate model for different task types
+1. Returns the appropriate model for different task types.
 2. Uses feature flags to determine which model to use
 3. Returns default models when feature flags are disabled
 4. Has methods for checking if specific features are enabled
@@ -138,6 +138,7 @@ Let's refactor the client factory. Consider:
 2. Improving error messages
 3. Adding documentation
 4. Ensuring efficient operation
+## Next Steps
 
 Then run Rubocop to ensure it meets Ruby style guidelines.
 Prompt 8: Base LLM Client
