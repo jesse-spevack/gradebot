@@ -150,7 +150,8 @@ class StatusManager
     # Get the student submissions
     student_submissions = grading_task.student_submissions.order(created_at: :desc)
 
-    # Broadcast to the grading task's Turbo Stream
+    # Option 1: Broadcast to the entire grading task (less efficient but simpler)
+    # This is kept for potential backwards compatibility
     Turbo::StreamsChannel.broadcast_replace_to(
       "grading_task_#{grading_task.id}",
       target: dom_id(grading_task),
@@ -160,6 +161,41 @@ class StatusManager
         student_submissions: student_submissions
       }
     )
+
+    # Option 2: Broadcast to individual components (more efficient)
+    broadcast_task_components(grading_task, student_submissions)
+  end
+
+  # Broadcast updates to individual components of a grading task
+  # @param grading_task [GradingTask] the grading task to broadcast
+  # @param student_submissions [ActiveRecord::Relation] the submissions for this task
+  def self.broadcast_task_components(grading_task, student_submissions)
+    # 1. Update the status badge
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "grading_task_#{grading_task.id}",
+      target: "#{dom_id(grading_task)}_status_badge",
+      partial: "grading_tasks/task_status_badge",
+      locals: { grading_task: grading_task }
+    )
+
+    # 2. Update the progress metrics
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "grading_task_#{grading_task.id}",
+      target: "#{dom_id(grading_task)}_progress_metrics",
+      partial: "grading_tasks/progress_metrics",
+      locals: {
+        grading_task: grading_task,
+        student_submissions: student_submissions
+      }
+    )
+
+    # 3. Update the submission counts
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "grading_task_#{grading_task.id}",
+      target: "#{dom_id(grading_task)}_submission_counts",
+      partial: "grading_tasks/submission_counts",
+      locals: { student_submissions: student_submissions }
+    )
   end
 
   # Broadcast an update to a student submission
@@ -168,7 +204,10 @@ class StatusManager
     # Reload to ensure we have the latest data
     submission.reload
 
-    # Broadcast to the submission in the list view (on the grading task page)
+    # Get the parent grading task
+    grading_task = submission.grading_task
+
+    # Broadcast the submission update
     Turbo::StreamsChannel.broadcast_replace_to(
       "grading_task_#{submission.grading_task_id}",
       target: dom_id(submission),
@@ -192,6 +231,13 @@ class StatusManager
         target: "header_status",
         partial: "student_submissions/header_status",
         locals: { student_submission: submission }
+      )
+
+      # Also update the grading task components since a submission status change
+      # affects the task's progress and counts
+      broadcast_task_components(
+        grading_task,
+        grading_task.student_submissions.order(created_at: :desc)
       )
     end
   end

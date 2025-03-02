@@ -1,0 +1,22 @@
+<div class="grid grid-cols-4 gap-2 text-center">
+  <div>
+    <span class="text-xs font-semibold inline-block py-1 px-2 rounded-full text-yellow-600 bg-yellow-100 w-full">
+      <%= student_submissions.pending.count %> Pending
+    </span>
+  </div>
+  <div>
+    <span class="text-xs font-semibold inline-block py-1 px-2 rounded-full text-blue-600 bg-blue-100 w-full">
+      <%= student_submissions.processing.count %> Processing
+    </span>
+  </div>
+  <div>
+    <span class="text-xs font-semibold inline-block py-1 px-2 rounded-full text-green-600 bg-green-100 w-full">
+      <%= student_submissions.completed.count %> Completed
+    </span>
+  </div>
+  <div>
+    <span class="text-xs font-semibold inline-block py-1 px-2 rounded-full text-red-600 bg-red-100 w-full">
+      <%= student_submissions.failed.count %> Failed
+    </span>
+  </div>
+</div> 
