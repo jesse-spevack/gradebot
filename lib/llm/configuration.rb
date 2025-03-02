@@ -39,7 +39,7 @@ module LLM
 
     # Check if LLM features are enabled
     def self.enabled?
-      FeatureFlagService.new.enabled?("llm_enabled")
+      FeatureFlagService.enabled?(:llm_enabled)
     end
 
     # Get configuration for a specific task

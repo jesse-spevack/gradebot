@@ -1,0 +1,24 @@
+<% content_for :header do %>
+  <div class="flex items-center justify-between">
+    <div class="flex items-center space-x-4">
+      <%= link_to grading_task_path(@grading_task), class: "text-gray-500 hover:text-gray-700 transition-colors duration-150" do %>
+        <%= render "shared/icons/back" %>
+      <% end %>
+      <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-blue-950">Student Submission</h1>
+    </div>
+
+    <div id="header_status" class="flex items-center space-x-2">
+      <%= render "student_submissions/header_status", student_submission: @student_submission %>
+    </div>
+  </div>
+<% end %>
+
+<% content_for :content do %>
+  <%= turbo_stream_from "student_submission_#{@student_submission.id}" %>
+
+  <div id="<%= dom_id(@student_submission) %>_detail">
+    <%= render "student_submissions/detail", student_submission: @student_submission %>
+  </div>
+<% end %>
+
+<%= render "shared/page_wrapper" %> 

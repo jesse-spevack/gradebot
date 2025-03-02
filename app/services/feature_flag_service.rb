@@ -49,6 +49,11 @@ class FeatureFlagService
   # Default cache expiration time in seconds (1 hour)
   DEFAULT_CACHE_EXPIRATION = 1.hour
 
+  def self.enabled?(key, force_refresh: false)
+    service = new
+    service.enabled?(key, force_refresh: force_refresh)
+  end
+
   # Check if a feature is enabled by its key
   #
   # This method implements a cache-first strategy:

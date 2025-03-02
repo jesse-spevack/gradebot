@@ -119,8 +119,10 @@ class GoogleDriveService
   end
 
   def count_files_in_folder(folder_id)
+    Rails.logger.info("===== GOOGLE DRIVE DEBUG =====")
     Rails.logger.info("Starting count_files_in_folder for folder: #{folder_id}")
-    Rails.logger.info("Using access token: #{@access_token[0..10]}...")
+    Rails.logger.info("Access token first/last 10 chars: #{@access_token[0..9]}...#{@access_token[-10..-1] rescue 'N/A'}")
+    Rails.logger.info("Access token length: #{@access_token.length}")
 
     service = Google::Apis::DriveV3::DriveService.new
     service.authorization = @access_token
@@ -133,8 +135,14 @@ class GoogleDriveService
         fields: "id,name,mimeType"
       )
       Rails.logger.info("Successfully accessed folder: #{folder.to_h}")
+    rescue Google::Apis::ClientError => e
+      Rails.logger.error("Failed to access folder: #{e.class} - #{e.message}")
+      Rails.logger.error("Error details: #{e.body}")
+      Rails.logger.error("Error status: #{e.status_code}")
+      raise
     rescue => e
       Rails.logger.error("Failed to access folder: #{e.class} - #{e.message}")
+      Rails.logger.error("Backtrace: #{e.backtrace[0..5].join("\n")}")
       raise
     end
 
@@ -150,22 +158,36 @@ class GoogleDriveService
         page_size: 1000,
         order_by: "name"
       )
-      Rails.logger.info("Files found: #{response.files.map(&:to_h)}")
+      Rails.logger.info("Files found: #{response.files.size}")
+      if response.files.size > 0
+        Rails.logger.info("First few files: #{response.files[0..2].map(&:to_h)}")
+      end
 
       file_count = response.files.length
       Rails.logger.info("Total files found: #{file_count}")
+      Rails.logger.info("===== END GOOGLE DRIVE DEBUG =====")
       file_count
+    rescue Google::Apis::ClientError => e
+      Rails.logger.error("Failed to list files: #{e.class} - #{e.message}")
+      Rails.logger.error("Error details: #{e.body}")
+      Rails.logger.error("Error status: #{e.status_code}")
+      Rails.logger.error("===== END GOOGLE DRIVE DEBUG =====")
+      raise
     rescue => e
       Rails.logger.error("Failed to list files: #{e.class} - #{e.message}")
+      Rails.logger.error("Backtrace: #{e.backtrace[0..5].join("\n")}")
+      Rails.logger.error("===== END GOOGLE DRIVE DEBUG =====")
       raise
     end
   rescue Google::Apis::AuthorizationError => e
     Rails.logger.error("Google Drive authorization error: #{e.message}")
     Rails.logger.error("Authorization error backtrace: #{e.backtrace.join("\n")}")
+    Rails.logger.error("===== END GOOGLE DRIVE DEBUG =====")
     raise AuthenticationError, "Invalid or expired access token"
   rescue Google::Apis::ClientError => e
     Rails.logger.error("Google Drive client error: #{e.message}")
     Rails.logger.error("Client error backtrace: #{e.backtrace.join("\n")}")
+    Rails.logger.error("===== END GOOGLE DRIVE DEBUG =====")
     raise ApiError, "Failed to access folder: #{e.message}"
   end
 

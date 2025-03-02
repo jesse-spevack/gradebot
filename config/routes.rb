@@ -27,6 +27,11 @@ Rails.application.routes.draw do
   root "home#index"
   post "/signup", to: "home#create_signup", as: :email_signups
   resources :grading_tasks, only: [ :new, :create, :index, :show, :destroy ]
+  resources :student_submissions, only: [:show] do
+    member do
+      post :retry
+    end
+  end
   get "/privacy", to: "pages#privacy", as: :privacy
   get "/terms", to: "pages#terms", as: :terms
 end

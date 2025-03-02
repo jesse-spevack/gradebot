@@ -185,34 +185,44 @@ class ProcessStudentSubmissionCommand < BaseCommand
       # First, get the file metadata to determine the MIME type
       file = google_drive_client.get_file(document_id, fields: "id, name, mimeType")
       mime_type = file.mime_type
+      Rails.logger.info("Document MIME type: #{mime_type}")
 
       # Handle different document types differently
       case mime_type
       when "application/vnd.google-apps.document"  # Google Docs
-        # Export as plain text
-        response = google_drive_client.export_file(document_id, "text/plain")
-        content = response.string
+        # Export as plain text using StringIO
+        string_io = StringIO.new
+        Rails.logger.info("Exporting Google Doc as plain text")
+        google_drive_client.export_file(document_id, "text/plain", download_dest: string_io)
+        content = string_io.string
 
       when "application/vnd.google-apps.spreadsheet"  # Google Sheets
-        # Export as CSV
-        response = google_drive_client.export_file(document_id, "text/csv")
-        content = response.string
+        # Export as CSV using StringIO
+        string_io = StringIO.new
+        Rails.logger.info("Exporting Google Sheet as CSV")
+        google_drive_client.export_file(document_id, "text/csv", download_dest: string_io)
+        content = string_io.string
 
       when "application/pdf"  # PDF files
         # For PDFs, we'd ideally use a PDF extraction library
         # For now, let's return a placeholder
+        Rails.logger.info("PDF detected - returning placeholder content")
         content = "This is a PDF document that would need OCR or text extraction."
 
       when /^text\//  # Plain text files
-        # Download directly
-        response = google_drive_client.get_file(document_id, download_dest: StringIO.new)
-        content = response.string
+        # Download directly using StringIO
+        string_io = StringIO.new
+        Rails.logger.info("Downloading plain text file")
+        google_drive_client.get_file(document_id, download_dest: string_io)
+        content = string_io.string
 
       else
         # For other file types, return a placeholder
+        Rails.logger.info("Unsupported file type: #{mime_type}")
         content = "Unsupported document type: #{mime_type}. Please submit a Google Doc, Sheet, or plain text file."
       end
 
+      Rails.logger.info("Successfully fetched document content (#{content.length} characters)")
       content
     rescue Google::Apis::ClientError => e
       Rails.logger.error("Google Drive client error: #{e.message}")
@@ -221,7 +231,8 @@ class ProcessStudentSubmissionCommand < BaseCommand
       Rails.logger.error("Google Drive server error: #{e.message}")
       raise StandardError, "Google Drive service unavailable: #{e.message}"
     rescue => e
-      Rails.logger.error("Unexpected error fetching document: #{e.message}")
+      Rails.logger.error("Unexpected error fetching document: #{e.class.name} - #{e.message}")
+      Rails.logger.error(e.backtrace.join("\n")) # Log the full backtrace for debugging
       raise StandardError, "Failed to fetch document content: #{e.message}"
     end
   end

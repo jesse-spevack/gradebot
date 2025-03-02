@@ -1,0 +1,84 @@
+<%= render "shared/card" do %>
+  <div class="space-y-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+          <%= case grading_task.status
+              when 'pending' then 'bg-yellow-100 text-yellow-800'
+              when 'processing' then 'bg-blue-100 text-blue-800'
+              when 'completed' then 'bg-green-100 text-green-800'
+              when 'completed_with_errors' then 'bg-orange-100 text-orange-800'
+              end %>"
+        >
+          <%= grading_task.status.humanize %>
+        </span>
+      </div>
+
+      <div class="text-sm text-gray-500">
+        Created <%= time_ago_in_words(grading_task.created_at) %> ago
+      </div>
+    </div>
+
+    <%= render "shared/card", title: "Assignment Prompt" do %>
+      <p class="text-gray-600"><%= grading_task.assignment_prompt %></p>
+    <% end %>
+
+    <%= render "shared/card", title: "Grading Rubric" do %>
+      <p class="text-gray-600"><%= grading_task.grading_rubric %></p>
+    <% end %>
+
+    <%= render "shared/card", title: "Progress" do %>
+      <div class="mt-2">
+        <div class="relative pt-1">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <span class="text-xs font-semibold inline-block text-blue-600">
+                <%= grading_task.progress_percentage %>% Complete
+              </span>
+            </div>
+            <div class="text-right">
+              <span class="text-xs font-semibold inline-block text-blue-600">
+                <%= student_submissions.count %> Submission<%= 's' unless student_submissions.count == 1 %>
+              </span>
+            </div>
+          </div>
+          <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-blue-100">
+            <div style="width:<%= grading_task.progress_percentage %>%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500 transition-all duration-500"></div>
+          </div>
+          <div class="grid grid-cols-4 gap-2 text-center">
+            <div>
+              <span class="text-xs font-semibold inline-block py-1 px-2 rounded-full text-yellow-600 bg-yellow-100 w-full">
+                <%= student_submissions.pending.count %> Pending
+              </span>
+            </div>
+            <div>
+              <span class="text-xs font-semibold inline-block py-1 px-2 rounded-full text-blue-600 bg-blue-100 w-full">
+                <%= student_submissions.processing.count %> Processing
+              </span>
+            </div>
+            <div>
+              <span class="text-xs font-semibold inline-block py-1 px-2 rounded-full text-green-600 bg-green-100 w-full">
+                <%= student_submissions.completed.count %> Completed
+              </span>
+            </div>
+            <div>
+              <span class="text-xs font-semibold inline-block py-1 px-2 rounded-full text-red-600 bg-red-100 w-full">
+                <%= student_submissions.failed.count %> Failed
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <%= render "shared/card", title: "Student Submissions" do %>
+      <div id="student_submissions" class="mt-2 space-y-3" data-controller="submissions-list">
+        <% if student_submissions.any? %>
+          <%= render student_submissions %>
+        <% else %>
+          <p class="text-gray-500 italic">No student submissions found yet. They'll appear here once they're processed.</p>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% end %> 

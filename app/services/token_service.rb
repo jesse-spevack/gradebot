@@ -27,8 +27,19 @@ class TokenService
   # @return [String] a valid access token
   # @raise [NoValidTokenError] if no valid token can be found or refreshed
   def access_token
+    Rails.logger.info("===== TOKEN SERVICE DEBUG =====")
+    Rails.logger.info("Fetching access token for user #{@user.id}")
+    
     token = get_valid_token
-    token.access_token
+    Rails.logger.info("Retrieved token ID: #{token.id}, created: #{token.created_at}, expires: #{token.expires_at}")
+    Rails.logger.info("Token scopes: #{token.scopes}")
+    Rails.logger.info("Token expired? #{token.expired?}, will expire soon? #{token.will_expire_soon?}")
+    
+    access_token_value = token.access_token
+    Rails.logger.info("Access token first/last 10 chars: #{access_token_value[0..9]}...#{access_token_value[-10..-1] rescue 'N/A'}")
+    Rails.logger.info("===== END TOKEN SERVICE DEBUG =====")
+    
+    access_token_value
   end
 
   # Get a valid user token
@@ -39,10 +50,15 @@ class TokenService
   # @raise [NoValidTokenError] if no valid token can be found or refreshed
   def get_valid_token
     token = UserToken.most_recent_for(@user)
+    Rails.logger.info("Most recent token for user #{@user.id}: #{token&.id || 'None found'}")
+    
     raise NoValidTokenError, "No token found for user #{@user.id}" unless token
 
     if token.expired? || token.will_expire_soon?
+      Rails.logger.info("Token needs refresh: expired=#{token.expired?}, expires_soon=#{token.will_expire_soon?}")
       refresh_token(token)
+    else
+      Rails.logger.info("Token is valid, using as-is")
     end
 
     token

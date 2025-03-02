@@ -37,7 +37,12 @@ class StatusManager
     return true if grading_task.status.to_sym == new_status
 
     Rails.logger.info("Updating grading task #{grading_task.id} status from #{grading_task.status} to #{new_status}")
-    grading_task.update(status: new_status)
+    success = grading_task.update(status: new_status)
+    
+    # Broadcast the update to all connected clients if the update was successful
+    broadcast_grading_task_update(grading_task) if success
+    
+    success
   end
 
   # Check if a transition is allowed for a student submission
@@ -84,10 +89,11 @@ class StatusManager
       # Update the submission
       success = submission.update(attributes.merge(status: new_status))
 
+      # If the update was successful, broadcast the submission update
+      broadcast_student_submission_update(submission) if success
+
       # Update the grading task status if submission was updated
-      if success
-        update_grading_task_status(submission.grading_task)
-      end
+      update_grading_task_status(submission.grading_task) if success
 
       success
     end
@@ -131,5 +137,69 @@ class StatusManager
       completed: completed_count,
       failed: failed_count
     }
+  end
+  
+  private
+  
+  # Broadcast an update to a grading task
+  # @param grading_task [GradingTask] the grading task to broadcast
+  def self.broadcast_grading_task_update(grading_task)
+    # Reload to ensure we have the latest data including associations
+    grading_task.reload
+    
+    # Get the student submissions
+    student_submissions = grading_task.student_submissions.order(created_at: :desc)
+    
+    # Broadcast to the grading task's Turbo Stream
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "grading_task_#{grading_task.id}",
+      target: dom_id(grading_task),
+      partial: "grading_tasks/grading_task",
+      locals: { 
+        grading_task: grading_task, 
+        student_submissions: student_submissions 
+      }
+    )
+  end
+  
+  # Broadcast an update to a student submission
+  # @param submission [StudentSubmission] the submission to broadcast
+  def self.broadcast_student_submission_update(submission)
+    # Reload to ensure we have the latest data
+    submission.reload
+    
+    # Broadcast to the submission in the list view (on the grading task page)
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "grading_task_#{submission.grading_task_id}",
+      target: dom_id(submission),
+      partial: "student_submissions/student_submission_content",
+      locals: { student_submission: submission }
+    )
+    
+    # Broadcast to the detail views only if someone might be viewing them
+    if submission.status_previously_changed? || submission.feedback_previously_changed?
+      # Broadcast to the submission detail view (on the student submission page)
+      Turbo::StreamsChannel.broadcast_update_to(
+        "student_submission_#{submission.id}",
+        target: "#{dom_id(submission)}_detail",
+        partial: "student_submissions/detail",
+        locals: { student_submission: submission }
+      )
+      
+      # Also broadcast to the header status section of the submission detail view
+      Turbo::StreamsChannel.broadcast_update_to(
+        "student_submission_#{submission.id}",
+        target: "header_status",
+        partial: "student_submissions/header_status",
+        locals: { student_submission: submission }
+      )
+    end
+  end
+  
+  # Generate a DOM ID for a record (same as ApplicationController#dom_id)
+  # @param record [ActiveRecord::Base] the record to generate an ID for
+  # @return [String] the DOM ID
+  def self.dom_id(record)
+    ActionView::RecordIdentifier.dom_id(record)
   end
 end

@@ -1,0 +1,3 @@
+<%= turbo_stream.replace dom_id(@grading_task) do %>
+  <%= render "grading_task", grading_task: @grading_task, student_submissions: @student_submissions %>
+<% end %> 

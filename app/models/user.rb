@@ -40,4 +40,19 @@ class User < ApplicationRecord
   def current_google_token
     UserToken.latest_for_user(self)
   end
+  
+  # Backward compatibility method to directly get the access token
+  # @return [String, nil] the access token string or nil if no token exists
+  def google_token
+    token = current_google_token
+    return nil unless token
+    
+    begin
+      token_service = TokenService.new(self)
+      token_service.access_token
+    rescue TokenService::TokenError => e
+      Rails.logger.error("Failed to get access token for user #{id}: #{e.message}")
+      nil
+    end
+  end
 end

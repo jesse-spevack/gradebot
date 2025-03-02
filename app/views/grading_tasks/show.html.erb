@@ -18,24 +18,11 @@
 <% end %>
 
 <% content_for :content do %>
-  <%= render "shared/card" do %>
-    <div class="space-y-6">
-      <%= render "shared/card", title: "Assignment Prompt" do %>
-        <p class="text-gray-600"><%= @grading_task.assignment_prompt %></p>
-      <% end %>
-
-      <%= render "shared/card", title: "Grading Rubric" do %>
-        <p class="text-gray-600"><%= @grading_task.grading_rubric %></p>
-      <% end %>
-
-      <%= render "shared/card", title: "Student Assignments" do %>
-        <div class="mt-2">
-          <!-- This will be implemented in a future update -->
-          <p class="text-gray-500 italic">Student assignments will be displayed here.</p>
-        </div>
-      <% end %>
-    </div>
-  <% end %>
+  <%= turbo_stream_from "grading_task_#{@grading_task.id}" %>
+  
+  <div id="<%= dom_id(@grading_task) %>">
+    <%= render "grading_task", grading_task: @grading_task, student_submissions: @student_submissions %>
+  </div>
 <% end %>
 
 <%= render "shared/page_wrapper" %>

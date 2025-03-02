@@ -6,7 +6,7 @@ valid_teacher_token:
   access_token: valid-teacher-access-token
   refresh_token: valid-teacher-refresh-token
   expires_at: <%= 1.hour.from_now %>
-  scopes: https://www.googleapis.com/auth/drive.readonly
+  scopes: https://www.googleapis.com/auth/drive
 
 # Expired token for testing
 expired_teacher_token:
@@ -14,4 +14,4 @@ expired_teacher_token:
   access_token: expired-teacher-access-token
   refresh_token: valid-teacher-refresh-token
   expires_at: <%= 1.hour.ago %>
-  scopes: https://www.googleapis.com/auth/drive.readonly
+  scopes: https://www.googleapis.com/auth/drive
