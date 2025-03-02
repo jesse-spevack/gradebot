@@ -4,7 +4,7 @@
 class FeatureFlag < ApplicationRecord
   # Associations
   has_many :audit_logs, class_name: "FeatureFlagAuditLog", dependent: :destroy
-  
+
   # Validations
   validates :key, presence: true, uniqueness: true
   validates :name, presence: true

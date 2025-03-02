@@ -4,15 +4,15 @@ class GoogleDriveController < ApplicationController
   def credentials
     Rails.logger.info("===== GOOGLE DRIVE CREDENTIALS DEBUG =====")
     Rails.logger.info("User ID: #{Current.user.id}, Email: #{Current.user.email}")
-    
+
     picker_token = GoogleDriveService.generate_picker_token
     Rails.logger.info("Generated picker token")
-    
+
     # Use the TokenService to get the access token
     token_service = TokenService.new(Current.user)
     begin
       oauth_token = token_service.access_token
-      
+
       if picker_token && oauth_token
         Rails.logger.info("Successfully generated credentials")
         Rails.logger.info("===== END GOOGLE DRIVE CREDENTIALS DEBUG =====")
@@ -43,13 +43,13 @@ class GoogleDriveController < ApplicationController
     folder_id = params[:folder_id]
     Rails.logger.info("Requested folder ID: #{folder_id}")
     Rails.logger.info("User ID: #{Current.user.id}, Email: #{Current.user.email}")
-    
+
     # Use the TokenService to get the access token
     token_service = TokenService.new(Current.user)
     begin
       access_token = token_service.access_token
       drive_service = GoogleDriveService.new(access_token)
-      
+
       Rails.logger.info("About to request folder contents")
       file_count = drive_service.count_files_in_folder(folder_id)
       Rails.logger.info("Received file count: #{file_count}")

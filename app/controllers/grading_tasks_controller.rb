@@ -20,7 +20,7 @@ class GradingTasksController < ApplicationController
   def show
     @grading_task = Current.session.user.grading_tasks.find(params[:id])
     @student_submissions = @grading_task.student_submissions.order(created_at: :desc)
-    
+
     # For Turbo Stream updates
     respond_to do |format|
       format.html
