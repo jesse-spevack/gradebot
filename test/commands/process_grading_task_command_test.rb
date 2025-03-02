@@ -94,8 +94,9 @@ class ProcessGradingTaskCommandTest < ActiveJob::TestCase
       # Run the command
       command = ProcessGradingTaskCommand.new(grading_task_id: @grading_task.id).call
 
-      # Verify command succeeded but no submissions created for this task
-      assert command.success?
+      # Verify command indicates an error with empty folders, but doesn't throw an exception
+      assert command.failure?
+      assert_match /No documents found/, command.errors.join(", ")
       assert_equal initial_count, StudentSubmission.where(grading_task: @grading_task).count
     end
   end

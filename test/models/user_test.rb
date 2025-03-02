@@ -3,6 +3,8 @@ require "test_helper"
 class UserTest < ActiveSupport::TestCase
   def setup
     @user = users(:teacher)
+    # Clear existing tokens for testing
+    UserToken.where(user: @user).delete_all
   end
 
   test "valid user" do
@@ -54,22 +56,23 @@ class UserTest < ActiveSupport::TestCase
     assert @user.admin?
   end
 
-  test "token_expired? returns true when token is expired" do
-    @user.token_expires_at = 1.hour.ago
-    assert @user.token_expired?
-  end
+  test "should have a current_google_token method" do
+    # Create a token for the user
+    token = UserToken.create!(
+      user: @user,
+      access_token: "test_access_token",
+      refresh_token: "test_refresh_token",
+      expires_at: 1.hour.from_now,
+      scopes: "drive.file"
+    )
 
-  test "token_expired? returns false when token is valid" do
-    @user.token_expires_at = 1.hour.from_now
-    assert_not @user.token_expired?
-  end
-
-  test "token_expired? returns true when token_expires_at is nil" do
-    @user.token_expires_at = nil
-    assert @user.token_expired?
+    assert_equal token, @user.current_google_token
   end
 
   test "from_google_auth creates or updates user from auth hash" do
+    # Clear any existing tokens
+    UserToken.delete_all
+
     auth_hash = {
       "provider" => "google_oauth2",
       "uid" => "different_uid_not_in_a_fixture_or_db_123456",
@@ -81,7 +84,8 @@ class UserTest < ActiveSupport::TestCase
       "credentials" => {
         "token" => "mock_token",
         "refresh_token" => "mock_refresh_token",
-        "expires_at" => 1.hour.from_now.to_i
+        "expires_at" => 1.hour.from_now.to_i,
+        "scope" => "drive.file"
       }
     }
 
@@ -93,12 +97,19 @@ class UserTest < ActiveSupport::TestCase
     assert_equal auth_hash["uid"], user.google_uid
     assert_equal auth_hash["info"]["name"], user.name
     assert_equal auth_hash["info"]["image"], user.profile_picture_url
-    assert_equal auth_hash["credentials"]["token"], user.access_token
-    assert_equal auth_hash["credentials"]["refresh_token"], user.refresh_token
-    assert_equal Time.at(auth_hash["credentials"]["expires_at"]), user.token_expires_at
+
+    # Check that a token was created
+    token = user.user_tokens.last
+    assert_not_nil token
+    assert_equal auth_hash["credentials"]["token"], token.access_token
+    assert_equal auth_hash["credentials"]["refresh_token"], token.refresh_token
+    assert_equal Time.at(auth_hash["credentials"]["expires_at"]), token.expires_at
   end
 
   test "from_google_auth updates existing user" do
+    # Clear any existing tokens
+    UserToken.delete_all
+
     existing_user = users(:teacher)
     auth_hash = {
       "provider" => "google_oauth2",
@@ -111,7 +122,8 @@ class UserTest < ActiveSupport::TestCase
       "credentials" => {
         "token" => "new_token",
         "refresh_token" => "new_refresh_token",
-        "expires_at" => 1.hour.from_now.to_i
+        "expires_at" => 1.hour.from_now.to_i,
+        "scope" => "drive.file"
       }
     }
 
@@ -120,7 +132,11 @@ class UserTest < ActiveSupport::TestCase
     assert_equal existing_user.id, user.id
     assert_equal "Updated Name", user.name
     assert_equal "https://example.com/new_photo.jpg", user.profile_picture_url
-    assert_equal "new_token", user.access_token
-    assert_equal "new_refresh_token", user.refresh_token
+
+    # Check that a token was created
+    token = user.user_tokens.last
+    assert_not_nil token
+    assert_equal "new_token", token.access_token
+    assert_equal "new_refresh_token", token.refresh_token
   end
 end

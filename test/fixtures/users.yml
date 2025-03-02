@@ -5,15 +5,25 @@ teacher:
   name: Test Teacher 1
   google_uid: teacher1_google_uid
   profile_picture_url: https://example.com/teacher1.jpg
-  access_token: teacher1_access_token
-  refresh_token: teacher1_refresh_token
-  token_expires_at: <%= 1.hour.from_now %>
+  admin: false
 
 teacher2:
   email: teacher2@example.com
   name: Test Teacher 2
   google_uid: teacher2_google_uid
   profile_picture_url: https://example.com/teacher2.jpg
-  access_token: teacher2_access_token
-  refresh_token: teacher2_refresh_token
-  token_expires_at: <%= 1.hour.from_now %>
+  admin: false
+
+student:
+  email: student1@example.com
+  name: Test Student 1
+  google_uid: student1_google_uid
+  profile_picture_url: https://example.com/student1.jpg
+  admin: false
+
+admin:
+  email: admin@example.com
+  name: Admin User
+  google_uid: admin_google_uid
+  profile_picture_url: https://example.com/admin.jpg
+  admin: true

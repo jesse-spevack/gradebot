@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_01_180701) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_02_145200) do
   create_table "email_signups", force: :cascade do |t|
     t.string "email"
     t.datetime "created_at", null: false
@@ -80,14 +80,22 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_01_180701) do
     t.index ["status"], name: "index_student_submissions_on_status"
   end
 
+  create_table "user_tokens", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.string "access_token"
+    t.string "refresh_token"
+    t.datetime "expires_at"
+    t.text "scopes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_user_tokens_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", null: false
     t.string "name", null: false
     t.string "google_uid", null: false
     t.string "profile_picture_url"
-    t.string "access_token"
-    t.string "refresh_token"
-    t.datetime "token_expires_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "admin", default: false, null: false
@@ -100,4 +108,5 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_01_180701) do
   add_foreign_key "grading_tasks", "users"
   add_foreign_key "sessions", "users"
   add_foreign_key "student_submissions", "grading_tasks"
+  add_foreign_key "user_tokens", "users"
 end

@@ -27,7 +27,7 @@ class ProcessGradingTaskCommand < BaseCommand
     grading_task = GradingTask.find_by(id: grading_task_id)
 
     unless grading_task
-      @errors << "Grading task not found with ID: #{grading_task_id}"
+      handle_error("Grading task not found with ID: #{grading_task_id}")
       return nil
     end
 
@@ -50,11 +50,10 @@ class ProcessGradingTaskCommand < BaseCommand
   # @return [Array<Hash>] Array of document information hashes
   def fetch_documents_from_folder(folder_id)
     # Use the GoogleDriveService to fetch documents
-    # This is a placeholder for the actual implementation
     service = GoogleDriveService.new(access_token)
     service.list_files_in_folder(folder_id)
   rescue GoogleDriveService::Error => e
-    @errors << "Failed to fetch documents: #{e.message}"
+    handle_error("Failed to fetch documents: #{e.message}")
     []
   end
 
@@ -64,7 +63,10 @@ class ProcessGradingTaskCommand < BaseCommand
   # @param grading_task [GradingTask] The grading task to associate with submissions
   # @return [Integer] The number of submissions created
   def process_documents(documents, grading_task)
-    return 0 if documents.empty?
+    if documents.empty?
+      handle_error("No documents found in folder")
+      return 0
+    end
 
     created_count = 0
 
@@ -98,12 +100,26 @@ class ProcessGradingTaskCommand < BaseCommand
   end
 
   # Get the access token for Google Drive API
-  # This should be replaced with actual authentication logic
   #
   # @return [String] The access token
   def access_token
-    # For simplicity, we're returning a placeholder value
-    # In a real implementation, this would fetch the token from a proper source
-    "placeholder_access_token"
+    # Get the user associated with this grading task
+    grading_task = GradingTask.find_by(id: grading_task_id)
+
+    if !grading_task || !grading_task.user
+      Rails.logger.error("Could not find grading task or its user for task ID: #{grading_task_id}")
+      return nil
+    end
+
+    # Use the TokenService to get a valid token
+    token_service = TokenService.new(grading_task.user)
+
+    begin
+      token_service.access_token
+    rescue TokenService::TokenError => e
+      Rails.logger.error("Token error for user #{grading_task.user.id}: #{e.message}")
+      handle_error("Failed to get access token: #{e.message}")
+      nil
+    end
   end
 end

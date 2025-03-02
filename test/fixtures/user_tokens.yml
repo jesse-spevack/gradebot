@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+# Valid token for the teacher user
+valid_teacher_token:
+  user: teacher
+  access_token: valid-teacher-access-token
+  refresh_token: valid-teacher-refresh-token
+  expires_at: <%= 1.hour.from_now %>
+  scopes: https://www.googleapis.com/auth/drive.readonly
+
+# Expired token for testing
+expired_teacher_token:
+  user: teacher
+  access_token: expired-teacher-access-token
+  refresh_token: valid-teacher-refresh-token
+  expires_at: <%= 1.hour.ago %>
+  scopes: https://www.googleapis.com/auth/drive.readonly

@@ -51,6 +51,7 @@ module LLM
     # @param input_object [Hash] The input containing the prompt and any parameters
     # @return [Hash] The response with content and metadata
     def generate(input_object)
+      return llm_requests_are_disabled if FeatureFlagService.disabled?(:all_llm_requests)
       # Calculate token count for tracking before the operation
       prompt_token_count = calculate_token_count(input_object)
 
@@ -103,6 +104,16 @@ module LLM
           raise
         end
       end
+    end
+
+    def llm_requests_are_disabled
+      {
+        content: "LLM requests are disabled",
+        metadata: {
+          tokens: 0,
+          cost: 0
+        }
+      }
     end
 
     # Execute the actual request to the LLM provider
