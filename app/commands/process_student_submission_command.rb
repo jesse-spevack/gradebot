@@ -92,47 +92,157 @@ class ProcessStudentSubmissionCommand < BaseCommand
     # Get the grading task with assignment details
     grading_task = student_submission.grading_task
 
-    # Create a new GradingService instance
-    grading_service = GradingService.new
+    begin
+      # Log the start of grading
+      Rails.logger.info("Starting to grade submission #{student_submission.id} for document #{student_submission.original_doc_id}")
 
-    # Grade the submission
-    result = grading_service.grade_submission(
-      document_content,
-      grading_task.assignment_prompt,
-      grading_task.grading_rubric
-    )
+      # Create a new GradingService instance
+      grading_service = GradingService.new
 
-    # Check if there was an error
-    if result[:error].present?
-      Rails.logger.error("Grading error: #{result[:error]}")
-      @errors << "Failed to grade submission: #{result[:error]}"
+      # Grade the submission
+      result = grading_service.grade_submission(
+        document_content,
+        grading_task.assignment_prompt,
+        grading_task.grading_rubric
+      )
+
+      # Add debugging to inspect the result object
+      Rails.logger.debug("ProcessStudentSubmissionCommand: Received result from GradingService")
+      Rails.logger.debug("ProcessStudentSubmissionCommand: Result error: #{result.error.inspect}")
+      Rails.logger.debug("ProcessStudentSubmissionCommand: Result feedback: #{result.feedback.truncate(100)}")
+      Rails.logger.debug("ProcessStudentSubmissionCommand: Result strengths: #{result.strengths.inspect}")
+      Rails.logger.debug("ProcessStudentSubmissionCommand: Result opportunities: #{result.opportunities.inspect}")
+      Rails.logger.debug("ProcessStudentSubmissionCommand: Result overall_grade: #{result.overall_grade.inspect}")
+      Rails.logger.debug("ProcessStudentSubmissionCommand: Result rubric_scores: #{result.rubric_scores.inspect}")
+
+      # Check if there was an error
+      if result.error.present?
+        Rails.logger.error("Grading error: #{result.error}")
+        @errors << "Failed to grade submission: #{result.error}"
+
+        # Transition to failed state
+        StatusManager.transition_submission(
+          student_submission,
+          :failed,
+          { feedback: "Grading failed: #{result.error.truncate(200)}" }
+        )
+
+        return false
+      end
+
+      # Log success
+      Rails.logger.info("Successfully graded submission #{student_submission.id} with grade: #{result.overall_grade}")
+
+      # Format attributes for display
+      strengths_formatted = format_array_attribute(result.strengths)
+      opportunities_formatted = format_array_attribute(result.opportunities)
+
+      Rails.logger.debug("ProcessStudentSubmissionCommand: strengths_formatted: #{strengths_formatted.inspect}")
+      Rails.logger.debug("ProcessStudentSubmissionCommand: opportunities_formatted: #{opportunities_formatted.inspect}")
+
+      # Prepare attributes for status transition
+      transition_attributes = {
+        feedback: result.feedback,
+        # Document generation is not implemented yet, so we're not including graded_doc_id
+        # This can be added back once the document generation functionality is ready
+        # graded_doc_id: generate_graded_document(student_submission, document_content, result),
+        strengths: "- " + result.strengths.join("\n- "),
+        opportunities: "- " + result.opportunities.join("\n- "),
+        overall_grade: result.overall_grade,
+        rubric_scores: result.rubric_scores.to_json,
+        metadata: {
+          doc_title: student_submission.document_title || "Untitled Document",
+          processing_time: (Time.current - student_submission.updated_at).round(1),
+          word_count: document_content.split(/\s+/).size
+        }
+      }
+
+      Rails.logger.debug("ProcessStudentSubmissionCommand: Transition attributes: #{transition_attributes.inspect}")
+
+      # If successful, transition the submission to "completed"
+      StatusManager.transition_submission(
+        student_submission,
+        :completed,
+        transition_attributes
+      )
+
+      true
+    rescue ArgumentError => e
+      if e.message.include?("wrong number of arguments")
+        # Log detailed debugging information for this specific error
+        error_message = "DEBUG: ArgumentError - #{e.message}"
+        Rails.logger.error(error_message)
+        Rails.logger.error("DEBUG: Backtrace: #{e.backtrace.first(10).join("\n")}")
+
+        # Add to errors
+        @errors << "Wrong number of arguments error: #{e.message}"
+
+        # Transition to failed state with more detailed information
+        StatusManager.transition_submission(
+          student_submission,
+          :failed,
+          { feedback: "Failed to complete grading due to argument mismatch. The development team has been notified." }
+        )
+
+        false
+      else
+        # For other ArgumentErrors, just handle them like other StandardErrors
+        error_message = "Error during grading: #{e.message}"
+        Rails.logger.error(error_message)
+        Rails.logger.error(e.backtrace.first(10).join("\n"))
+
+        # Add to errors
+        @errors << error_message
+
+        # Transition to failed state
+        StatusManager.transition_submission(
+          student_submission,
+          :failed,
+          { feedback: "Failed to complete grading: #{e.message.truncate(150)}" }
+        )
+
+        false
+      end
+    rescue StandardError => e
+      # Log the error with backtrace
+      error_message = "Error during grading: #{e.message}"
+      Rails.logger.error(error_message)
+      Rails.logger.error(e.backtrace.first(10).join("\n"))
+
+      # Add to errors
+      @errors << error_message
 
       # Transition to failed state
       StatusManager.transition_submission(
         student_submission,
         :failed,
-        { feedback: "Grading failed: #{result[:error]}" }
+        { feedback: "Failed to complete grading: #{e.message.truncate(150)}" }
       )
 
-      return false
+      false
     end
+  end
 
-    # Log success
-    Rails.logger.info("Successfully graded submission #{student_submission.id} with grade: #{result[:grade]}")
+  # Generate a placeholder for the graded document
+  #
+  # This is a temporary implementation that simply returns a consistent placeholder ID
+  # since the real implementation for document generation appears to be missing.
+  #
+  # Note: This method is currently not being used, as graded_doc_id generation is disabled
+  # in the grade_with_llm method. This stub is kept for future reference.
+  #
+  # @param student_submission [StudentSubmission] The submission to create a graded document for
+  # @param document_content [String] The content of the original document
+  # @param result [GradingResponse] The grading result
+  # @return [String] A placeholder document ID
+  def generate_graded_document(student_submission, document_content, result)
+    # In the future, this would create a new document with feedback
+    # For now, we'll just create a placeholder ID
+    placeholder_id = "graded_#{student_submission.original_doc_id}"
 
-    # Transition to completed state with the feedback
-    StatusManager.transition_submission(
-      student_submission,
-      :completed,
-      {
-        feedback: result[:feedback],
-        graded_doc_id: "graded_#{student_submission.original_doc_id}"
-        # We could store additional metadata like grade, rubric scores, etc.
-        # in the database if we added those fields to the StudentSubmission model
-      }
-    )
+    Rails.logger.info("Created placeholder graded document with ID: #{placeholder_id}")
 
-    true
+    placeholder_id
   end
 
   # Mock the grading process with random success/failure
@@ -235,5 +345,24 @@ class ProcessStudentSubmissionCommand < BaseCommand
       Rails.logger.error(e.backtrace.join("\n")) # Log the full backtrace for debugging
       raise StandardError, "Failed to fetch document content: #{e.message}"
     end
+  end
+
+  # Helper method to format array attributes (strengths, opportunities) into a consistent format
+  # @param attribute [Array, String] The attribute to format
+  # @return [String] The formatted attribute
+  private def format_array_attribute(attribute)
+    Rails.logger.debug("ProcessStudentSubmissionCommand: format_array_attribute called with: #{attribute.inspect} (class: #{attribute.class})")
+
+    result = case attribute
+    when Array
+      attribute.empty? ? "" : "- " + attribute.join("\n- ")
+    when String
+      attribute
+    else
+      attribute.to_s
+    end
+
+    Rails.logger.debug("ProcessStudentSubmissionCommand: format_array_attribute returning: #{result.inspect}")
+    result
   end
 end

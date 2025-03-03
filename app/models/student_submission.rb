@@ -62,6 +62,87 @@ class StudentSubmission < ApplicationRecord
   scope :created_after, ->(date) { where("created_at >= ?", date) }
   scope :created_before, ->(date) { where("created_at <= ?", date) }
 
+  # Methods for accessing structured grading data
+
+  # Returns the document title if available
+  # @return [String] Document title or a default value
+  def document_title
+    return metadata["doc_title"] if metadata.present? && metadata["doc_title"].present?
+    "Document #{original_doc_id.truncate(10)}"
+  end
+
+  # Returns an array of strengths from the structured data
+  # @return [Array<String>] Array of strengths
+  def display_strengths
+    return [] if strengths.blank?
+
+    # Split by newline if stored as a string with newlines
+    if strengths.is_a?(String) && strengths.include?("\n")
+      strengths.split("\n- ").map { |s| s.gsub(/^- /, "") }
+    # Convert from array if stored as JSON/array
+    elsif strengths.is_a?(String) && (strengths.start_with?("[") || strengths.start_with?("{"))
+      begin
+        JSON.parse(strengths)
+      rescue JSON::ParserError
+        [ strengths ]
+      end
+    # Handle simple string case
+    elsif strengths.is_a?(String)
+      [ strengths ]
+    # Handle array case
+    elsif strengths.is_a?(Array)
+      strengths
+    else
+      []
+    end
+  end
+
+  # Returns an array of opportunities from the structured data
+  # @return [Array<String>] Array of opportunities
+  def display_opportunities
+    return [] if opportunities.blank?
+
+    # Split by newline if stored as a string with newlines
+    if opportunities.is_a?(String) && opportunities.include?("\n")
+      opportunities.split("\n- ").map { |o| o.gsub(/^- /, "") }
+    # Convert from array if stored as JSON/array
+    elsif opportunities.is_a?(String) && (opportunities.start_with?("[") || opportunities.start_with?("{"))
+      begin
+        JSON.parse(opportunities)
+      rescue JSON::ParserError
+        [ opportunities ]
+      end
+    # Handle simple string case
+    elsif opportunities.is_a?(String)
+      [ opportunities ]
+    # Handle array case
+    elsif opportunities.is_a?(Array)
+      opportunities
+    else
+      []
+    end
+  end
+
+  # Returns the rubric scores as a hash
+  # @return [Hash] Hash of rubric criterion and scores
+  def display_rubric_scores
+    return {} if rubric_scores.blank?
+
+    # Convert from string if stored as JSON string
+    if rubric_scores.is_a?(String)
+      begin
+        JSON.parse(rubric_scores)
+      rescue JSON::ParserError
+        {}
+      end
+    # Handle hash case
+    elsif rubric_scores.is_a?(Hash)
+      rubric_scores
+    else
+      {}
+    end
+  end
+
   # Returns true if this submission can transition to the given status
   # Delegated to StatusManager
   #

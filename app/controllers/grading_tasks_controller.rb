@@ -11,7 +11,7 @@ class GradingTasksController < ApplicationController
     @grading_task = Current.session.user.grading_tasks.build(grading_task_params)
 
     if @grading_task.save
-      redirect_to grading_tasks_path, notice: "Grading task was successfully created."
+      redirect_to grading_task_path(@grading_task), notice: "Grading task was successfully created."
     else
       render :new, status: :unprocessable_entity
     end
@@ -19,7 +19,15 @@ class GradingTasksController < ApplicationController
 
   def show
     @grading_task = Current.session.user.grading_tasks.find(params[:id])
-    @student_submissions = @grading_task.student_submissions.order(created_at: :desc)
+
+    # Get a fresh count of submissions directly from the database
+    @student_submissions = @grading_task.student_submissions.reload.order(created_at: :desc)
+
+    # Ensure submission counts are fresh by running the status manager count
+    @submission_counts = StatusManager.count_submissions_by_status(@grading_task)
+
+    # Calculate the progress percentage
+    @progress_percentage = StatusManager.calculate_progress_percentage(@grading_task)
 
     # For Turbo Stream updates
     respond_to do |format|

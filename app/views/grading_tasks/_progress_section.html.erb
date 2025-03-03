@@ -1,0 +1,30 @@
+<div id="progress_section_<%= dom_id(grading_task) %>">
+  <div id="<%= dom_id(grading_task) %>_progress_metrics">
+    <%= render "grading_tasks/progress_metrics", grading_task: grading_task, student_submissions: student_submissions %>
+  </div>
+  
+  <div id="<%= dom_id(grading_task) %>_submission_counts">
+    <%= render "grading_tasks/submission_counts", student_submissions: student_submissions %>
+  </div>
+  
+  <% if Rails.env.development? %>
+    <div class="mt-4 p-2 bg-gray-100 rounded text-xs font-mono">
+      <details>
+        <summary class="cursor-pointer text-gray-500">Debug Info</summary>
+        <div class="mt-2 text-gray-600">
+          <p>Actual Status Counts:</p>
+          <ul class="list-disc ml-4">
+            <% counts = StatusManager.count_submissions_by_status(grading_task) %>
+            <li>Pending: <%= counts[:pending] %></li>
+            <li>Processing: <%= counts[:processing] %></li>
+            <li>Completed: <%= counts[:completed] %></li>
+            <li>Failed: <%= counts[:failed] %></li>
+          </ul>
+          <p class="mt-2">Progress: <%= StatusManager.calculate_progress_percentage(grading_task) %>%</p>
+          <p class="mt-2">Total Submissions: <%= student_submissions.count %></p>
+          <p>Last Updated: <%= Time.current.strftime("%H:%M:%S") %></p>
+        </div>
+      </details>
+    </div>
+  <% end %>
+</div> 

@@ -73,6 +73,21 @@ class StatusManager
   # @param attributes [Hash] additional attributes to update
   # @return [Boolean] true if the transition was successful, false otherwise
   def self.transition_submission(submission, new_status, attributes = {})
+    # Add debug logging
+    Rails.logger.debug("StatusManager: Starting transition for submission #{submission.id} from #{submission.status} to #{new_status}")
+    Rails.logger.debug("StatusManager: Attributes passed to transition: #{attributes.inspect}")
+
+    # Check for nil attributes that could cause problems
+    attributes.each do |key, value|
+      if value.nil?
+        Rails.logger.debug("StatusManager: WARNING - nil value for key '#{key}'")
+      elsif value.is_a?(Hash)
+        value.each do |sub_key, sub_value|
+          Rails.logger.debug("StatusManager: WARNING - nil sub-value for key '#{key}.#{sub_key}'") if sub_value.nil?
+        end
+      end
+    end
+
     new_status = new_status.to_sym if new_status.is_a?(String)
 
     # Skip if status isn't changing
@@ -86,8 +101,22 @@ class StatusManager
 
     # Update submission within transaction
     ActiveRecord::Base.transaction do
+      # Ensure metadata is a hash if it's being updated
+      if attributes[:metadata]
+        Rails.logger.debug("StatusManager: Metadata present in attributes: #{attributes[:metadata].inspect}")
+        attributes[:metadata] = {} unless attributes[:metadata].is_a?(Hash)
+      end
+
+      # Log the final attributes being used for the update
+      Rails.logger.debug("StatusManager: Final attributes for update: #{attributes.merge(status: new_status).inspect}")
+
       # Update the submission
       success = submission.update(attributes.merge(status: new_status))
+
+      Rails.logger.debug("StatusManager: Update #{success ? 'succeeded' : 'failed'}")
+      unless success
+        Rails.logger.error("StatusManager: Update errors: #{submission.errors.full_messages.join(', ')}")
+      end
 
       # If the update was successful, broadcast the submission update
       broadcast_student_submission_update(submission) if success
@@ -195,6 +224,18 @@ class StatusManager
       target: "#{dom_id(grading_task)}_submission_counts",
       partial: "grading_tasks/submission_counts",
       locals: { student_submissions: student_submissions }
+    )
+
+    # 4. Send a full update for the progress section to ensure it catches all changes
+    # This helps prevent race conditions where individual updates might be missed
+    Turbo::StreamsChannel.broadcast_update_to(
+      "grading_task_#{grading_task.id}",
+      target: "progress_section_#{dom_id(grading_task)}",
+      partial: "grading_tasks/progress_section",
+      locals: {
+        grading_task: grading_task,
+        student_submissions: student_submissions
+      }
     )
   end
 

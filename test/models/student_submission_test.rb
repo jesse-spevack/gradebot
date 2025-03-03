@@ -154,4 +154,121 @@ class StudentSubmissionTest < ActiveSupport::TestCase
     assert_not submission.retry!
     assert_equal "completed", submission.reload.status
   end
+
+  # Tests for structured grading data
+  test "returns document title from metadata" do
+    submission = student_submissions(:completed_submission)
+    assert_equal "Essay on Climate Change", submission.document_title
+
+    # Test fallback when no title is present
+    submission = student_submissions(:pending_submission)
+    assert_equal "Document doc123", submission.document_title
+  end
+
+  test "display_strengths parses newline-delimited lists" do
+    submission = student_submissions(:completed_submission)
+    strengths = submission.display_strengths
+
+    assert_kind_of Array, strengths
+    assert_equal 3, strengths.size
+    assert_includes strengths, "Clear thesis statement"
+    assert_includes strengths, "Good organization of ideas"
+    assert_includes strengths, "Effective use of transitions"
+  end
+
+  test "display_strengths parses JSON array format" do
+    submission = student_submissions(:json_array_submission)
+    strengths = submission.display_strengths
+
+    assert_kind_of Array, strengths
+    assert_equal 3, strengths.size
+    assert_includes strengths, "Clear introduction"
+    assert_includes strengths, "Good grammar"
+    assert_includes strengths, "Logical structure"
+  end
+
+  test "display_strengths handles simple string format" do
+    submission = student_submissions(:simple_string_submission)
+    strengths = submission.display_strengths
+
+    assert_kind_of Array, strengths
+    assert_equal 1, strengths.size
+    assert_equal "Good overall work", strengths.first
+  end
+
+  test "display_strengths handles missing data" do
+    submission = student_submissions(:pending_submission)
+    strengths = submission.display_strengths
+
+    assert_kind_of Array, strengths
+    assert_empty strengths
+  end
+
+  test "display_opportunities parses newline-delimited lists" do
+    submission = student_submissions(:completed_submission)
+    opportunities = submission.display_opportunities
+
+    assert_kind_of Array, opportunities
+    assert_equal 3, opportunities.size
+    assert_includes opportunities, "Add more supporting evidence"
+    assert_includes opportunities, "Expand the conclusion"
+    assert_includes opportunities, "Consider counterarguments"
+  end
+
+  test "display_opportunities parses JSON array format" do
+    submission = student_submissions(:json_array_submission)
+    opportunities = submission.display_opportunities
+
+    assert_kind_of Array, opportunities
+    assert_equal 2, opportunities.size
+    assert_includes opportunities, "Needs more examples"
+    assert_includes opportunities, "Conclusion is weak"
+  end
+
+  test "display_opportunities handles simple string format" do
+    submission = student_submissions(:simple_string_submission)
+    opportunities = submission.display_opportunities
+
+    assert_kind_of Array, opportunities
+    assert_equal 1, opportunities.size
+    assert_equal "Need more detail", opportunities.first
+  end
+
+  test "display_opportunities handles missing data" do
+    submission = student_submissions(:pending_submission)
+    opportunities = submission.display_opportunities
+
+    assert_kind_of Array, opportunities
+    assert_empty opportunities
+  end
+
+  test "display_rubric_scores parses YAML hash format" do
+    submission = student_submissions(:completed_submission)
+    scores = submission.display_rubric_scores
+
+    assert_kind_of Hash, scores
+    assert_equal 3, scores.size
+    assert_equal 38, scores[:content] || scores["content"]
+    assert_equal 28, scores[:structure] || scores["structure"]
+    assert_equal 27, scores[:grammar] || scores["grammar"]
+  end
+
+  test "display_rubric_scores parses JSON hash format" do
+    submission = student_submissions(:json_array_submission)
+    scores = submission.display_rubric_scores
+
+    assert_kind_of Hash, scores
+    assert_equal 3, scores.size
+    assert_equal 35, scores["content"]
+    assert_equal 25, scores["structure"]
+    assert_equal 29, scores["grammar"]
+  end
+
+  test "display_rubric_scores handles missing data" do
+    submission = student_submissions(:simple_string_submission)
+    scores = submission.display_rubric_scores
+
+    assert_kind_of Hash, scores
+    assert_empty scores
+  end
 end

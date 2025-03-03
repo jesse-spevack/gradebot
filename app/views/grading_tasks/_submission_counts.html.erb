@@ -5,7 +5,10 @@
     </span>
   </div>
   <div>
-    <span class="text-xs font-semibold inline-block py-1 px-2 rounded-full text-blue-600 bg-blue-100 w-full">
+    <span class="text-xs font-semibold inline-flex items-center justify-center py-1 px-2 rounded-full text-blue-600 bg-blue-100 w-full">
+      <% if student_submissions.processing.count > 0 %>
+        <%= render "shared/spinner", size: "h-3 w-3 mr-1", color: "text-blue-600" %>
+      <% end %>
       <%= student_submissions.processing.count %> Processing
     </span>
   </div>

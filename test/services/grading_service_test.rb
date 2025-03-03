@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class GradingServiceTest < ActiveSupport::TestCase
@@ -19,6 +21,9 @@ class GradingServiceTest < ActiveSupport::TestCase
     @document_content = "This is a sample essay about climate change. The Earth is warming due to human activities."
     @assignment_prompt = "Write a 500-word essay about climate change."
     @grading_rubric = "Content: 40%, Structure: 30%, Grammar: 30%"
+
+    # Set up consistent LLM configuration for tests
+    stub_llm_enabled(false) # Start with LLM disabled
   end
 
   test "exists as a service class" do
@@ -26,6 +31,10 @@ class GradingServiceTest < ActiveSupport::TestCase
   end
 
   test "initializes with default configuration" do
+    # Use our test configuration
+    test_config = { provider: :test, model: "test-model", temperature: 0.5 }
+    stub_task_config(:grade_assignment, test_config)
+
     service = GradingService.new
 
     # Should use the default config for grade_assignment
@@ -40,33 +49,50 @@ class GradingServiceTest < ActiveSupport::TestCase
   end
 
   test "returns error message when LLM is disabled" do
-    # Ensure LLM is disabled
-    @feature_flag_service.disable("llm_enabled", @user)
+    # Ensure LLM is disabled via our helper
+    stub_llm_enabled(false)
 
     service = GradingService.new
     result = service.grade_submission(@document_content, @assignment_prompt, @grading_rubric)
 
-    assert_includes result.keys, :error
-    assert_match /LLM grading is not enabled/, result[:error]
-    assert_includes result.keys, :feedback
-    assert_match /LLM grading is not enabled/, result[:feedback]
+    assert_equal "LLM grading is not enabled. Please contact an administrator.", result.error
   end
 
   test "grades submission successfully when LLM is enabled" do
-    # Enable LLM for this test
-    @feature_flag_service.enable("llm_enabled", @user)
+    # Enable LLM for this test using our helper
+    stub_llm_enabled(true)
 
-    # Create a mock response
-    mock_response = {
-      content: "Feedback: Good essay but lacks depth.\nGrade: B\nScores: Content=30/40, Structure=25/30, Grammar=28/30",
-      metadata: { tokens: { total: 100 } }
+    # Create a mock response with JSON content matching the expected format
+    mock_json = {
+      "feedback": "Feedback: Good essay but lacks depth.",
+      "strengths": [ "Good introduction", "Clear thesis statement" ],
+      "opportunities": [ "Add more supporting evidence", "Improve conclusion" ],
+      "overall_grade": "B",
+      "scores": { "Content": 30, "Structure": 25, "Grammar": 28 }
     }
 
-    # Create a mock client
-    mock_client = mock("llm_client")
+    # Create a mock response using our helper
+    mock_response = mock_llm_response(JSON.generate(mock_json))
 
-    # Expect the generate method to be called with a prompt containing our inputs
-    mock_client.expects(:generate).returns(mock_response)
+    # Create a mock client using our helper
+    mock_client = mock_llm_client(mock_response)
+
+    # Stub PromptTemplate to return a test prompt
+    test_prompt = "Test prompt with document, assignment, and rubric"
+    PromptTemplate.stubs(:render).with(:grading, anything).returns(test_prompt)
+
+    # Stub ResponseParser to return a GradingResult
+    mock_result = GradingResponse.new(
+      feedback: "Feedback: Good essay but lacks depth.",
+      strengths: [ "Good introduction", "Clear thesis statement" ],
+      opportunities: [ "Add more supporting evidence", "Improve conclusion" ],
+      overall_grade: "B",
+      rubric_scores: { "Content" => 30, "Structure" => 25, "Grammar" => 28 }
+    )
+    ResponseParser.stubs(:parse).returns(mock_result)
+
+    # Expect the generate method to be called with our test prompt
+    mock_client.expects(:generate).with({ prompt: test_prompt }).returns(mock_response)
 
     # Stub the client factory to return our mock client
     LLM::ClientFactory.stubs(:create).returns(mock_client)
@@ -76,74 +102,89 @@ class GradingServiceTest < ActiveSupport::TestCase
     result = service.grade_submission(@document_content, @assignment_prompt, @grading_rubric)
 
     # Verify the response
-    assert_nil result[:error]
-    assert_equal mock_response[:content], result[:feedback]
-    assert_equal "B", result[:grade]
-    assert_kind_of Hash, result[:rubric_scores]
+    assert_nil result.error
+    assert_equal "Feedback: Good essay but lacks depth.", result.feedback
+    assert_equal [ "Good introduction", "Clear thesis statement" ], result.strengths
+    assert_equal [ "Add more supporting evidence", "Improve conclusion" ], result.opportunities
+    assert_equal "B", result.overall_grade
+    assert_kind_of Hash, result.rubric_scores
+    assert_equal 30, result.rubric_scores["Content"]
   end
 
-  test "extracts grade from response" do
-    service = GradingService.new
+  test "handles parsing errors gracefully" do
+    # Enable LLM for this test using our helper
+    stub_llm_enabled(true)
 
-    # Test different grade formats
-    assert_equal "A", service.send(:extract_grade, "Overall Grade: A")
-    assert_equal "B+", service.send(:extract_grade, "The grade is B+")
-    assert_equal "C-", service.send(:extract_grade, "grade: C-")
-    assert_equal "F", service.send(:extract_grade, "Grade: F for this submission")
+    # Create a mock client and response using our helpers
+    mock_client = mock_llm_client
+    mock_response = mock_llm_response("Invalid JSON or structured text")
 
-    # When no grade is found
-    assert_equal "Ungraded", service.send(:extract_grade, "No grade mentioned here")
-  end
+    # Set up expectations and stubs
+    mock_client.stubs(:generate).returns(mock_response)
+    LLM::ClientFactory.stubs(:create).returns(mock_client)
 
-  test "handles errors from LLM client" do
-    # Enable LLM for this test
-    @feature_flag_service.enable("llm_enabled", @user)
+    # Stub PromptTemplate to return a test prompt
+    PromptTemplate.stubs(:render).returns("Test prompt")
 
-    # Stub the client factory to raise an error
-    LLM::ClientFactory.stubs(:create).raises(StandardError.new("LLM API error"))
+    # Stub ResponseParser to raise a ParsingError
+    parsing_error = ParsingError.new("Failed to parse response", [
+      { strategy: "JsonStrategy", error: "Invalid JSON" }
+    ])
+    ResponseParser.stubs(:parse).raises(parsing_error)
+
+    # Stub Rails logger to avoid formatting issues in tests
+    Rails.logger.stubs(:error)
+
+    # Stub the GradingLogger to allow any calls
+    GradingLogger.stubs(:log_grading_error)
 
     # Test the service
     service = GradingService.new
     result = service.grade_submission(@document_content, @assignment_prompt, @grading_rubric)
 
     # Verify the response contains error information
-    assert_includes result.keys, :error
-    assert_match /LLM API error/, result[:error]
-    assert_includes result.keys, :feedback
-    assert_match /Error during grading/, result[:feedback]
+    assert_includes result.error, "Failed to parse LLM response"
   end
 
-  test "builds appropriate grading prompt" do
-    service = GradingService.new
-    prompt = service.send(:build_grading_prompt, @document_content, @assignment_prompt, @grading_rubric)
+  test "handles errors from LLM client" do
+    # Enable LLM for this test using our helper
+    stub_llm_enabled(true)
 
-    # Verify prompt structure and content
-    assert_kind_of String, prompt
-    assert_includes prompt, @document_content
-    assert_includes prompt, @assignment_prompt
-    assert_includes prompt, @grading_rubric
-    assert_includes prompt, "Please grade this submission"
+    # Stub PromptTemplate to return a test prompt
+    PromptTemplate.stubs(:render).returns("Test prompt")
+
+    # Stub the client factory to raise an error
+    LLM::ClientFactory.stubs(:create).raises(StandardError.new("LLM API error"))
+
+    # Stub Rails logger to avoid formatting issues in tests
+    Rails.logger.stubs(:error)
+
+    # Stub the GradingLogger to allow any calls
+    GradingLogger.stubs(:log_grading_error)
+
+    # Test the service
+    service = GradingService.new
+    result = service.grade_submission(@document_content, @assignment_prompt, @grading_rubric)
+
+    # Verify the response contains error information
+    assert_includes result.error, "Error during grading"
   end
 
-  test "extracts rubric scores from response" do
-    service = GradingService.new
+  test "uses ContentCleaner to clean document content" do
+    # Test with document containing tabs and unusual characters
+    dirty_content = "Line 1\tWith tab\nLine 2\r\nWith different newline\u0000Null char"
+    clean_content = ContentCleaner.clean(dirty_content)
 
-    # Sample LLM response with scores
-    response = <<~RESPONSE
-      The essay addresses climate change well.
+    # Verify content was cleaned
+    refute_includes clean_content, "\t"
+    refute_includes clean_content, "\r"
+    refute_includes clean_content, "\u0000"
+    assert_includes clean_content, "Line 1"
+    assert_includes clean_content, "Line 2"
+  end
 
-      Content: 35/40
-      Structure: 25/30
-      Grammar: 28/30
-
-      Overall Grade: B+
-    RESPONSE
-
-    scores = service.send(:extract_rubric_scores, response, @grading_rubric)
-
-    # Verify extracted scores
-    assert_equal 35, scores[:content]
-    assert_equal 25, scores[:structure]
-    assert_equal 28, scores[:grammar]
+  teardown do
+    # Clean up all stubs
+    unstub_all_llm_configuration
   end
 end

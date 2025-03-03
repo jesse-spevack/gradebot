@@ -18,9 +18,42 @@ completed_submission:
   status: completed
   feedback: "Great job! Your essay was well-structured and had excellent content."
   graded_doc_id: "gdoc789"
+  strengths: "Clear thesis statement\n- Good organization of ideas\n- Effective use of transitions"
+  opportunities: "Add more supporting evidence\n- Expand the conclusion\n- Consider counterarguments"
+  overall_grade: "B+"
+  rubric_scores:
+    content: 38
+    structure: 28
+    grammar: 27
+  metadata:
+    doc_title: "Essay on Climate Change"
+    processing_time: 3.2
+    word_count: 550
 
 failed_submission:
   grading_task: one
   original_doc_id: "doc101112"
   status: failed
-  feedback: "Unable to process this submission due to an error." 
+  feedback: "Unable to process this submission due to an error."
+
+# Test different formats of storing data
+json_array_submission:
+  grading_task: one
+  original_doc_id: "doc131415"
+  status: completed
+  feedback: "Good work overall, but some areas need improvement."
+  graded_doc_id: "gdoc131415"
+  strengths: '["Clear introduction", "Good grammar", "Logical structure"]'
+  opportunities: '["Needs more examples", "Conclusion is weak"]'
+  overall_grade: "B"
+  rubric_scores: '{"content": 35, "structure": 25, "grammar": 29}'
+
+simple_string_submission:
+  grading_task: one
+  original_doc_id: "doc161718"
+  status: completed
+  feedback: "Simple submission with minimal feedback."
+  graded_doc_id: "gdoc161718"
+  strengths: "Good overall work"
+  opportunities: "Need more detail"
+  overall_grade: "C+" 

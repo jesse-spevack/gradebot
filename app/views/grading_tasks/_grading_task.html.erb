@@ -20,13 +20,7 @@
 
     <%= render "shared/card", title: "Progress" do %>
       <div class="mt-2">
-        <div id="<%= dom_id(grading_task) %>_progress_metrics">
-          <%= render "grading_tasks/progress_metrics", grading_task: grading_task, student_submissions: student_submissions %>
-        </div>
-        
-        <div id="<%= dom_id(grading_task) %>_submission_counts">
-          <%= render "grading_tasks/submission_counts", student_submissions: student_submissions %>
-        </div>
+        <%= render "grading_tasks/progress_section", grading_task: grading_task, student_submissions: student_submissions %>
       </div>
     <% end %>
 

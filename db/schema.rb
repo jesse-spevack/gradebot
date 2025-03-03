@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_02_145200) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_03_025200) do
   create_table "email_signups", force: :cascade do |t|
     t.string "email"
     t.datetime "created_at", null: false
@@ -74,6 +74,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_02_145200) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "lock_version", default: 0, null: false
+    t.text "strengths"
+    t.text "opportunities"
+    t.string "overall_grade"
+    t.json "rubric_scores"
+    t.json "metadata"
     t.index ["grading_task_id", "status"], name: "index_submissions_on_grading_task_id_and_status"
     t.index ["grading_task_id"], name: "index_student_submissions_on_grading_task_id"
     t.index ["original_doc_id"], name: "index_student_submissions_on_original_doc_id"

@@ -2,7 +2,7 @@
 
 - [ ] Figure out how to track actual costs of requests 
   - We should store this in the DB so we can query costs by user, by grading task, by student submission, etc.
-- [ ] BUG: status bubbles on grading task are not updating without page refresh
+- [x] BUG: status bubbles on grading task are not updating without page refresh
 - [ ] Styling of submission list and grade task need to be improved 
 - [ ] Formatting of rubric and assignment prompt - consider trix for teachers and md for llm
 - [ ] Formating of the feedback on the student submission page

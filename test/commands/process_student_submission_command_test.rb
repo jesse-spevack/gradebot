@@ -15,6 +15,18 @@ class ProcessStudentSubmissionCommandTest < ActiveJob::TestCase
 
     # Remove any existing tokens for this user
     UserToken.where(user_id: @user.id).delete_all
+
+    # Setup the grading task with meaningful prompt and rubric
+    @grading_task.update!(
+      assignment_prompt: "Write an essay about climate change.",
+      grading_rubric: "Content: 40%, Structure: 30%, Grammar: 30%"
+    )
+
+    # Set document title in the metadata
+    @submission.update!(metadata: { "doc_title" => "Climate Change Essay" })
+
+    # Mock LLM configuration
+    stub_llm_enabled(true)
   end
 
   test "transitions submission status when processing" do
@@ -164,35 +176,32 @@ class ProcessStudentSubmissionCommandTest < ActiveJob::TestCase
     # Mock document content
     document_content = "This is a sample student submission about climate change."
 
-    # Setup the grading task with meaningful prompt and rubric
-    @grading_task.update!(
-      assignment_prompt: "Write an essay about climate change.",
-      grading_rubric: "Content: 40%, Structure: 30%, Grammar: 30%"
-    )
-
     # Mock the Google Drive client and document fetching
     mock_client = mock("Google::Apis::DriveV3::DriveService")
     TokenService.any_instance.stubs(:create_google_drive_client).returns(mock_client)
     ProcessStudentSubmissionCommand.any_instance.stubs(:fetch_document_content).returns(document_content)
 
-    # Mock the GradingService response
-    grading_result = {
-      feedback: "This is excellent work!",
-      grade: "A",
-      rubric_scores: { content: 38, structure: 28, grammar: 29 }
-    }
+    # Mock the GradingService response with structured data
+    grading_result = GradingResponse.new(
+      feedback: "This is excellent work with clear arguments and good structure!",
+      overall_grade: "A-",
+      rubric_scores: { content: 38, structure: 28, grammar: 29 },
+      opportunities: [ "Add more supporting evidence", "Consider counterarguments" ],
+      strengths: [ "Clear thesis statement", "Good organization", "Effective transitions" ],
+      error: nil
+    )
 
     # Stub the GradingService to return our mock result
-    GradingService.any_instance.stubs(:grade_submission).with(
-      document_content,
-      @grading_task.assignment_prompt,
-      @grading_task.grading_rubric
-    ).returns(grading_result)
+    GradingService.any_instance.stubs(:grade_submission).returns(grading_result)
 
-    # Run the command with the real implementation of grade_with_llm
-    ProcessStudentSubmissionCommand.any_instance.unstub(:execute)
-    StatusManager.transition_submission(@submission, :processing)
+    # Create the command instance
     command = ProcessStudentSubmissionCommand.new(student_submission_id: @submission.id)
+
+    # Stub the generate_graded_document method
+    command.stubs(:generate_graded_document).returns("graded_doc_123")
+
+    # Set submission to processing status for testing
+    StatusManager.transition_submission(@submission, :processing)
 
     # Override the mock_grading_process method to call our grade_with_llm method
     command.stubs(:mock_grading_process).with(@submission, document_content).returns(true) do |submission, content|
@@ -205,9 +214,28 @@ class ProcessStudentSubmissionCommandTest < ActiveJob::TestCase
 
     # Verify
     assert result.success?
+
+    # Reload the submission to get updated values
     @submission.reload
+
+    # Check that all structured data was saved correctly
     assert_equal "completed", @submission.status
-    assert_equal "This is excellent work!", @submission.feedback
+    assert_equal "This is excellent work with clear arguments and good structure!", @submission.feedback
+    assert_equal "A-", @submission.overall_grade
+
+    # Check that arrays were properly converted to strings
+    assert_includes @submission.strengths, "Clear thesis statement"
+    assert_includes @submission.strengths, "Good organization"
+    assert_includes @submission.opportunities, "Add more supporting evidence"
+
+    # Check that hash data was properly stored
+    rubric_scores = @submission.display_rubric_scores
+    assert_equal 38, rubric_scores[:content] || rubric_scores["content"]
+    assert_equal 28, rubric_scores[:structure] || rubric_scores["structure"]
+
+    # Check that metadata was stored
+    assert_equal "Climate Change Essay", @submission.metadata["doc_title"]
+    assert_includes @submission.metadata.keys, "processing_time"
   end
 
   test "handles different document types" do
@@ -239,6 +267,72 @@ class ProcessStudentSubmissionCommandTest < ActiveJob::TestCase
       text_file.mime_type,
       other_file.mime_type
     ].uniq.length
+  end
+
+  test "processes LLM response correctly" do
+    # Mock the LLM response
+    llm_response = {
+      "feedback" => "Your essay shows a basic understanding of the New Deal and its impact. While you've covered the main points, the analysis could be deeper with more specific examples and statistics. I appreciate your clear organization and how you connected the New Deal's impact to present day. To strengthen your work, consider including more specific details about program implementations, opposition to the New Deal, and its varied impacts on different social groups. Adding specific dates, statistics, and examples would make your arguments more compelling.",
+      "strengths" => [
+        "Clear basic organization following the prompt structure",
+        "Good connection between historical conditions and New Deal response",
+        "Effective discussion of long-term impacts",
+        "Clear writing style with few grammatical errors"
+      ],
+      "opportunities" => [
+        "Include more specific statistics and dates about the Great Depression",
+        "Expand analysis of program categorization (Relief, Recovery, Reform)",
+        "Provide more detailed examples of how specific programs worked",
+        "Develop deeper analysis of impacts on different social groups",
+        "Include discussion of New Deal opposition and challenges"
+      ],
+      "overall_grade" => "B-",
+      "scores" => {
+        "Historical Context and Causes" => "7/10",
+        "Analysis of New Deal Programs" => "6/10",
+        "Impact Analysis" => "6/10",
+        "Writing Quality" => "8/10"
+      }
+    }
+
+    # Mock dependencies
+    TokenService.any_instance.stubs(:create_google_drive_client).returns(mock)
+    ProcessStudentSubmissionCommand.any_instance.stubs(:fetch_document_content).returns("Sample document content")
+    GradingService.any_instance.stubs(:grade_submission).returns(
+      GradingResponse.new(
+        feedback: llm_response["feedback"],
+        strengths: llm_response["strengths"],
+        opportunities: llm_response["opportunities"],
+        overall_grade: llm_response["overall_grade"],
+        rubric_scores: llm_response["scores"]
+      )
+    )
+
+    # Process the submission
+    command = ProcessStudentSubmissionCommand.new(student_submission_id: @submission.id)
+    result = command.call
+
+    # Verify the result
+    assert result.success?
+    @submission.reload
+
+    # Check that the feedback is the actual feedback text, not the raw JSON
+    assert_equal llm_response["feedback"], @submission.feedback
+
+    # Check that strengths and opportunities are stored as bullet-pointed strings
+    expected_strengths = "- " + llm_response["strengths"].join("\n- ")
+    expected_opportunities = "- " + llm_response["opportunities"].join("\n- ")
+    assert_equal expected_strengths, @submission.strengths
+    assert_equal expected_opportunities, @submission.opportunities
+
+    # Check overall grade
+    assert_equal llm_response["overall_grade"], @submission.overall_grade
+
+    # Check rubric scores are stored as JSON
+    assert_equal llm_response["scores"].to_json, @submission.rubric_scores
+
+    # Check status
+    assert_equal "completed", @submission.status
   end
 
   teardown do
