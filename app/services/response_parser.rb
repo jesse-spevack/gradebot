@@ -15,24 +15,32 @@ class ResponseParser
         overall_grade: result["overall_grade"],
         rubric_scores: result["scores"]
       ) if valid_response?(result)
-    rescue JSON::ParserError
+    rescue JSON::ParserError => e
       # Continue to other strategies if JSON parsing fails
+      Rails.logger.error("JSON parsing error: #{e.message}")
+      Rails.logger.error("Falling back to other strategies")
     end
 
-    # Try other parsing strategies
+    try_other_strategies(response)
+  end
+
+  private
+
+  def self.try_other_strategies(response)
+    last_error = nil
+
     strategies.each do |strategy|
       begin
         result = strategy.parse(response)
         return result if result&.success?
       rescue => e
+        Rails.logger.error("Error parsing response with strategy #{strategy}: #{e.message}")
         last_error = e
       end
     end
 
     raise last_error || ParsingError.new("Failed to parse response using any strategy")
   end
-
-  private
 
   def self.valid_response?(result)
     result.is_a?(Hash) &&

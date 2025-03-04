@@ -19,7 +19,7 @@ Your response should include:
    - Do not include a salutation or closing.
    - Do not include any personal information about the student or the teacher.
 2. Specific strengths and opportunities for improvement of the submission
-3. A score for each rubric criterion in the format "Category: X/Y" (e.g., "Content: 35/40")
+3. A score for each rubric criterion in the format "Category: Excellent"
 4. An overall grade (A, B+, C, etc.)
 
 VERY IMPORTANT: Format your response as a valid JSON object with ONLY the following keys:
@@ -27,6 +27,7 @@ VERY IMPORTANT: Format your response as a valid JSON object with ONLY the follow
 - "strengths": An array of areas of strength for the student (array of strings)
 - "opportunities": An array of areas of improvement for the student (array of strings)
 - "overall_grade": An overall grade (string like "A", "B+", "C", etc.)
+  - Use the language of the rubric to assign the overall grade (e.g. "Excellent", "Proficient", "Basic", etc.)
 - "scores": A hash/object of scores for each rubric criterion
 
 EXAMPLE RESPONSE FORMAT:
@@ -42,10 +43,10 @@ EXAMPLE RESPONSE FORMAT:
     "Add more specific examples",
     "Strengthen your conclusion"
   ],
-  "overall_grade": "B+",
+  "overall_grade": "Proficient",
   "scores": {
-    "Content": 35,
-    "Structure": 28,
-    "Grammar": 25
+    "Content": "Excellent",
+    "Structure": "Basic",
+    "Grammar": "Proficient"
   }
 } 

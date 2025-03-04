@@ -32,7 +32,10 @@ class GradingService
         grading_rubric: grading_rubric
       })
 
+      Rails.logger.info("LLM prompt: #{prompt}")
       response = LLMClient.new(@config).generate(prompt)
+      Rails.logger.info("LLM resposne: #{response}")
+      Rails.logger.info("LLM response content: #{response[:content]}")
       result = ResponseParser.parse(response[:content])
 
       GradingResponse.new(

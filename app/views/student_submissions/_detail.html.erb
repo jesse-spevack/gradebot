@@ -36,13 +36,9 @@
       <% end %>
     <% end %>
 
-    <%= render "shared/card", title: "Feedback" do %>
-      <% if student_submission.feedback.present? %>
-        <div class="prose prose-blue max-w-none">
-          <%= simple_format(student_submission.feedback) %>
-        </div>
-      <% else %>
-        <p class="text-gray-500 italic">No feedback available yet.</p>
+    <% if student_submission.completed? %>
+      <%= render "shared/card", title: "Grading Results" do %>
+        <%= render "grading_results", student_submission: student_submission %>
       <% end %>
     <% end %>
 
