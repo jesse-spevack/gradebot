@@ -1,0 +1,221 @@
+<div class="container mx-auto my-8 px-4">
+  <header class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">LLM Cost Reports</h1>
+    <p class="text-gray-600">Monitor and analyze your LLM API usage costs</p>
+  </header>
+
+  <!-- Date Range Filter -->
+  <div class="bg-white rounded-lg shadow p-6 mb-8">
+    <%= form_with url: admin_llm_cost_reports_path, method: :get, class: "flex flex-wrap items-end gap-4" do |f| %>
+      <div>
+        <%= f.label :start_date, "Start Date", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.date_field :start_date, value: @start_date, class: "rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+      </div>
+      
+      <div>
+        <%= f.label :end_date, "End Date", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.date_field :end_date, value: @end_date, class: "rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+      </div>
+      
+      <div>
+        <%= f.label :date_range, "Quick Range", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.select :date_range, 
+          options_for_select([
+            ["Last 7 days", 7], 
+            ["Last 30 days", 30], 
+            ["Last 90 days", 90]
+          ], selected: @date_range),
+          {}, 
+          class: "rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+      </div>
+      
+      <div>
+        <%= f.submit "Apply Filter", class: "px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-medium text-gray-900">Total Cost</h3>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+          <%= @start_date.strftime("%b %d") %> - <%= @end_date.strftime("%b %d") %>
+        </span>
+      </div>
+      <p class="mt-2 text-3xl font-bold text-gray-900">$<%= sprintf('%.2f', @total_cost) %></p>
+      <div class="mt-4 text-sm text-gray-500">
+        Based on <%= pluralize(LlmCostLog.for_date_range(@start_date, @end_date).count, 'request') %>
+      </div>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-medium text-gray-900">Most Used Model</h3>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+          Usage
+        </span>
+      </div>
+      <% if @cost_by_model.any? %>
+        <% top_model = @cost_by_model.max_by { |_, v| v } %>
+        <p class="mt-2 text-3xl font-bold text-gray-900"><%= top_model.first %></p>
+        <div class="mt-4 text-sm text-gray-500">
+          $<%= sprintf('%.2f', top_model.last) %> (<%= sprintf('%.1f', (top_model.last / @total_cost * 100)) %>% of total cost)
+        </div>
+      <% else %>
+        <p class="mt-2 text-xl italic text-gray-400">No data available</p>
+      <% end %>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-medium text-gray-900">Most Common Request</h3>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+          Request Type
+        </span>
+      </div>
+      <% if @cost_by_type.any? %>
+        <% top_type = @cost_by_type.max_by { |_, v| v } %>
+        <p class="mt-2 text-3xl font-bold text-gray-900"><%= top_type.first || "Unknown" %></p>
+        <div class="mt-4 text-sm text-gray-500">
+          $<%= sprintf('%.2f', top_type.last) %> (<%= sprintf('%.1f', (top_type.last / @total_cost * 100)) %>% of total cost)
+        </div>
+      <% else %>
+        <p class="mt-2 text-xl italic text-gray-400">No data available</p>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Charts Section -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+    <!-- Daily Costs Chart -->
+    <div class="bg-white rounded-lg shadow p-6">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">Daily Costs (Last <%= @date_range %> Days)</h3>
+      <% if @daily_costs.any? %>
+        <div class="chart-container" style="height: 300px;">
+          <!-- This would be where you'd add a chart library like Chart.js -->
+          <!-- For now, let's show a simple representation -->
+          <div class="flex flex-col h-full">
+            <div class="flex-1 flex items-end">
+              <% max_cost = @daily_costs.values.max %>
+              <% @daily_costs.each do |date, cost| %>
+                <div class="flex flex-col items-center mx-1" style="flex: 1;">
+                  <div class="w-full bg-indigo-500 rounded-t" style="height: <%= cost > 0 ? (cost / max_cost * 100).to_i : 0 %>%;"></div>
+                  <span class="text-xs text-gray-500 mt-1"><%= date.is_a?(Date) ? date.strftime("%d") : date.to_s.split(' ').last %></span>
+                </div>
+              <% end %>
+            </div>
+            <div class="flex justify-between text-xs text-gray-500 mt-4">
+              <span><%= @daily_costs.keys.first.is_a?(Date) ? @daily_costs.keys.first.strftime("%b %d") : @daily_costs.keys.first %></span>
+              <span><%= @daily_costs.keys.last.is_a?(Date) ? @daily_costs.keys.last.strftime("%b %d") : @daily_costs.keys.last %></span>
+            </div>
+          </div>
+        </div>
+      <% else %>
+        <div class="flex items-center justify-center h-64 text-gray-400 italic">
+          No data available for the selected date range
+        </div>
+      <% end %>
+    </div>
+    
+    <!-- Cost by Model Chart -->
+    <div class="bg-white rounded-lg shadow p-6">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">Cost by Model</h3>
+      <% if @cost_by_model.any? %>
+        <div class="chart-container" style="height: 300px;">
+          <!-- This would use a pie or doughnut chart in a real implementation -->
+          <div class="flex flex-col h-full">
+            <div class="flex-1">
+              <% colors = ['bg-indigo-500', 'bg-cyan-500', 'bg-emerald-500', 'bg-amber-500', 'bg-rose-500'] %>
+              <% @cost_by_model.each_with_index do |(model, cost), index| %>
+                <div class="flex items-center mb-4">
+                  <div class="w-3 h-3 <%= colors[index % colors.length] %> rounded-full mr-2"></div>
+                  <div class="flex-1 text-sm">
+                    <div class="flex justify-between mb-1">
+                      <span class="font-medium"><%= model %></span>
+                      <span class="text-gray-500">$<%= sprintf('%.2f', cost) %></span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                      <div class="<%= colors[index % colors.length] %> h-2 rounded-full" style="width: <%= (cost / @total_cost * 100).to_i %>%"></div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% else %>
+        <div class="flex items-center justify-center h-64 text-gray-400 italic">
+          No data available for the selected date range
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Top Users Section -->
+  <div class="bg-white rounded-lg shadow p-6 mb-8">
+    <h3 class="text-lg font-medium text-gray-900 mb-4">Top Users by Cost</h3>
+    <% if @top_users.any? %>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Cost</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Percentage</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @top_users.each do |email, cost| %>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><%= email %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">$<%= sprintf('%.2f', cost) %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= sprintf('%.1f', (cost / @total_cost * 100)) %>%</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <%= link_to "View Details", user_costs_admin_llm_cost_reports_path(user_id: User.find_by(email: email)&.id, start_date: @start_date, end_date: @end_date), class: "text-indigo-600 hover:text-indigo-900" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="flex items-center justify-center h-32 text-gray-400 italic">
+        No user data available for the selected date range
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Request Types Section -->
+  <div class="bg-white rounded-lg shadow p-6">
+    <h3 class="text-lg font-medium text-gray-900 mb-4">Cost by Request Type</h3>
+    <% if @cost_by_type.any? %>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Request Type</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Cost</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Percentage</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @cost_by_type.each do |type, cost| %>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><%= type || "Unknown" %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">$<%= sprintf('%.2f', cost) %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= sprintf('%.1f', (cost / @total_cost * 100)) %>%</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="flex items-center justify-center h-32 text-gray-400 italic">
+        No request type data available for the selected date range
+      </div>
+    <% end %>
+  </div>
+</div> 

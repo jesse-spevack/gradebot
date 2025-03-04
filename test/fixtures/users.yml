@@ -14,13 +14,6 @@ teacher2:
   profile_picture_url: https://example.com/teacher2.jpg
   admin: false
 
-student:
-  email: student1@example.com
-  name: Test Student 1
-  google_uid: student1_google_uid
-  profile_picture_url: https://example.com/student1.jpg
-  admin: false
-
 admin:
   email: admin@example.com
   name: Admin User

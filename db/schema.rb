@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_03_025200) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_04_153508) do
   create_table "email_signups", force: :cascade do |t|
     t.string "email"
     t.datetime "created_at", null: false
@@ -53,6 +53,28 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_03_025200) do
     t.integer "status", default: 0
     t.integer "lock_version", default: 0, null: false
     t.index ["user_id"], name: "index_grading_tasks_on_user_id"
+  end
+
+  create_table "llm_cost_logs", force: :cascade do |t|
+    t.integer "user_id"
+    t.string "trackable_type"
+    t.integer "trackable_id"
+    t.string "request_type"
+    t.string "llm_model_name"
+    t.integer "prompt_tokens"
+    t.integer "completion_tokens"
+    t.integer "total_tokens"
+    t.decimal "cost", precision: 10, scale: 6
+    t.string "request_id"
+    t.json "metadata"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_llm_cost_logs_on_created_at"
+    t.index ["llm_model_name"], name: "index_llm_cost_logs_on_llm_model_name"
+    t.index ["request_id"], name: "index_llm_cost_logs_on_request_id"
+    t.index ["request_type"], name: "index_llm_cost_logs_on_request_type"
+    t.index ["trackable_type", "trackable_id"], name: "index_llm_cost_logs_on_trackable"
+    t.index ["user_id"], name: "index_llm_cost_logs_on_user_id"
   end
 
   create_table "sessions", force: :cascade do |t|
@@ -111,6 +133,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_03_025200) do
   add_foreign_key "feature_flag_audit_logs", "feature_flags"
   add_foreign_key "feature_flag_audit_logs", "users"
   add_foreign_key "grading_tasks", "users"
+  add_foreign_key "llm_cost_logs", "users"
   add_foreign_key "sessions", "users"
   add_foreign_key "student_submissions", "grading_tasks"
   add_foreign_key "user_tokens", "users"

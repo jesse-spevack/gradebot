@@ -21,6 +21,11 @@ Rails.application.routes.draw do
   # Admin routes
   namespace :admin do
     resources :feature_flags
+    resources :llm_cost_reports, only: [ :index ] do
+      collection do
+        get :user_costs
+      end
+    end
   end
 
   # Application routes
