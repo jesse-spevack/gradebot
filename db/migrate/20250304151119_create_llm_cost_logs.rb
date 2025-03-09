@@ -1,4 +1,4 @@
-class CreateLlmCostLogs < ActiveRecord::Migration[8.0]
+class CreateLLMCostLogs < ActiveRecord::Migration[8.0]
   def change
     create_table :llm_cost_logs do |t|
       t.string :request_type
