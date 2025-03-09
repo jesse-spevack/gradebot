@@ -93,55 +93,50 @@ To associate costs with your application entities, include the relevant informat
 
 ## Generating Cost Reports
 
-You can generate reports on LLM usage and costs directly from the `LlmCostLog` model:
+You can generate reports on LLM usage and costs directly from the `LLMCostLog` model:
 
 ```ruby
-# Daily cost report for the past 30 days
-report = LlmCostLog.generate_report(
+# Generate a daily cost report for the last 30 days
+report = LLMCostLog.generate_report(
   start_date: 30.days.ago,
-  end_date: Date.today,
   group_by: :day
 )
 
-# Report by user
-user_report = LlmCostLog.generate_report(
+# Generate a report of costs by user
+user_report = LLMCostLog.generate_report(
   start_date: 30.days.ago,
-  end_date: Date.today,
   group_by: :user
 )
 
-# Report by model
-model_report = LlmCostLog.generate_report(
+# Generate a report of costs by model
+model_report = LLMCostLog.generate_report(
   start_date: 30.days.ago,
-  end_date: Date.today,
   group_by: :model
 )
 
-# Report by request type
-type_report = LlmCostLog.generate_report(
+# Generate a report of costs by request type
+type_report = LLMCostLog.generate_report(
   start_date: 30.days.ago,
-  end_date: Date.today,
   group_by: :request_type
 )
 ```
 
-## Advanced Queries
+## Direct Access to Cost Data
 
-For more specific data needs, you can use the `LlmCostLog` model directly:
+For more specific data needs, you can use the `LLMCostLog` model directly:
 
 ```ruby
-# Get all logs for a specific user
-user_logs = LlmCostLog.for_user(current_user)
+# Get logs for the current user
+user_logs = LLMCostLog.for_user(current_user)
 
-# Get logs for a specific assignment
-assignment_logs = LlmCostLog.for_trackable(@assignment)
+# Get logs for a specific trackable object
+assignment_logs = LLMCostLog.for_trackable(@assignment)
 
-# Get logs for a specific request type and date range
-feedback_logs = LlmCostLog.for_request_type("feedback")
-                          .for_date_range(7.days.ago, Date.today)
+# Get logs for a specific request type
+feedback_logs = LLMCostLog.for_request_type("feedback")
 
-# Calculate total cost for a specific model
-opus_cost = LlmCostLog.for_model("claude-3-opus").sum(:cost)
+# Calculate cost for a specific model
+opus_cost = LLMCostLog.for_model("claude-3-opus").sum(:cost)
 ```
 
 ## Best Practices

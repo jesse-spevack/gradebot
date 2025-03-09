@@ -1,0 +1,15 @@
+<% content_for :header do %>
+  <div class="space-y-4">
+    <%= render "admin/feature_flags/back_link", url: admin_llm_pricing_configs_path, text: "Back to LLM Pricing Configs" %>
+    
+    <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-blue-950">New LLM Pricing Configuration</h1>
+  </div>
+<% end %>
+
+<% content_for :content do %>
+  <div class="max-w-4xl mx-auto">
+    <%= render 'form', llm_pricing_config: @llm_pricing_config %>
+  </div>
+<% end %>
+
+<%= render "shared/page_wrapper" %> 

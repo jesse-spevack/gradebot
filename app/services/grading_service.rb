@@ -20,8 +20,10 @@ class GradingService
   # @param document_content [String] The content of the student's document
   # @param assignment_prompt [String] The original assignment prompt
   # @param grading_rubric [String] The grading rubric to use
+  # @param submission [Object, nil] The submission object being graded (for trackable association)
+  # @param user [User, nil] The user who initiated the grading (typically a teacher/grader)
   # @return [GradingResponse] A response object containing feedback, grade, and rubric scores
-  def grade_submission(document_content, assignment_prompt, grading_rubric)
+  def grade_submission(document_content, assignment_prompt, grading_rubric, submission = nil, user = nil)
     return GradingResponse.error("LLM grading is not enabled. Please contact an administrator.") unless LLM::Configuration.enabled?
 
     RetryHandler.with_retry do
@@ -33,8 +35,33 @@ class GradingService
       })
 
       Rails.logger.info("LLM prompt: #{prompt}")
-      response = LLMClient.new(@config).generate(prompt)
-      Rails.logger.info("LLM resposne: #{response}")
+
+      # Create metadata for the request
+      metadata = {
+        prompt_length: prompt.length,
+        assignment_length: assignment_prompt.length,
+        document_length: document_content.length
+      }
+
+      # Create an LLMRequest object
+      llm_request = LLMRequest.new(
+        prompt: prompt,
+        llm_model_name: @config[:model],
+        request_type: "grade_assignment",
+        trackable: submission,
+        user: user || submission&.user,
+        metadata: metadata,
+        temperature: @config[:temperature],
+        max_tokens: @config[:max_tokens]
+      )
+
+      # Log that we're about to make the LLM request
+      Rails.logger.info("Making LLM request with model: #{llm_request.llm_model_name}")
+
+      # Pass the LLMRequest to the LLM client
+      response = LLM::Client.new.generate(llm_request)
+
+      Rails.logger.info("LLM response: #{response}")
       Rails.logger.info("LLM response content: #{response[:content]}")
       result = ResponseParser.parse(response[:content])
 

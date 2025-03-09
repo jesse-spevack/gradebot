@@ -4,6 +4,9 @@
     <p class="text-gray-600">Monitor and analyze your LLM API usage costs</p>
   </header>
 
+  <!-- Flash Messages -->
+  <%= render "shared/flash" %>
+
   <!-- Date Range Filter -->
   <div class="bg-white rounded-lg shadow p-6 mb-8">
     <%= form_with url: admin_llm_cost_reports_path, method: :get, class: "flex flex-wrap items-end gap-4" do |f| %>
@@ -35,6 +38,7 @@
     <% end %>
   </div>
 
+  <% if @start_date.present? && @end_date.present? %>
   <!-- Summary Cards -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
     <div class="bg-white rounded-lg shadow p-6">
@@ -44,9 +48,9 @@
           <%= @start_date.strftime("%b %d") %> - <%= @end_date.strftime("%b %d") %>
         </span>
       </div>
-      <p class="mt-2 text-3xl font-bold text-gray-900">$<%= sprintf('%.2f', @total_cost) %></p>
+      <p class="mt-2 text-3xl font-bold text-gray-900"><%= format_dollars(@total_cost) %></p>
       <div class="mt-4 text-sm text-gray-500">
-        Based on <%= pluralize(LlmCostLog.for_date_range(@start_date, @end_date).count, 'request') %>
+        Based on <%= pluralize(LLMCostLog.for_date_range(@start_date, @end_date).count, 'request') %>
       </div>
     </div>
     
@@ -61,7 +65,7 @@
         <% top_model = @cost_by_model.max_by { |_, v| v } %>
         <p class="mt-2 text-3xl font-bold text-gray-900"><%= top_model.first %></p>
         <div class="mt-4 text-sm text-gray-500">
-          $<%= sprintf('%.2f', top_model.last) %> (<%= sprintf('%.1f', (top_model.last / @total_cost * 100)) %>% of total cost)
+          <%= format_dollars(top_model.last) %> (<%= sprintf('%.1f', (top_model.last / @total_cost * 100)) %>% of total cost)
         </div>
       <% else %>
         <p class="mt-2 text-xl italic text-gray-400">No data available</p>
@@ -79,7 +83,7 @@
         <% top_type = @cost_by_type.max_by { |_, v| v } %>
         <p class="mt-2 text-3xl font-bold text-gray-900"><%= top_type.first || "Unknown" %></p>
         <div class="mt-4 text-sm text-gray-500">
-          $<%= sprintf('%.2f', top_type.last) %> (<%= sprintf('%.1f', (top_type.last / @total_cost * 100)) %>% of total cost)
+          <%= format_dollars(top_type.last) %> (<%= sprintf('%.1f', (top_type.last / @total_cost * 100)) %>% of total cost)
         </div>
       <% else %>
         <p class="mt-2 text-xl italic text-gray-400">No data available</p>
@@ -134,7 +138,7 @@
                   <div class="flex-1 text-sm">
                     <div class="flex justify-between mb-1">
                       <span class="font-medium"><%= model %></span>
-                      <span class="text-gray-500">$<%= sprintf('%.2f', cost) %></span>
+                      <span class="text-gray-500"><%= format_dollars(cost) %></span>
                     </div>
                     <div class="w-full bg-gray-200 rounded-full h-2">
                       <div class="<%= colors[index % colors.length] %> h-2 rounded-full" style="width: <%= (cost / @total_cost * 100).to_i %>%"></div>
@@ -171,7 +175,7 @@
             <% @top_users.each do |email, cost| %>
               <tr>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><%= email %></td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">$<%= sprintf('%.2f', cost) %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= format_dollars(cost) %></td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= sprintf('%.1f', (cost / @total_cost * 100)) %>%</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <%= link_to "View Details", user_costs_admin_llm_cost_reports_path(user_id: User.find_by(email: email)&.id, start_date: @start_date, end_date: @end_date), class: "text-indigo-600 hover:text-indigo-900" %>
@@ -205,7 +209,7 @@
             <% @cost_by_type.each do |type, cost| %>
               <tr>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><%= type || "Unknown" %></td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">$<%= sprintf('%.2f', cost) %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= format_dollars(cost) %></td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= sprintf('%.1f', (cost / @total_cost * 100)) %>%</td>
               </tr>
             <% end %>
@@ -218,4 +222,16 @@
       </div>
     <% end %>
   </div>
+  <% else %>
+  <!-- No Date Range Selected -->
+  <div class="bg-white rounded-lg shadow p-6 text-center">
+    <div class="py-12">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+      </svg>
+      <h3 class="mt-2 text-lg font-medium text-gray-900">No Date Range Selected</h3>
+      <p class="mt-1 text-sm text-gray-500">Please select a start date and end date to view cost reports.</p>
+    </div>
+  </div>
+  <% end %>
 </div> 

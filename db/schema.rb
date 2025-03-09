@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_04_153508) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_05_055837) do
   create_table "email_signups", force: :cascade do |t|
     t.string "email"
     t.datetime "created_at", null: false
@@ -75,6 +75,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_04_153508) do
     t.index ["request_type"], name: "index_llm_cost_logs_on_request_type"
     t.index ["trackable_type", "trackable_id"], name: "index_llm_cost_logs_on_trackable"
     t.index ["user_id"], name: "index_llm_cost_logs_on_user_id"
+  end
+
+  create_table "llm_pricing_configs", force: :cascade do |t|
+    t.string "llm_model_name", null: false
+    t.decimal "prompt_rate", precision: 10, scale: 6, default: "0.0", null: false
+    t.decimal "completion_rate", precision: 10, scale: 6, default: "0.0", null: false
+    t.text "description"
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["llm_model_name"], name: "index_llm_pricing_configs_on_llm_model_name", unique: true
   end
 
   create_table "sessions", force: :cascade do |t|

@@ -1,0 +1,105 @@
+<%= form_with(model: [:admin, llm_pricing_config], class: "space-y-8") do |form| %>
+  <% if llm_pricing_config.errors.any? %>
+    <div class="rounded-md bg-red-50 p-4 mb-6">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-red-800">
+            There <%= llm_pricing_config.errors.count == 1 ? 'is' : 'are' %> <%= pluralize(llm_pricing_config.errors.count, "error") %> with this configuration:
+          </h3>
+          <div class="mt-2 text-sm text-red-700">
+            <ul class="list-disc pl-5 space-y-1">
+              <% llm_pricing_config.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="bg-white px-6 py-5 rounded-lg shadow-sm border border-gray-100">
+    <h3 class="text-lg font-medium text-gray-900 mb-4">Model Information</h3>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <%= form.label :llm_model_name, class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <div class="relative">
+          <%= form.text_field :llm_model_name, class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-base p-4" %>
+          <div class="absolute inset-0 pointer-events-none border border-gray-300 rounded-lg"></div>
+        </div>
+        <p class="mt-2 text-sm text-gray-500">The exact model identifier (e.g., 'gpt-4', 'claude-2')</p>
+      </div>
+
+      <div>
+        <%= form.label :active, class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <div class="mt-1 bg-gray-50 p-4 rounded-md">
+          <div class="flex items-center">
+            <div class="flex items-center h-5">
+              <%= form.check_box :active, class: "focus:ring-blue-500 h-5 w-5 text-blue-600 border-gray-300 rounded" %>
+            </div>
+            <div class="ml-3 text-sm">
+              <span class="font-medium text-gray-700">Active</span>
+              <p class="text-gray-500 mt-1">Only active configurations are used for cost calculations</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white px-6 py-5 rounded-lg shadow-sm border border-gray-100">
+    <h3 class="text-lg font-medium text-gray-900 mb-4">Pricing Information</h3>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <%= form.label :prompt_rate, class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <span class="text-gray-500 sm:text-sm">$</span>
+          </div>
+          <%= form.text_field :prompt_rate, class: "pl-7 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-base p-4" %>
+          <div class="absolute inset-0 pointer-events-none border border-gray-300 rounded-lg"></div>
+        </div>
+        <p class="mt-2 text-sm text-gray-500">Cost per million tokens for prompts</p>
+      </div>
+
+      <div>
+        <%= form.label :completion_rate, class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <span class="text-gray-500 sm:text-sm">$</span>
+          </div>
+          <%= form.text_field :completion_rate, class: "pl-7 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-base p-4" %>
+          <div class="absolute inset-0 pointer-events-none border border-gray-300 rounded-lg"></div>
+        </div>
+        <p class="mt-2 text-sm text-gray-500">Cost per million tokens for completions</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white px-6 py-5 rounded-lg shadow-sm border border-gray-100">
+    <h3 class="text-lg font-medium text-gray-900 mb-4">Additional Details</h3>
+    
+    <div>
+      <%= form.label :description, class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <div class="relative">
+        <%= form.text_area :description, rows: 3, class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-base p-4", style: "resize: vertical; min-height: 120px;" %>
+        <div class="absolute inset-0 pointer-events-none border border-gray-300 rounded-lg"></div>
+      </div>
+      <p class="mt-2 text-sm text-gray-500">Optional description of the model and its capabilities</p>
+    </div>
+  </div>
+
+  <div class="flex justify-end pt-6">
+    <div class="flex space-x-3">
+      <%= link_to "Cancel", admin_llm_pricing_configs_path, class: "inline-flex items-center justify-center py-3 px-6 border border-gray-300 rounded-lg shadow-sm text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+      <%= form.submit class: "inline-flex justify-center py-3 px-6 border border-transparent shadow-sm text-base font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+    </div>
+  </div>
+<% end %> 

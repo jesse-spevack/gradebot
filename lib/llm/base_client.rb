@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require_relative "logging"
+require_relative "../../app/services/llm/cost_tracking"
+require_relative "../../app/services/llm/event_system"
 
 module LLM
   # Abstract base class for LLM clients
@@ -9,97 +11,88 @@ module LLM
   # all LLM provider-specific clients. It handles:
   # - Request logging and tracking
   # - Execution time measurement
-  # - Cost and token counting
+  # - Cost tracking and calculation
   # - Error handling
   #
   # Provider-specific implementations should override the abstract methods:
   # - execute_request
   # - calculate_token_count
-  # - calculate_cost_estimate
   #
   # @abstract Subclass and override abstract methods to implement
   # @example
-  #   class OpenAIClient < LLM::BaseClient
-  #     def execute_request(input_object)
-  #       # Implementation for OpenAI
+  #   class AnthropicClient < LLM::BaseClient
+  #     def execute_request(llm_request)
+  #       # Implementation for Anthropic
   #     end
   #
-  #     def calculate_token_count(input_object)
-  #       # Implementation for OpenAI token counting
-  #     end
-  #
-  #     def calculate_cost_estimate(token_count)
-  #       # Implementation for OpenAI cost calculation
+  #     def calculate_token_count(llm_request)
+  #       # Implementation for Anthropic token counting
   #     end
   #   end
   #
   class BaseClient
-    attr_reader :model_name
-
-    # Initialize a new LLM client
-    #
-    # @param model_name [String] The name of the model to use
-    def initialize(model_name)
-      @model_name = model_name
-    end
-
     # Generate a response using the LLM
     #
     # Handles logging, timing, error handling, and enriches the response
-    # with metadata about tokens, cost, and execution time.
+    # with metadata about tokens, costs, and execution time.
     #
-    # @param input_object [Hash] The input containing the prompt and any parameters
+    # @param llm_request [LLMRequest] The request object containing prompt and parameters
     # @return [Hash] The response with content and metadata
-    def generate(input_object)
+    def generate(llm_request)
+      # Validate that we received a proper LLMRequest
+      unless llm_request.is_a?(LLMRequest)
+        raise ArgumentError, "Expected LLMRequest object, got #{llm_request.class.name}"
+      end
+
+      # Validate the request object
+      unless llm_request.valid?
+        raise ArgumentError, "Invalid LLMRequest: #{llm_request.errors.full_messages.join(', ')}"
+      end
+
+      # Get the context for cost tracking and logging
+      context = llm_request.to_context
+
       # Calculate token count for tracking before the operation
-      prompt_token_count = calculate_token_count(input_object)
+      prompt_token_count = calculate_token_count(llm_request)
 
       # Use the operation tracking to handle timing and logging
       log_context = {
-        model: model_name,
-        input_type: input_object.class.name,
+        model: llm_request.llm_model_name,
+        request_type: llm_request.request_type,
         prompt_tokens: prompt_token_count
       }
 
       Logging.operation("LLM Request", log_context) do
         begin
+          # Log cost tracking information
+          Rails.logger.debug "LLM Cost Tracking - Executing request"
+          Rails.logger.debug "  - Model: #{llm_request.llm_model_name}"
+          Rails.logger.debug "  - Request ID: #{context[:request_id]}"
+          Rails.logger.debug "  - Request Type: #{context[:request_type]}"
+
           # Execute the actual request to the LLM provider
-          response = execute_request(input_object)
+          response = execute_request(llm_request)
 
-          # Get token counts from response
-          token_counts = response[:metadata][:tokens]
+          # Log completion
+          Rails.logger.debug "LLM Request - Received response from provider"
 
-          # Calculate cost based on token usage
-          cost = calculate_cost_estimate(token_counts[:total])
+          # Publish the request completed event
+          EventSystem::Publisher.publish(
+            EventSystem::EVENTS[:request_completed],
+            {
+              request: llm_request,
+              response: response,
+              context: context
+            }
+          )
 
-          # Enrich response with additional metadata
-          enriched_response = {
-            content: response[:content],
-            metadata: response[:metadata].merge({
-              execution_time_ms: Thread.current[:llm_operation_duration],
-              cost: cost,
-              model: model_name
-            })
-          }
+          Rails.logger.debug "LLM Request - Event published for cost tracking"
 
-          # Log the successful completion with token and cost information
-          Logging.info("LLM request completed successfully", {
-            model: model_name,
-            tokens: token_counts,
-            cost: cost
-          })
-
-          enriched_response
-        rescue => error
-          # Log the error with detailed context
-          Logging.error("Error in LLM request", {
-            model: model_name,
-            error: error,
-            error_message: error.message,
-            backtrace: error.backtrace&.first(5)
-          })
-
-          # Re-raise the error for the caller to handle
+          # Return the response
+          response
+        rescue => e
+          Rails.logger.error "Error in LLM request: #{e.message}"
+          Rails.logger.error e.backtrace.join("\n")
           raise
         end
       end
@@ -118,31 +111,21 @@ module LLM
     # Execute the actual request to the LLM provider
     #
     # @abstract Override this method in provider-specific implementations
-    # @param input_object [Hash] The input for the LLM
+    # @param llm_request [LLMRequest] The request object for the LLM
     # @return [Hash] The response from the LLM
     # @raise [NotImplementedError] If not implemented in a subclass
-    def execute_request(input_object)
+    def execute_request(llm_request)
       raise NotImplementedError, "#{self.class.name} must implement #execute_request"
     end
 
     # Calculate the token count for an input
     #
     # @abstract Override this method in provider-specific implementations
-    # @param input_object [Hash] The input to calculate tokens for
+    # @param llm_request [LLMRequest] The request object to calculate tokens for
     # @return [Integer] The token count
     # @raise [NotImplementedError] If not implemented in a subclass
-    def calculate_token_count(input_object)
+    def calculate_token_count(llm_request)
       raise NotImplementedError, "#{self.class.name} must implement #calculate_token_count"
-    end
-
-    # Calculate the cost estimate based on token count
-    #
-    # @abstract Override this method in provider-specific implementations
-    # @param token_count [Integer] The token count to calculate cost for
-    # @return [Float] The estimated cost
-    # @raise [NotImplementedError] If not implemented in a subclass
-    def calculate_cost_estimate(token_count)
-      raise NotImplementedError, "#{self.class.name} must implement #calculate_cost_estimate"
     end
   end
 end

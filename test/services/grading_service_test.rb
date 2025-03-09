@@ -24,6 +24,10 @@ class GradingServiceTest < ActiveSupport::TestCase
 
     # Set up consistent LLM configuration for tests
     stub_llm_enabled(false) # Start with LLM disabled
+
+    # Create a test student and mock submission for testing user and trackable
+    @test_student = User.new(id: 999, email: "test-student@example.com")
+    @submission = StudentSubmission.new(id: 1)
   end
 
   test "exists as a service class" do
@@ -91,8 +95,10 @@ class GradingServiceTest < ActiveSupport::TestCase
     )
     ResponseParser.stubs(:parse).returns(mock_result)
 
-    # Expect the generate method to be called with our test prompt
-    mock_client.expects(:generate).with({ prompt: test_prompt }).returns(mock_response)
+    # Expect the generate method to be called with an LLMRequest containing the test prompt
+    mock_client.expects(:generate).with do |request|
+      request.is_a?(LLMRequest) && request.prompt == test_prompt
+    end.returns(mock_response)
 
     # Stub the client factory to return our mock client
     LLM::ClientFactory.stubs(:create).returns(mock_client)
@@ -112,37 +118,37 @@ class GradingServiceTest < ActiveSupport::TestCase
   end
 
   test "handles parsing errors gracefully" do
-    # Enable LLM for this test using our helper
+    # Enable LLM for this test
     stub_llm_enabled(true)
 
-    # Create a mock client and response using our helpers
-    mock_client = mock_llm_client
-    mock_response = mock_llm_response("Invalid JSON or structured text")
+    # Create a mock response with invalid JSON content
+    invalid_json = "This is not valid JSON"
+    mock_response = mock_llm_response(invalid_json)
 
-    # Set up expectations and stubs
-    mock_client.stubs(:generate).returns(mock_response)
+    # Create a mock client
+    mock_client = mock_llm_client(mock_response)
+
+    # Stub the client factory to return our mock client
     LLM::ClientFactory.stubs(:create).returns(mock_client)
 
     # Stub PromptTemplate to return a test prompt
-    PromptTemplate.stubs(:render).returns("Test prompt")
+    test_prompt = "Test prompt with document, assignment, and rubric"
+    PromptTemplate.stubs(:render).with(:grading, anything).returns(test_prompt)
 
-    # Stub ResponseParser to raise a ParsingError
-    parsing_error = ParsingError.new("Failed to parse response", [
-      { strategy: "JsonStrategy", error: "Invalid JSON" }
-    ])
-    ResponseParser.stubs(:parse).raises(parsing_error)
+    # Make ResponseParser raise a parsing error
+    ResponseParser.stubs(:parse).raises(ParsingError.new("Invalid JSON format"))
 
-    # Stub Rails logger to avoid formatting issues in tests
-    Rails.logger.stubs(:error)
-
-    # Stub the GradingLogger to allow any calls
-    GradingLogger.stubs(:log_grading_error)
+    # Expect the generate method to be called with an LLMRequest containing the test prompt
+    mock_client.expects(:generate).with do |request|
+      request.is_a?(LLMRequest) && request.prompt == test_prompt
+    end.returns(mock_response)
 
     # Test the service
     service = GradingService.new
     result = service.grade_submission(@document_content, @assignment_prompt, @grading_rubric)
 
-    # Verify the response contains error information
+    # Verify the response contains the error
+    assert_not_nil result.error
     assert_includes result.error, "Failed to parse LLM response"
   end
 
@@ -181,6 +187,63 @@ class GradingServiceTest < ActiveSupport::TestCase
     refute_includes clean_content, "\u0000"
     assert_includes clean_content, "Line 1"
     assert_includes clean_content, "Line 2"
+  end
+
+  test "accepts user and trackable parameters" do
+    # Enable LLM for this test
+    stub_llm_enabled(true)
+
+    # Create a mock response
+    mock_json = {
+      "feedback": "Feedback: Good essay but lacks depth.",
+      "strengths": [ "Good introduction", "Clear thesis statement" ],
+      "opportunities": [ "Add more supporting evidence", "Improve conclusion" ],
+      "overall_grade": "B",
+      "scores": { "Content": 30, "Structure": 25, "Grammar": 28 }
+    }
+    mock_response = mock_llm_response(JSON.generate(mock_json))
+
+    # Create a mock client
+    mock_client = mock_llm_client(mock_response)
+
+    # Stub the client factory to return our mock client
+    LLM::ClientFactory.stubs(:create).returns(mock_client)
+
+    # Stub PromptTemplate to return a test prompt
+    test_prompt = "Test prompt with document, assignment, and rubric"
+    PromptTemplate.stubs(:render).with(:grading, anything).returns(test_prompt)
+
+    # Stub ResponseParser to return a GradingResult
+    mock_result = GradingResponse.new(
+      feedback: "Feedback: Good essay but lacks depth.",
+      strengths: [ "Good introduction", "Clear thesis statement" ],
+      opportunities: [ "Add more supporting evidence", "Improve conclusion" ],
+      overall_grade: "B",
+      rubric_scores: { "Content" => 30, "Structure" => 25, "Grammar" => 28 }
+    )
+    ResponseParser.stubs(:parse).returns(mock_result)
+
+    # Expect the generate method to be called with an LLMRequest containing the user and trackable
+    mock_client.expects(:generate).with do |request|
+      request.is_a?(LLMRequest) &&
+      request.prompt == test_prompt &&
+      request.user == @test_student &&
+      request.trackable == @submission
+    end.returns(mock_response)
+
+    # Test the service with user and trackable parameters
+    service = GradingService.new
+    result = service.grade_submission(
+      @document_content,
+      @assignment_prompt,
+      @grading_rubric,
+      @submission,
+      @test_student
+    )
+
+    # Verify the response
+    assert_nil result.error
+    assert_equal "Feedback: Good essay but lacks depth.", result.feedback
   end
 
   teardown do

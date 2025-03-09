@@ -99,11 +99,13 @@ class ProcessStudentSubmissionCommand < BaseCommand
       # Create a new GradingService instance
       grading_service = GradingService.new
 
-      # Grade the submission
+      # Grade the submission - now passing the student_submission and the user who created the grading task
       result = grading_service.grade_submission(
         document_content,
         grading_task.assignment_prompt,
-        grading_task.grading_rubric
+        grading_task.grading_rubric,
+        student_submission,  # Pass submission as trackable
+        grading_task.user    # Pass the user who created the grading task
       )
 
       # Add debugging to inspect the result object

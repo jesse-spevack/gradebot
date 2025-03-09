@@ -2,12 +2,12 @@ module LLM
   # Calculates LLM costs based on model and token usage
   class PricingCalculator
     # Calculate cost based on model and token usage
-    # @param model_name [String] The name of the LLM model
+    # @param llm_model_name [String] The name of the LLM model
     # @param prompt_tokens [Integer] Number of tokens in the prompt
     # @param completion_tokens [Integer] Number of tokens in the completion
     # @return [Float] The calculated cost in dollars
-    def self.calculate_cost(model_name, prompt_tokens, completion_tokens)
-      rates = pricing_rates[model_name.to_s] || default_rate
+    def self.calculate_cost(llm_model_name, prompt_tokens, completion_tokens)
+      rates = pricing_rates[llm_model_name] || default_rate
 
       prompt_cost = prompt_tokens * rates[:prompt] / 1000.0
       completion_cost = completion_tokens * rates[:completion] / 1000.0

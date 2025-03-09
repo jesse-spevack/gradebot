@@ -15,47 +15,22 @@ class LLM::ClientFactoryTest < ActiveSupport::TestCase
     unstub_anthropic_api_key
   end
 
-  test ".create returns OpenAI client for gpt models" do
-    client = LLM::ClientFactory.create("gpt-4-turbo")
-
-    assert_instance_of LLM::OpenAI::Client, client
-    assert_equal "gpt-4-turbo", client.model_name
-  end
-
-  test ".create returns Anthropic client for claude models" do
-    client = LLM::ClientFactory.create("claude-3-5-sonnet")
+  test ".create returns Anthropic client" do
+    client = LLM::ClientFactory.create
 
     assert_instance_of LLM::Anthropic::Client, client
-    assert_equal "claude-3-5-sonnet", client.model_name
   end
 
-  test ".create returns Google client for gemini models" do
-    client = LLM::ClientFactory.create("gemini-pro")
+  test ".create_with_model returns Anthropic client regardless of model name" do
+    client = LLM::ClientFactory.create_with_model("any-model-name")
 
-    assert_instance_of LLM::Google::Client, client
-    assert_equal "gemini-pro", client.model_name
+    assert_instance_of LLM::Anthropic::Client, client
   end
 
-  test ".create raises UnsupportedModelError for unknown model types" do
-    error = assert_raises(LLM::Errors::UnsupportedModelError) do
-      LLM::ClientFactory.create("unknown-model")
-    end
-
-    assert_match(/Unsupported model: unknown-model/, error.message)
-  end
-
-  test "works with model names from Configuration" do
+  test "works with backward compatibility" do
     config = LLM::Configuration.model_for(:grade_assignment)
-    client = LLM::ClientFactory.create(config[:model])
+    client = LLM::ClientFactory.create_with_model(config[:model])
 
     assert_instance_of LLM::Anthropic::Client, client
-    assert_equal "claude-3-5-sonnet", client.model_name
-  end
-
-  test "handles model names as symbols" do
-    client = LLM::ClientFactory.create(:gpt4)
-
-    assert_instance_of LLM::OpenAI::Client, client
-    assert_equal :gpt4, client.model_name
   end
 end

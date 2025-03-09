@@ -36,7 +36,7 @@ class LLM::ConfigurationTest < ActiveSupport::TestCase
     result = LLM::Configuration.model_for(:grade_assignment)
 
     assert_equal :anthropic, result[:provider]
-    assert_equal "claude-3-5-sonnet", result[:model]
+    assert_equal "claude-3-5-haiku", result[:model]
     assert_equal 0.7, result[:temperature]
     assert_equal 4000, result[:max_tokens]
   end

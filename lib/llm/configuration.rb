@@ -31,7 +31,7 @@ module LLM
     TASK_CONFIGURATIONS = {
       grade_assignment: {
         provider: :anthropic,
-        model: "claude-3-5-sonnet",
+        model: "claude-3-5-haiku",
         temperature: 0.7,
         max_tokens: 4000
       }

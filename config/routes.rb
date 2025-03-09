@@ -26,6 +26,7 @@ Rails.application.routes.draw do
         get :user_costs
       end
     end
+    resources :llm_pricing_configs
   end
 
   # Application routes

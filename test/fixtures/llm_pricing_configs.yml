@@ -1,0 +1,27 @@
+default:
+  llm_model_name: "default"
+  prompt_rate: 10.0
+  completion_rate: 30.0
+  description: "Default fallback pricing for unknown models"
+  active: true
+
+claude_opus:
+  llm_model_name: "claude-3-opus"
+  prompt_rate: 15.0
+  completion_rate: 75.0
+  description: "Claude 3 Opus - Most powerful Claude model"
+  active: true
+
+claude_sonnet:
+  llm_model_name: "claude-3-sonnet"
+  prompt_rate: 3.0
+  completion_rate: 15.0
+  description: "Claude 3 Sonnet - Balanced performance and value"
+  active: true
+
+gpt_4:
+  llm_model_name: "gpt-4o"
+  prompt_rate: 5.0
+  completion_rate: 15.0
+  description: "GPT-4o - Multimodal model with vision capabilities"
+  active: true 

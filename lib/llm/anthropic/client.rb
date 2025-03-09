@@ -12,8 +12,9 @@ module LLM
     # allowing the application to send prompts and receive completions.
     #
     # @example Basic usage
-    #   client = LLM::Anthropic::Client.new("claude-3-5-sonnet")
-    #   response = client.generate(prompt: "Explain quantum computing")
+    #   client = LLM::Anthropic::Client.new
+    #   request = LLMRequest.new(prompt: "Explain quantum computing", llm_model_name: "claude-3-5-haiku")
+    #   response = client.generate(request)
     #   puts response[:content]
     #
     class Client < LLM::BaseClient
@@ -21,46 +22,26 @@ module LLM
       API_VERSION = "2023-06-01".freeze
       DEFAULT_MAX_TOKENS = 1024
 
-      # Cost per million tokens (in USD)
-      PRICING = {
-        "claude-3-7-sonnet-20250219" => { input: 15.00, output: 75.00 },
-        "claude-3-5-sonnet-20241022" => { input: 8.00, output: 24.00 },
-        "claude-3-5-haiku-20241022" => { input: 1.25, output: 3.75 },
-        "claude-3-5-sonnet-20240620" => { input: 8.00, output: 24.00 },
-        "claude-3-haiku-20240307" => { input: 1.25, output: 3.75 },
-        "claude-3-opus-20240229" => { input: 15.00, output: 75.00 },
-        "claude-3-sonnet-20240229" => { input: 8.00, output: 24.00 },
-        "claude-2.1" => { input: 8.00, output: 24.00 },
-        "claude-2.0" => { input: 8.00, output: 24.00 }
-      }.freeze
-
-      # Default pricing for models not explicitly listed
-      DEFAULT_PRICING = { input: 8.00, output: 24.00 }.freeze
-
-      attr_reader :model_name, :max_tokens, :temperature
       attr_accessor :api_key
 
       # Initialize a new Anthropic client
       #
-      # @param model_name [String] the name of the model to use
       # @param options [Hash] additional options for the client
-      # @option options [Integer] :max_tokens (1024) The maximum number of tokens to generate
-      # @option options [Float] :temperature (0.7) The sampling temperature
       # @option options [String] :api_key (nil) Override the default API key
-      def initialize(model_name, options = {})
-        @model_name = model_name
-        @max_tokens = options[:max_tokens] || DEFAULT_MAX_TOKENS
-        @temperature = options[:temperature] || 0.7
+      def initialize(options = {})
         @api_key = options[:api_key] || fetch_api_key
       end
 
       # Execute a request to the Anthropic API
       #
-      # @param input_object [Hash] The input for the LLM
+      # @param llm_request [LLMRequest] The request object for the LLM
       # @return [Hash] The response from the LLM
-      def execute_request(input_object)
-        # Extract prompt from input object
-        prompt = input_object[:prompt]
+      def execute_request(llm_request)
+        # Extract parameters from LLMRequest
+        prompt = llm_request.prompt
+        model_name = llm_request.llm_model_name
+        max_tokens = llm_request.max_tokens || DEFAULT_MAX_TOKENS
+        temperature = llm_request.temperature || 0.7
 
         # Prepare request body
         request_body = {
@@ -120,34 +101,13 @@ module LLM
 
       # Calculate the token count for an input
       #
-      # @param input_object [Hash] The input to calculate tokens for
+      # @param llm_request [LLMRequest] The request to calculate tokens for
       # @return [Integer] The token count
-      def calculate_token_count(input_object)
+      def calculate_token_count(llm_request)
         # This is an approximation, as the exact token count would require Anthropic's tokenizer
         # A reasonable approximation is ~4 characters per token
-        prompt = input_object[:prompt].to_s
+        prompt = llm_request.prompt.to_s
         (prompt.length / 4.0).ceil
-      end
-
-      # Calculate the cost estimate based on token count
-      #
-      # @param token_count [Integer] The token count to calculate cost for
-      # @return [Float] The estimated cost in USD
-      def calculate_cost_estimate(token_count)
-        # Get pricing for this model, or fallback to default
-        resolved_model = resolve_model_name(model_name).to_s
-        pricing = PRICING[resolved_model] || DEFAULT_PRICING
-
-        # Since we don't know the input/output split at this point,
-        # assume 30% input tokens and 70% output tokens
-        input_tokens = (token_count * 0.3).ceil
-        output_tokens = token_count - input_tokens
-
-        # Calculate cost
-        input_cost = (input_tokens / 1_000_000.0) * pricing[:input]
-        output_cost = (output_tokens / 1_000_000.0) * pricing[:output]
-
-        input_cost + output_cost
       end
 
       # Validate the API key by attempting a minimal API call

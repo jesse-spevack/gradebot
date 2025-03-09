@@ -9,8 +9,17 @@ class LLM::Anthropic::ClientTest < ActiveSupport::TestCase
     # Stub the API key instead of manipulating ENV
     stub_anthropic_api_key
 
-    # Create client instance with test model
-    @client = LLM::Anthropic::Client.new("claude-3-5-sonnet", max_tokens: 500, temperature: 0.5)
+    # Create client instance
+    @client = LLM::Anthropic::Client.new
+
+    # Create a test LLMRequest
+    @llm_request = LLMRequest.new(
+      prompt: "Test prompt",
+      llm_model_name: "claude-3-5-sonnet",
+      max_tokens: 500,
+      temperature: 0.5,
+      request_type: "test"
+    )
 
     # Mock HTTP for all tests
     @mock_response = mock("response")
@@ -27,26 +36,16 @@ class LLM::Anthropic::ClientTest < ActiveSupport::TestCase
     Net::HTTP.unstub(:new)
   end
 
-  test "initializes with model name and options" do
-    client = LLM::Anthropic::Client.new("claude-3-5-sonnet", max_tokens: 300, temperature: 0.8)
+  test "initializes with default API key" do
+    client = LLM::Anthropic::Client.new
 
-    assert_equal "claude-3-5-sonnet", client.model_name
-    assert_equal 300, client.max_tokens
-    assert_equal 0.8, client.temperature
     assert client.api_key.present?
     assert_match(/test-anthropic-key/, client.api_key)
   end
 
-  test "uses default options when not specified" do
-    client = LLM::Anthropic::Client.new("claude-3-5-sonnet")
-
-    assert_equal LLM::Anthropic::Client::DEFAULT_MAX_TOKENS, client.max_tokens
-    assert_equal 0.7, client.temperature
-  end
-
   test "accepts custom API key in options" do
     custom_key = "custom-api-key"
-    client = LLM::Anthropic::Client.new("claude-3-5-sonnet", api_key: custom_key)
+    client = LLM::Anthropic::Client.new(api_key: custom_key)
 
     assert_equal custom_key, client.api_key
   end
@@ -62,7 +61,7 @@ class LLM::Anthropic::ClientTest < ActiveSupport::TestCase
     @mock_http.expects(:request).returns(@mock_response)
 
     # Execute request
-    response = @client.execute_request(prompt: "Test prompt")
+    response = @client.execute_request(@llm_request)
 
     # Verify response structure
     assert_equal "This is a test response", response[:content]
@@ -82,44 +81,23 @@ class LLM::Anthropic::ClientTest < ActiveSupport::TestCase
 
     # Execute request and expect error
     error = assert_raises(RuntimeError) do
-      @client.execute_request(prompt: "Test prompt")
+      @client.execute_request(@llm_request)
     end
 
     assert_match(/Anthropic API error/, error.message)
   end
 
   test "calculate_token_count returns an estimate based on text length" do
-    # Test with different string lengths
-    # Note: Implementation uses (length / 4.0).ceil for calculation
-    assert_equal 4, @client.calculate_token_count(prompt: "This is a test")
+    # Test with different request prompts
+    # The implementation uses (prompt.length / 4.0).ceil for calculation
+    short_request = LLMRequest.new(prompt: "This is a test", llm_model_name: "claude-3-5-sonnet")
+    assert_equal 4, @client.calculate_token_count(short_request)
 
     # For the longer text, let's calculate the expected token count
     longer_text = "This is a longer test with multiple words to estimate token count correctly"
+    longer_request = LLMRequest.new(prompt: longer_text, llm_model_name: "claude-3-5-sonnet")
     expected_tokens = (longer_text.length / 4.0).ceil
-    assert_equal expected_tokens, @client.calculate_token_count(prompt: longer_text)
-  end
-
-  test "calculate_cost_estimate uses model-specific pricing" do
-    # Test with Claude 3.5 Sonnet pricing
-    # Note: The model will be resolved to claude-3-5-sonnet-20241022
-    cost = @client.calculate_cost_estimate(1_000_000)
-
-    # Expected cost calculation:
-    # - 300,000 input tokens at $8 per million = $2.40
-    # - 700,000 output tokens at $24 per million = $16.80
-    # Total: $19.20
-    assert_in_delta 19.20, cost, 0.01
-
-    # Test with Claude 3.5 Haiku pricing
-    # Initialize with a fully qualified model name to avoid resolution
-    haiku_client = LLM::Anthropic::Client.new("claude-3-5-haiku-20241022")
-    haiku_cost = haiku_client.calculate_cost_estimate(1_000_000)
-
-    # Expected cost with Haiku pricing
-    # - 300,000 input tokens at $1.25 per million = $0.375
-    # - 700,000 output tokens at $3.75 per million = $2.625
-    # Total: $3.00
-    assert_in_delta 3.00, haiku_cost, 0.01
+    assert_equal expected_tokens, @client.calculate_token_count(longer_request)
   end
 
   test "validate_api_key returns true for valid key" do
@@ -146,14 +124,7 @@ class LLM::Anthropic::ClientTest < ActiveSupport::TestCase
   end
 
   test "resolves generic model names to fully specified versions in API requests" do
-    # Setup
-    generic_model = "claude-3-5-sonnet"
-    client = LLM::Anthropic::Client.new(generic_model)
-
-    # Expected fully specified model (latest version from PRICING constant)
-    expected_model = "claude-3-5-sonnet-20241022"
-
-    # Setup mock for HTTP request capture
+    # Setup for HTTP request capture
     request_body = nil
     @mock_http.expects(:request).with do |request|
       request_body = JSON.parse(request.body)
@@ -169,8 +140,11 @@ class LLM::Anthropic::ClientTest < ActiveSupport::TestCase
       )
     )
 
+    # Expected fully specified model
+    expected_model = "claude-3-5-sonnet-20241022"
+
     # Exercise
-    client.execute_request(prompt: "Test prompt")
+    @client.execute_request(@llm_request)
 
     # Verify
     assert_equal expected_model, request_body["model"],
@@ -178,9 +152,12 @@ class LLM::Anthropic::ClientTest < ActiveSupport::TestCase
   end
 
   test "does not modify already fully specified model names" do
-    # Setup
-    fully_specified_model = "claude-3-5-sonnet-20240620" # An older version
-    client = LLM::Anthropic::Client.new(fully_specified_model)
+    # Create request with a fully specified model name
+    fully_specified_request = LLMRequest.new(
+      prompt: "Test prompt",
+      llm_model_name: "claude-3-5-sonnet-20240620", # An older version
+      request_type: "test"
+    )
 
     # Setup mock for HTTP request capture
     request_body = nil
@@ -199,10 +176,10 @@ class LLM::Anthropic::ClientTest < ActiveSupport::TestCase
     )
 
     # Exercise
-    client.execute_request(prompt: "Test prompt")
+    @client.execute_request(fully_specified_request)
 
     # Verify
-    assert_equal fully_specified_model, request_body["model"],
+    assert_equal "claude-3-5-sonnet-20240620", request_body["model"],
       "Fully specified model names should not be modified"
   end
 end

@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
 require "test_helper"
+require_relative "../../../app/services/llm/configuration_helper"
 
 class Strategies::JsonStrategyTest < ActiveSupport::TestCase
-  include LLMConfigurationHelper
-
   setup do
     # Initialize the strategy
     @strategy = Strategies::JsonStrategy.new
@@ -45,11 +44,11 @@ class Strategies::JsonStrategyTest < ActiveSupport::TestCase
   end
 
   test "LLMConfigurationHelper correctly detects JsonStrategy arity" do
-    assert_not StrategyConfigurationHelper.accepts_context?(@strategy)
+    assert_not LLM::ConfigurationHelper.accepts_context?(@strategy)
   end
 
   test "LLMConfigurationHelper correctly calls JsonStrategy parse method" do
-    result = StrategyConfigurationHelper.call_parse(@strategy, @valid_json, { some: "context" })
+    result = LLM::ConfigurationHelper.call_parse(@strategy, @valid_json, { some: "context" })
     assert result.success?
     assert_equal "This is feedback", result.feedback
   end
