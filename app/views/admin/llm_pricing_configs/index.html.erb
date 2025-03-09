@@ -19,13 +19,7 @@
 
 <% content_for :content do %>
   <!-- New Configuration button - visible only on desktop (floating) -->
-  <div class="hidden sm:block fixed bottom-8 right-8 z-10">
-    <%= link_to new_admin_llm_pricing_config_path, 
-        class: "flex items-center justify-center h-14 w-14 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg transition-colors duration-150" do %>
-      <span class="sr-only">New Configuration</span>
-      +
-    <% end %>
-  </div>
+  <%= render "shared/floating_action_button", path: new_admin_llm_pricing_config_path, icon: "plus", title: "New Configuration" %>
 
   <div class="space-y-6">
     <%= render "shared/card" do %>

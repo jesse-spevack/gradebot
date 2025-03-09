@@ -49,20 +49,6 @@
                   My Grading Tasks
                 <% end %>
               </li>
-              <li class="relative">
-                <%= link_to new_grading_task_path, 
-                          class: "group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-blue-600 relative z-[1002] #{current_page?(new_grading_task_path) ? 'bg-gray-50 text-blue-600' : ''}" do %>
-                  <svg class="size-6 shrink-0 #{current_page?(new_grading_task_path) ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600'}" 
-                       fill="none" 
-                       viewBox="0 0 24 24" 
-                       stroke-width="1.5" 
-                       stroke="currentColor" 
-                       aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="<%= 'M12 4.5v15m7.5-7.5h-15' %>" />
-                  </svg>
-                  New Grading Task
-                <% end %>
-              </li>
               
               <% if Current.user&.admin? %>
                 <!-- Admin only links -->
@@ -142,21 +128,7 @@
                 My Grading Tasks
               <% end %>
             </li>
-            <li>
-              <%= link_to new_grading_task_path, 
-                        class: "group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-blue-600 relative z-40 #{current_page?(new_grading_task_path) ? 'bg-gray-50 text-blue-600' : ''}" do %>
-                <svg class="size-6 shrink-0 #{current_page?(new_grading_task_path) ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600'}" 
-                     fill="none" 
-                     viewBox="0 0 24 24" 
-                     stroke-width="1.5" 
-                     stroke="currentColor" 
-                     aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="<%= 'M12 4.5v15m7.5-7.5h-15' %>" />
-                </svg>
-                New Grading Task
-              <% end %>
-            </li>
-            
+
             <% if Current.user&.admin? %>
               <!-- Admin only links -->
               <li class="mt-6 border-t border-gray-200 pt-6">

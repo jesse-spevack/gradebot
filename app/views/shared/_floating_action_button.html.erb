@@ -1,0 +1,18 @@
+<%#
+  Floating action button (FAB) component that appears in the bottom right corner
+  
+  Parameters:
+  - path: URL to link to
+  - icon: Icon name from shared/icons
+  - title: Optional title for accessibility (defaults to "New")
+%>
+
+<% title ||= "New" %>
+
+<div class="fixed bottom-6 right-6 z-10">
+  <%= link_to path, 
+      class: "flex items-center justify-center h-14 w-14 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-xl hover:shadow-2xl transition-all duration-200 hover:scale-105",
+      aria: { label: title } do %>
+    <%= render "shared/icons/#{icon}", class: "h-6 w-6" %>
+  <% end %>
+</div> 

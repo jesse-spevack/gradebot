@@ -1,0 +1,55 @@
+<%#
+  Reusable page header component
+  
+  Parameters:
+  - title: Main page title
+  - subtitle: Optional subtitle text
+  - mobile_action: Optional hash with keys:
+    - path: URL to link to
+    - text: Button text
+    - icon: Icon name (from shared/icons)
+    - classes: Additional button classes
+  - desktop_action: Optional hash with same structure as mobile_action
+%>
+
+<% mobile_action ||= nil %>
+<% desktop_action ||= nil %>
+
+<div class="space-y-6 sm:space-y-0 sm:flex sm:items-center sm:justify-between">
+  <div>
+    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-blue-950 mb-2"><%= title %></h1>
+    <% if defined?(subtitle) && subtitle.present? %>
+      <p class="text-base sm:text-lg text-gray-600">
+        <%= subtitle %>
+      </p>
+    <% end %>
+  </div>
+
+  <div class="flex">
+    <% if mobile_action.present? %>
+      <!-- Mobile action button (hidden on desktop) -->
+      <div class="flex sm:hidden w-full">
+        <%= link_to mobile_action[:path], 
+            class: "w-full flex items-center justify-center px-4 py-3 text-base font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-sm transition-colors duration-150 #{mobile_action[:classes]}" do %>
+          <% if mobile_action[:icon].present? %>
+            <%= render "shared/icons/#{mobile_action[:icon]}", class: "h-5 w-5 mr-2" %>
+          <% end %>
+          <%= mobile_action[:text] %>
+        <% end %>
+      </div>
+    <% end %>
+    
+    <% if desktop_action.present? %>
+      <!-- Desktop action button (hidden on mobile) -->
+      <div class="hidden sm:flex">
+        <%= link_to desktop_action[:path], 
+            class: "flex items-center justify-center px-4 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors duration-150 #{desktop_action[:classes]}" do %>
+          <% if desktop_action[:icon].present? %>
+            <%= render "shared/icons/#{desktop_action[:icon]}", class: "h-5 w-5 mr-2" %>
+          <% end %>
+          <%= desktop_action[:text] %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div> 

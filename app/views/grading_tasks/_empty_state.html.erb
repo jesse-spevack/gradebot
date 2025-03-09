@@ -1,0 +1,20 @@
+<%#
+  Display an empty state when there are no grading tasks
+%>
+
+<div class="text-center py-12 px-4">
+  <div class="p-3 bg-blue-50 rounded-xl inline-flex">
+    <%= render "shared/icons/clipboard", class: "h-12 w-12 text-blue-600" %>
+  </div>
+  <h3 class="mt-4 text-xl sm:text-2xl font-semibold text-gray-900">No grading tasks yet</h3>
+  <p class="mt-2 text-base text-gray-600 max-w-sm mx-auto">
+    Get started by creating your first grading task. Select a Google Drive folder with student assignments to begin.
+  </p>
+  <div class="mt-6">
+    <%= link_to new_grading_task_path,
+        class: "inline-flex items-center px-6 py-3 text-base font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-sm transition-colors duration-150" do %>
+      <%= render "shared/icons/plus", class: "h-5 w-5 mr-2" %>
+      Create your first task
+    <% end %>
+  </div>
+</div> 
