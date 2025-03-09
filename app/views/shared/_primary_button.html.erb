@@ -1,0 +1,14 @@
+<%# Primary button component for main call-to-action buttons
+   Required parameters:
+   - text: Button text to display
+   Optional parameters:
+   - href: Link destination (default: "#")
+   - classes: Additional custom classes (default: "")
+%>
+
+<% href ||= "#" %>
+<% classes ||= "" %>
+
+<a href="<%= href %>" class="group inline-flex items-center justify-center px-8 py-3 border border-transparent text-base md:text-lg font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 hover:scale-105 active:scale-95 active:bg-blue-800 active:shadow-inner shadow-md hover:shadow-lg transition-all duration-300 ease-in-out transform <%= classes %>">
+  <span><%= text %></span>
+</a> 

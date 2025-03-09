@@ -1,0 +1,23 @@
+<%#
+  Renders a standard section with a title
+  
+  Required parameters:
+  - title: The title text to display in the section header
+  
+  Optional parameters:
+  - id: HTML ID attribute for the section (default: nil)
+  - container_classes: Additional classes for the section container (default: "")
+%>
+
+<% 
+  id_attr = local_assigns[:id] ? "id=#{local_assigns[:id]}" : ""
+  container_classes = local_assigns[:container_classes] || ""
+%>
+
+<section <%= id_attr %> class="<%= container_classes %>">
+  <%= render "shared/section_header", text: title %>
+  
+  <div class="mt-8">
+    <%= yield %>
+  </div>
+</section> 

@@ -1,0 +1,203 @@
+<%# Sidebar component - shown for authenticated users, with admin links for admin users %>
+<div id="mobile-sidebar" 
+     data-controller="sidebar"
+     class="fixed inset-0 lg:hidden z-[1000] pointer-events-none">
+  <!-- Backdrop overlay -->
+  <div data-sidebar-target="backdrop" 
+       data-action="click->sidebar#close"
+       class="absolute inset-0 bg-black/70 opacity-0 pointer-events-none transition-opacity duration-300 ease-in-out z-[998]"></div>
+  
+  <!-- Sliding panel -->
+  <div data-sidebar-target="panel" 
+       data-action="click->sidebar#handlePanelClick"
+       class="absolute inset-y-0 left-0 max-w-xs w-full bg-white transform -translate-x-full transition-transform duration-300 ease-in-out shadow-xl z-[1001] overflow-hidden pointer-events-auto">
+    <!-- Close button - using proper Stimulus action pattern -->
+    <button type="button" 
+        class="absolute top-4 right-4 p-2 rounded-md text-gray-500 hover:text-gray-600 hover:bg-gray-100 z-[1010] pointer-events-auto"
+        data-action="click->sidebar#close">
+      <span class="sr-only">Close sidebar</span>
+      <svg class="h-6 w-6 pointer-events-none" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+    
+    <!-- Mobile sidebar content -->
+    <div class="h-full flex flex-col overflow-y-auto pb-4 relative">
+      <!-- Logo -->
+      <div class="flex-shrink-0 px-6 py-4 flex items-center relative z-[1002]">
+        <%= link_to root_path, class: "flex items-center relative z-[1002]" do %>
+          <%= render "shared/logo" %>
+        <% end %>
+      </div>
+      
+      <!-- Navigation links -->
+      <nav class="flex-1 px-3 py-2 relative z-[1002]">
+        <ul role="list" class="flex flex-1 flex-col gap-y-7">
+          <li>
+            <ul role="list" class="-mx-2 space-y-1">
+              <li class="relative">
+                <%= link_to grading_tasks_path, 
+                          class: "group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-blue-600 relative z-[1002] #{current_page?(grading_tasks_path) ? 'bg-gray-50 text-blue-600' : ''}" do %>
+                  <svg class="size-6 shrink-0 #{current_page?(grading_tasks_path) ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600'}" 
+                       fill="none" 
+                       viewBox="0 0 24 24" 
+                       stroke-width="1.5" 
+                       stroke="currentColor" 
+                       aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="<%= 'm2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25' %>" />
+                  </svg>
+                  My Grading Tasks
+                <% end %>
+              </li>
+              <li class="relative">
+                <%= link_to new_grading_task_path, 
+                          class: "group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-blue-600 relative z-[1002] #{current_page?(new_grading_task_path) ? 'bg-gray-50 text-blue-600' : ''}" do %>
+                  <svg class="size-6 shrink-0 #{current_page?(new_grading_task_path) ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600'}" 
+                       fill="none" 
+                       viewBox="0 0 24 24" 
+                       stroke-width="1.5" 
+                       stroke="currentColor" 
+                       aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="<%= 'M12 4.5v15m7.5-7.5h-15' %>" />
+                  </svg>
+                  New Grading Task
+                <% end %>
+              </li>
+              
+              <% if Current.user&.admin? %>
+                <!-- Admin only links -->
+                <li class="mt-6 border-t border-gray-200 pt-6">
+                  <div class="text-xs/6 font-semibold text-gray-400 mb-2">Admin</div>
+                </li>
+                <li class="relative">
+                  <%= render 'shared/nav_link', 
+                             path: admin_feature_flags_path, 
+                             text: 'Feature Flags', 
+                             icon_path: 'M3 3v1.5M3 21v-6m0 0 2.77-.693a9 9 0 0 1 6.208.682l.108.054a9 9 0 0 0 6.086.71l3.114-.732a48.524 48.524 0 0 0-.005-10.499l-3.11.732a9 9 0 0 1-6.085-.711l-.108-.054a9 9 0 0 0-6.208-.682L3 4.5M3 15V4.5',
+                             mobile: true,
+                             z_index: 1002 %>
+                </li>
+                <li class="relative">
+                  <%= render 'shared/nav_link', 
+                             path: admin_llm_pricing_configs_path, 
+                             text: 'LLM Pricing', 
+                             icon_path: 'M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z',
+                             mobile: true,
+                             z_index: 1002 %>
+                </li>
+                <li class="relative">
+                  <%= render 'shared/nav_link', 
+                             path: admin_llm_cost_reports_path, 
+                             text: 'Cost Reports', 
+                             icon_path: 'M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z',
+                             mobile: true,
+                             z_index: 1002 %>
+                </li>
+              <% end %>
+            </ul>
+          </li>
+          
+          <li class="mt-auto relative">
+            <div class="flex flex-col space-y-2 pt-4 border-t border-gray-200 px-3 relative z-[1002]">
+              <div class="flex items-center py-2">
+                <% profile_picture_url = Current.user&.profile_picture_url || "https://ui-avatars.com/api/?name=#{CGI.escape(Current.user&.name || 'User')}&background=0D8ABC&color=fff" %>
+                <img src="<%= profile_picture_url %>" alt="<%= Current.user&.name || 'User' %>" class="size-10 rounded-full mr-3 object-cover border border-gray-200">
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium text-gray-900 truncate"><%= Current.user&.name || 'User' %></p>
+                  <p class="text-xs text-gray-500 truncate"><%= Current.user&.email || 'user@example.com' %></p>
+                </div>
+              </div>
+              <%= render "shared/sign_out_button", compact: true, use_icon: true, extra_classes: "relative z-[1002]" %>
+            </div>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<!-- Desktop sidebar (fixed position) -->
+<div class="hidden lg:fixed lg:inset-y-0 lg:z-[60] lg:flex lg:w-72 lg:flex-col">
+  <div class="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6 pb-4">
+    <div class="flex h-16 shrink-0 items-center">
+      <%= link_to root_path, class: "flex items-center logo" do %>
+        <%= render "shared/logo" %>
+      <% end %>
+    </div>
+    <nav class="flex flex-1 flex-col">
+      <ul role="list" class="flex flex-1 flex-col gap-y-7">
+        <li>
+          <ul role="list" class="-mx-2 space-y-1">
+            <li>
+              <%= link_to grading_tasks_path, 
+                        class: "group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-blue-600 relative z-40 #{current_page?(grading_tasks_path) ? 'bg-gray-50 text-blue-600' : ''}" do %>
+                <svg class="size-6 shrink-0 #{current_page?(grading_tasks_path) ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600'}" 
+                     fill="none" 
+                     viewBox="0 0 24 24" 
+                     stroke-width="1.5" 
+                     stroke="currentColor" 
+                     aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="<%= 'm2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25' %>" />
+                </svg>
+                My Grading Tasks
+              <% end %>
+            </li>
+            <li>
+              <%= link_to new_grading_task_path, 
+                        class: "group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-blue-600 relative z-40 #{current_page?(new_grading_task_path) ? 'bg-gray-50 text-blue-600' : ''}" do %>
+                <svg class="size-6 shrink-0 #{current_page?(new_grading_task_path) ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600'}" 
+                     fill="none" 
+                     viewBox="0 0 24 24" 
+                     stroke-width="1.5" 
+                     stroke="currentColor" 
+                     aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="<%= 'M12 4.5v15m7.5-7.5h-15' %>" />
+                </svg>
+                New Grading Task
+              <% end %>
+            </li>
+            
+            <% if Current.user&.admin? %>
+              <!-- Admin only links -->
+              <li class="mt-6 border-t border-gray-200 pt-6">
+                <div class="text-xs/6 font-semibold text-gray-400 mb-2">Admin</div>
+              </li>
+              <li class="relative">
+                <%= render 'shared/nav_link', 
+                           path: admin_feature_flags_path, 
+                           text: 'Feature Flags', 
+                           icon_path: 'M3 3v1.5M3 21v-6m0 0 2.77-.693a9 9 0 0 1 6.208.682l.108.054a9 9 0 0 0 6.086.71l3.114-.732a48.524 48.524 0 0 1-.005-10.499l-3.11.732a9 9 0 0 1-6.085-.711l-.108-.054a9 9 0 0 0-6.208-.682L3 4.5M3 15V4.5' %>
+              </li>
+              <li class="relative">
+                <%= render 'shared/nav_link', 
+                           path: admin_llm_pricing_configs_path, 
+                           text: 'LLM Pricing', 
+                           icon_path: 'M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z' %>
+              </li>
+              <li>
+                <%= render 'shared/nav_link', 
+                           path: admin_llm_cost_reports_path, 
+                           text: 'Cost Reports', 
+                           icon_path: 'M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z' %>
+              </li>
+            <% end %>
+          </ul>
+        </li>
+        
+        <li class="mt-auto">
+          <div class="flex flex-col space-y-2 pt-4 border-t border-gray-200">
+            <div class="flex items-center px-2 py-2">
+              <% profile_picture_url = Current.user&.profile_picture_url || "https://ui-avatars.com/api/?name=#{CGI.escape(Current.user&.name || 'User')}&background=0D8ABC&color=fff" %>
+              <img src="<%= profile_picture_url %>" alt="<%= Current.user&.name || 'User' %>" class="size-10 rounded-full mr-3 object-cover border border-gray-200">
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-gray-900 truncate"><%= Current.user&.name || 'User' %></p>
+                <p class="text-xs text-gray-500 truncate"><%= Current.user&.email || 'user@example.com' %></p>
+              </div>
+            </div>
+            <%= render "shared/sign_out_button", compact: true, use_icon: true %>
+          </div>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div> 

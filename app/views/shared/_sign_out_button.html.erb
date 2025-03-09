@@ -1,0 +1,50 @@
+<%# 
+  Reusable sign out button component
+  
+  Optional parameters:
+  - compact: Boolean for more compact styling (default: false)
+  - classes: Additional custom classes
+  - extra_classes: Additional classes that don't override existing ones
+  - show_text: Boolean to show "Sign out" text (default: true)
+  - use_icon: Boolean to use icon instead of profile picture (default: false)
+%>
+
+<% compact ||= false %>
+<% classes ||= "" %>
+<% extra_classes ||= "" %>
+<% show_text = local_assigns.fetch(:show_text, true) %>
+<% use_icon = local_assigns.fetch(:use_icon, false) %>
+<% profile_picture_url = Current.user&.profile_picture_url || "https://ui-avatars.com/api/?name=#{CGI.escape(Current.user&.name || 'User')}&background=0D8ABC&color=fff" %>
+
+<%= link_to session_path, 
+    data: { turbo_method: :delete },
+    class: compact ? 
+      "group flex items-center gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-blue-600 #{classes} #{extra_classes}" :
+      "inline-flex items-center justify-center gap-x-2 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 #{classes} #{extra_classes}" do %>
+  
+  <% if use_icon %>
+    <!-- Logout icon -->
+    <svg class="<%= compact ? 'size-5 text-gray-500 group-hover:text-blue-600' : 'size-4 text-white' %>" 
+         xmlns="http://www.w3.org/2000/svg" 
+         fill="none" 
+         viewBox="0 0 24 24" 
+         stroke-width="1.75" 
+         stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+    </svg>
+  <% else %>
+    <% if compact %>
+      <div class="relative">
+        <img src="<%= profile_picture_url %>" alt="<%= Current.user&.name || 'User' %>" class="size-8 rounded-full object-cover border border-gray-200">
+      </div>
+    <% else %>
+      <div class="relative mr-1">
+        <img src="<%= profile_picture_url %>" alt="<%= Current.user&.name || 'User' %>" class="size-6 rounded-full object-cover border border-gray-200">
+      </div>
+    <% end %>
+  <% end %>
+  
+  <% if show_text %>
+    <span>Sign out</span>
+  <% end %>
+<% end %> 

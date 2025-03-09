@@ -1,0 +1,22 @@
+<%# 
+  Reusable trust badges component for displaying compliance certifications
+  
+  Optional parameters:
+  - badges: Array of badge text (default: ['FERPA Compliant (pending)', 'COPPA Certified (pending)'])
+%>
+
+<% badges ||= ['FERPA Compliant (pending)', 'COPPA Certified (pending)'] %>
+
+<div class="flex items-center gap-3 text-sm text-blue-700">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-blue-500">
+    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+  </svg>
+  
+  <% badges.each_with_index do |badge, index| %>
+    <span><%= badge %></span>
+    <% if index < badges.length - 1 %>
+      <span class="w-1 h-1 rounded-full bg-blue-300"></span>
+    <% end %>
+  <% end %>
+</div> 

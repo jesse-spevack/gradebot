@@ -32,8 +32,8 @@ class GoogleAuthenticationTest < ApplicationSystemTestCase
     assert_equal "test@example.com", user.email
     assert_equal "Test User", user.name
 
-    # Sign out
-    click_on "Sign out"
+    # Sign out - specifically using the header button, not the sidebar one
+    find("header a", text: "Sign out").click
     assert_current_path root_path
   end
 

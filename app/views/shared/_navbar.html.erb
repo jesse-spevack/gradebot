@@ -1,32 +1,60 @@
-<!-- Navigation bar -->
-<nav class="bg-white shadow-sm" data-controller="mobile-menu">
-  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-    <div class="flex h-16 items-center justify-between">
-      <!-- Logo -->
-      <div class="flex-shrink-0">
-        <%= link_to root_path, class: "flex items-center" do %>
-          <h1 class="font-display font-black text-3xl tracking-tight text-blue-950">
-            GradeB<span class="inline-block align-baseline w-[1.4em] h-[1.4em] translate-y-[0.55em] -mx-[0.3em]" style="transform-origin: center;"><%= render "shared/robot" %></span>t
-          </h1>
+<!-- Main Navigation bar -->
+<header class="bg-white shadow-sm relative z-[40]">
+  <div class="w-full px-4 sm:px-6 lg:px-8">
+    <div class="flex h-16 items-center">
+      <!-- Left side: Logo and hamburger menu -->
+      <div class="flex-none">
+        <!-- Logo - only shown when not authenticated -->
+        <% if !authenticated? %>
+          <%= link_to root_path, class: "flex items-center logo" do %>
+            <%= render "shared/logo" %>
+          <% end %>
+        <% end %>
+        
+        <!-- Mobile menu button - only shown when authenticated -->
+        <% if authenticated? %>
+          <div class="lg:hidden">
+            <button id="hamburger-button" type="button" 
+                    class="p-3 text-gray-800 hover:bg-gray-200 rounded-md transition-colors duration-150 ease-in-out cursor-pointer relative z-[1002]"
+                    aria-label="Open sidebar"
+                    data-controller="hamburger"
+                    data-action="click->hamburger#openSidebar">
+              <svg class="size-7" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+              </svg>
+            </button>
+          </div>
         <% end %>
       </div>
 
-      <!-- Mobile menu button -->
-      <div class="-mr-2 flex items-center lg:hidden">
-        <button type="button" 
-                class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
-                data-action="click->mobile-menu#toggle"
-                aria-expanded="false">
-          <span class="sr-only">Open main menu</span>
-          <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
+      <!-- Right side - Auth buttons -->
+      <div class="flex-1 flex justify-end">
+        <% if authenticated? %>
+          <div class="flex items-center">
+            <% profile_picture_url = Current.user&.profile_picture_url || "https://ui-avatars.com/api/?name=#{CGI.escape(Current.user&.name || 'User')}&background=0D8ABC&color=fff" %>
+            <div class="flex items-center mr-2 bg-gray-50 border border-gray-200 px-2 py-1 rounded-full">
+              <img src="<%= profile_picture_url %>" alt="<%= Current.user&.name || 'User' %>" class="size-7 rounded-full mr-2 object-cover border border-gray-200">
+              <span class="hidden md:block text-sm text-gray-700 mr-1"><%= Current.user&.name %></span>
+            </div>
+            <%= render "shared/sign_out_button", classes: "ml-1", use_icon: true %>
+          </div>
+        <% else %>
+          <%= render "shared/sign_in_button" %>
+        <% end %>
       </div>
-
-      <%= render "shared/navbar/desktop_menu" %>
     </div>
   </div>
+</header>
 
-  <%= render "shared/navbar/mobile_menu" %>
-</nav>
+<% if authenticated? %>
+  <%= render "shared/sidebar" %>
+<% end %>
+
+<!-- Main content area with sidebar margin on desktop -->
+<div class="<%= authenticated? ? 'lg:pl-72' : '' %> relative" style="z-index: 1;">
+  <main class="py-10">
+    <div class="px-4 sm:px-6 lg:px-8 mx-auto max-w-7xl">
+      <%= yield %>
+    </div>
+  </main>
+</div>

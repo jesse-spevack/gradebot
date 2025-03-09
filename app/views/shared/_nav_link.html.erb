@@ -1,0 +1,32 @@
+<%# 
+  Reusable navigation link component
+  
+  Required parameters:
+  - path: URL path to link to
+  - text: Link text to display
+  - icon_path: SVG path for the icon
+
+  Optional parameters:
+  - active: Boolean indicating if link is active/current
+  - mobile: Boolean for mobile-specific styling
+  - z_index: Integer z-index value (defaults to 30)
+  - extra_classes: String of additional CSS classes
+%>
+
+<% active ||= current_page?(path) %>
+<% mobile ||= false %>
+<% z_index ||= 30 %>
+<% extra_classes ||= '' %>
+
+<%= link_to path, 
+    class: "group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-blue-600 #{mobile ? 'relative z-['+z_index.to_s+']' : ''} #{active ? 'bg-gray-50 text-blue-600' : ''} #{extra_classes}" do %>
+  <svg class="size-6 shrink-0 #{active ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600'}" 
+       fill="none" 
+       viewBox="0 0 24 24" 
+       stroke-width="1.5" 
+       stroke="currentColor" 
+       aria-hidden="true">
+    <path stroke-linecap="round" stroke-linejoin="round" d="<%= icon_path %>" />
+  </svg>
+  <%= text %>
+<% end %> 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html class="h-full bg-white">
   <head>
     <title><%= content_for(:title) || "Gradebot" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -28,9 +28,7 @@
     <% end %>
   </head>
 
-  <body class="font-sans">
-    <%= render "shared/navbar" %>
-    
+  <body class="font-sans h-full">
     <div data-controller="flash" 
          class="fixed top-0 left-0 right-0 z-50 pointer-events-none">
       <div data-flash-target="message" 
@@ -70,8 +68,7 @@
       </div>
     </div>
 
-    <main class="flex flex-col min-h-screen items-center justify-start">
-      <%= yield %>
-    </main>
+    <%= render "shared/navbar" %>
+    <!-- The navbar partial now includes the main content wrapper with yield -->
   </body>
 </html>

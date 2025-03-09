@@ -1,0 +1,15 @@
+<%# 
+  Reusable badge component for highlighting features or statuses
+  
+  Optional parameters:
+  - text: Text to display (default: 'New: AI-Powered Feedback Assistant')
+  - dot_color: Color class for the dot (default: 'bg-green-500')
+%>
+
+<% text ||= 'New: AI-Powered Feedback Assistant' %>
+<% dot_color ||= 'bg-green-500' %>
+
+<div class="inline-flex items-center gap-2 bg-blue-50 px-3 py-1 rounded-full text-blue-700 text-sm font-medium mb-8 border border-blue-100">
+  <span class="flex-none w-2 h-2 rounded-full <%= dot_color %>"></span>
+  <%= text %>
+</div> 
