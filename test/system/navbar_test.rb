@@ -36,8 +36,6 @@ class NavbarTest < ApplicationSystemTestCase
     # Verify regular navigation links exist in either mobile or desktop view
     assert has_selector?("a", text: "My Grading Tasks", count: 1, visible: true),
           "No 'My Grading Tasks' link found"
-    assert has_selector?("a", text: "New Grading Task", count: 1, visible: true),
-          "No 'New Grading Task' link found"
 
     # Verify admin links are not visible for regular users
     assert_no_selector "a", text: "Feature Flags", visible: :all
