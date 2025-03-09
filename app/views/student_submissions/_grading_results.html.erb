@@ -38,8 +38,12 @@
         <h4 class="text-base font-medium text-gray-900">Strengths</h4>
       </div>
       <ul class="space-y-2 list-disc pl-5">
-        <% student_submission.strengths.split("\n").each do |strength| %>
-          <li class="text-gray-700"><%= strength.gsub(/^-\s*/, '') %></li>
+        <% if student_submission.strengths.present? %>
+          <% student_submission.strengths.split("\n").each do |strength| %>
+            <li class="text-gray-700"><%= strength.gsub(/^-\s*/, '') %></li>
+          <% end %>
+        <% else %>
+          <li class="text-gray-500 italic">No strengths recorded yet.</li>
         <% end %>
       </ul>
     </div>
@@ -51,8 +55,12 @@
         <h4 class="text-base font-medium text-gray-900">Areas for Improvement</h4>
       </div>
       <ul class="space-y-2 list-disc pl-5">
-        <% student_submission.opportunities.split("\n").each do |opportunity| %>
-          <li class="text-gray-700"><%= opportunity.gsub(/^-\s*/, '') %></li>
+        <% if student_submission.opportunities.present? %>
+          <% student_submission.opportunities.split("\n").each do |opportunity| %>
+            <li class="text-gray-700"><%= opportunity.gsub(/^-\s*/, '') %></li>
+          <% end %>
+        <% else %>
+          <li class="text-gray-500 italic">No areas for improvement recorded yet.</li>
         <% end %>
       </ul>
     </div>
@@ -73,12 +81,18 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
-          <% JSON.parse(student_submission.rubric_scores).each do |criterion, score| %>
+          <% if student_submission.rubric_scores.present? %>
+            <% JSON.parse(student_submission.rubric_scores).each do |criterion, score| %>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= criterion %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <%= score %>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
             <tr>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= criterion %></td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                <%= score %>
-              </td>
+              <td colspan="2" class="px-6 py-4 text-center text-sm text-gray-500 italic">No rubric scores available yet.</td>
             </tr>
           <% end %>
         </tbody>
