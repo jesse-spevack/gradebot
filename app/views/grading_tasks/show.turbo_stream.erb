@@ -1,3 +1,19 @@
 <%= turbo_stream.replace dom_id(@grading_task) do %>
   <%= render "grading_task", grading_task: @grading_task, student_submissions: @student_submissions %>
+<% end %>
+
+<%= turbo_stream.replace "grading_task_#{@grading_task.id}_progress_metrics" do %>
+  <%= render "progress_metrics", grading_task: @grading_task, student_submissions: @student_submissions %>
+<% end %>
+
+<%= turbo_stream.replace "grading_task_#{@grading_task.id}_status_badge" do %>
+  <%= render "task_status_badge", grading_task: @grading_task %>
+<% end %>
+
+<%= turbo_stream.replace "grading_task_#{@grading_task.id}_submission_counts" do %>
+  <%= render "submission_counts", grading_task: @grading_task, student_submissions: @student_submissions %>
+<% end %>
+
+<%= turbo_stream.update "progress_section_#{dom_id(@grading_task)}" do %>
+  <%= render "progress_section", grading_task: @grading_task, student_submissions: @student_submissions %>
 <% end %> 

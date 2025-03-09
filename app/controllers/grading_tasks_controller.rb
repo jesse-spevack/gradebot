@@ -18,7 +18,13 @@ class GradingTasksController < ApplicationController
   end
 
   def show
-    @grading_task = Current.session.user.grading_tasks.find(params[:id])
+    @grading_task = GradingTask.find(params[:id])
+
+    # Ensure the current user owns this grading task
+    unless @grading_task.user == Current.session.user
+      redirect_to root_path, alert: "You don't have permission to view this grading task."
+      return
+    end
 
     # Get a fresh count of submissions directly from the database
     @student_submissions = @grading_task.student_submissions.reload.order(created_at: :desc)
@@ -29,7 +35,6 @@ class GradingTasksController < ApplicationController
     # Calculate the progress percentage
     @progress_percentage = StatusManager.calculate_progress_percentage(@grading_task)
 
-    # For Turbo Stream updates
     respond_to do |format|
       format.html
       format.turbo_stream

@@ -1,0 +1,55 @@
+<%# Usage: render "student_submissions/submission_card", submission: submission %>
+
+<div id="<%= dom_id(submission) %>_card" data-submission-id="<%= submission.id %>" onclick="window.location='<%= student_submission_path(submission) %>'" class="p-4 space-y-3 cursor-pointer hover:bg-gray-50 transition-colors duration-150">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center space-x-3 min-w-0">
+      <div class="flex-shrink-0">
+        <% 
+          icon_classes = case submission.status
+            when 'pending' then 'text-yellow-600 bg-yellow-50'
+            when 'processing' then 'text-blue-600 bg-blue-50'
+            when 'completed' then 'text-green-600 bg-green-50'
+            when 'failed' then 'text-red-600 bg-red-50'
+          end
+        %>
+        <div class="p-2 rounded-lg <%= icon_classes %>">
+          <% case submission.status %>
+          <% when 'pending' %>
+            <%= render "shared/icons/clock", class: "h-5 w-5" %>
+          <% when 'processing' %>
+            <%= render "shared/icons/processing", class: "h-5 w-5" %>
+          <% when 'completed' %>
+            <%= render "shared/icons/check", class: "h-5 w-5" rescue nil %>
+          <% when 'failed' %>
+            <%= render "shared/icons/x_mark", class: "h-5 w-5" rescue nil %>
+          <% end %>
+        </div>
+      </div>
+      <div class="min-w-0">
+        <h3 class="text-base font-medium text-gray-900 truncate"><%= submission.original_doc_id.truncate(20) %></h3>
+      </div>
+    </div>
+    <div class="flex items-center">
+      <%= render "shared/icons/chevron_right", class: "h-5 w-5 text-gray-400" %>
+    </div>
+  </div>
+
+  <div class="flex items-center justify-between">
+    <% 
+      status_classes = case submission.status
+        when 'pending' then 'bg-yellow-100 text-yellow-800'
+        when 'processing' then 'bg-blue-100 text-blue-800'
+        when 'completed' then 'bg-green-100 text-green-800'
+        when 'failed' then 'bg-red-100 text-red-800'
+      end
+    %>
+    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= status_classes %>">
+      <%= submission.status.capitalize %>
+    </span>
+    
+    <div class="flex items-center text-xs text-gray-500">
+      <%= render "shared/icons/clock", class: "h-4 w-4 mr-1.5 text-gray-400" %>
+      <%= time_ago_in_words(submission.created_at) %> ago
+    </div>
+  </div>
+</div> 

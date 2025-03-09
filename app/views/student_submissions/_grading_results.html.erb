@@ -1,11 +1,14 @@
 <%# frozen_string_literal: true %>
 
-<div class="space-y-6">
+<div class="space-y-8">
   <%# Feedback %>
-  <div class="bg-white rounded-lg shadow p-6">
-    <h3 class="text-lg font-medium text-gray-900 mb-4">Feedback</h3>
+  <div>
+    <div class="flex items-center mb-3">
+      <%= render "shared/icons/comment", class: "h-5 w-5 text-blue-600 mr-2" %>
+      <h4 class="text-base font-medium text-gray-900">Feedback</h4>
+    </div>
     <% if student_submission.feedback.present? %>
-      <div class="prose max-w-none">
+      <div class="prose max-w-none bg-gray-50 p-4 rounded-md">
         <%= simple_format(student_submission.feedback) %>
       </div>
     <% else %>
@@ -13,10 +16,13 @@
     <% end %>
   </div>
 
-  <%# Overall Grade Card %>
-  <div class="bg-white rounded-lg shadow p-6">
-    <div class="flex items-center justify-between">
-      <h3 class="text-lg font-medium text-gray-900">Overall Grade</h3>
+  <%# Overall Grade %>
+  <div>
+    <div class="flex items-center justify-between border-b border-gray-200 pb-4">
+      <div class="flex items-center">
+        <%= render "shared/icons/star", class: "h-5 w-5 text-yellow-500 mr-2" %>
+        <h4 class="text-base font-medium text-gray-900">Overall Grade</h4>
+      </div>
       <div class="text-4xl font-bold text-gray-900">
         <%= student_submission.overall_grade %>
       </div>
@@ -24,10 +30,13 @@
   </div>
 
   <%# Strengths and Opportunities Grid %>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
     <%# Strengths %>
-    <div class="bg-white rounded-lg shadow p-6">
-      <h3 class="text-lg font-medium text-gray-900 mb-4">Strengths</h3>
+    <div>
+      <div class="flex items-center mb-3">
+        <%= render "shared/icons/check", class: "h-5 w-5 text-green-600 mr-2" %>
+        <h4 class="text-base font-medium text-gray-900">Strengths</h4>
+      </div>
       <ul class="space-y-2 list-disc pl-5">
         <% student_submission.strengths.split("\n").each do |strength| %>
           <li class="text-gray-700"><%= strength.gsub(/^-\s*/, '') %></li>
@@ -36,8 +45,11 @@
     </div>
 
     <%# Opportunities %>
-    <div class="bg-white rounded-lg shadow p-6">
-      <h3 class="text-lg font-medium text-gray-900 mb-4">Areas for Improvement</h3>
+    <div>
+      <div class="flex items-center mb-3">
+        <%= render "shared/icons/target", class: "h-5 w-5 text-blue-600 mr-2" %>
+        <h4 class="text-base font-medium text-gray-900">Areas for Improvement</h4>
+      </div>
       <ul class="space-y-2 list-disc pl-5">
         <% student_submission.opportunities.split("\n").each do |opportunity| %>
           <li class="text-gray-700"><%= opportunity.gsub(/^-\s*/, '') %></li>
@@ -47,9 +59,12 @@
   </div>
 
   <%# Criteria Scores Table %>
-  <div class="bg-white rounded-lg shadow p-6">
-    <h3 class="text-lg font-medium text-gray-900 mb-4">Rubric Scores</h3>
-    <div class="overflow-x-auto">
+  <div>
+    <div class="flex items-center mb-3">
+      <%= render "shared/icons/clipboard_list", class: "h-5 w-5 text-blue-600 mr-2" %>
+      <h4 class="text-base font-medium text-gray-900">Rubric Scores</h4>
+    </div>
+    <div class="overflow-x-auto bg-gray-50 rounded-md">
       <table class="min-w-full divide-y divide-gray-200">
         <thead>
           <tr>
@@ -57,7 +72,7 @@
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
           </tr>
         </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
+        <tbody class="divide-y divide-gray-200">
           <% JSON.parse(student_submission.rubric_scores).each do |criterion, score| %>
             <tr>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= criterion %></td>

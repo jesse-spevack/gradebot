@@ -1,0 +1,15 @@
+<%# 
+  Static processing icon 
+  
+  Parameters:
+  - class: Additional CSS classes to apply to the SVG
+%>
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="<%= local_assigns[:class] %>">
+  <!-- Outer circle -->
+  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" class="opacity-25" />
+  
+  <!-- Three dots indicating processing -->
+  <circle cx="7" cy="12" r="2" fill="currentColor" />
+  <circle cx="12" cy="12" r="2" fill="currentColor" />
+  <circle cx="17" cy="12" r="2" fill="currentColor" />
+</svg> 

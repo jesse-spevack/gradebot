@@ -1,0 +1,38 @@
+<%#
+  Display a list of student submissions in both mobile and desktop views
+  
+  Parameters:
+  - submissions: Collection of student submission objects to display
+%>
+
+<!-- Mobile View (Card Layout) -->
+<div class="sm:hidden">
+  <div class="divide-y divide-gray-200">
+    <% submissions.each do |submission| %>
+      <div id="<%= dom_id(submission) %>" class="submission-container">
+        <%= render "student_submissions/submission_card", submission: submission %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- Desktop View (Table Layout) -->
+<div class="hidden sm:block overflow-x-auto">
+  <table class="min-w-full divide-y divide-gray-200">
+    <thead>
+      <tr class="bg-gray-50">
+        <th scope="col" class="py-4 pl-6 pr-3 text-left text-sm font-semibold text-gray-900">Document</th>
+        <th scope="col" class="px-3 py-4 text-left text-sm font-semibold text-gray-900">Status</th>
+        <th scope="col" class="px-3 py-4 text-left text-sm font-semibold text-gray-900">Created</th>
+        <th scope="col" class="relative py-4 pl-3 pr-6 text-right">
+          <span class="sr-only">Actions</span>
+        </th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-200">
+      <% submissions.each do |submission| %>
+        <%= render "student_submissions/table_row", submission: submission %>
+      <% end %>
+    </tbody>
+  </table>
+</div> 

@@ -25,11 +25,23 @@
     <% end %>
 
     <%= render "shared/card", title: "Student Submissions" do %>
-      <div id="student_submissions" class="mt-2 space-y-3">
+      <div id="student_submissions" class="mt-2">
         <% if student_submissions.any? %>
-          <%= render student_submissions %>
+          <div data-controller="submission-refresh" 
+               data-submission-refresh-interval-value="3000"
+               data-submission-refresh-grade-task-id-value="<%= grading_task.id %>">
+            <%= render 'student_submissions/submission_list', submissions: student_submissions %>
+          </div>
         <% else %>
-          <p class="text-gray-500 italic">No student submissions found yet. They'll appear here once they're processed.</p>
+          <div class="text-center py-8">
+            <div class="p-3 bg-blue-50 rounded-xl inline-flex">
+              <%= render "shared/icons/document", class: "h-10 w-10 text-blue-500" rescue nil %>
+            </div>
+            <h3 class="mt-3 text-lg font-medium text-gray-900">No submissions yet</h3>
+            <p class="mt-2 text-sm text-gray-500 max-w-sm mx-auto">
+              Student submissions will appear here once they're processed. Check back soon.
+            </p>
+          </div>
         <% end %>
       </div>
     <% end %>

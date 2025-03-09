@@ -1,16 +1,19 @@
 <% content_for :header do %>
-  <div class="flex items-center justify-between">
-    <div class="flex items-center space-x-4">
-      <%= link_to grading_task_path(@grading_task), class: "text-gray-500 hover:text-gray-700 transition-colors duration-150" do %>
-        <%= render "shared/icons/back" %>
-      <% end %>
-      <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-blue-950">Student Submission</h1>
+  <%= render "shared/page_header", 
+             title: "Student Submission",
+             subtitle: "Detailed grading information" do %>
+    <div class="flex items-center justify-between w-full">
+      <div>
+        <%= link_to grading_task_path(@grading_task), class: "inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors duration-150" do %>
+          <%= render "shared/icons/back", class: "h-5 w-5 mr-1" %>
+          <span>Back to Assignment</span>
+        <% end %>
+      </div>
+      <div id="header_status">
+        <%= render "student_submissions/header_status", student_submission: @student_submission %>
+      </div>
     </div>
-
-    <div id="header_status" class="flex items-center space-x-2">
-      <%= render "student_submissions/header_status", student_submission: @student_submission %>
-    </div>
-  </div>
+  <% end %>
 <% end %>
 
 <% content_for :content do %>

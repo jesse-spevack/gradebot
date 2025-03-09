@@ -23,8 +23,8 @@
           <p class="mt-2">Progress: <%= StatusManager.calculate_progress_percentage(grading_task) %>%</p>
           <p class="mt-2">Total Submissions: <%= student_submissions.count %></p>
           <p>Last Updated: <%= Time.current.strftime("%H:%M:%S") %></p>
+          </div>
         </div>
       </details>
     </div>
   <% end %>
-</div> 

@@ -248,7 +248,7 @@ class StatusManager
     # Get the parent grading task
     grading_task = submission.grading_task
 
-    # Broadcast the submission update
+    # Broadcast the main submission content
     Turbo::StreamsChannel.broadcast_replace_to(
       "grading_task_#{submission.grading_task_id}",
       target: dom_id(submission),
@@ -256,31 +256,46 @@ class StatusManager
       locals: { student_submission: submission }
     )
 
-    # Broadcast to the detail views only if someone might be viewing them
-    if submission.status_previously_changed? || submission.feedback_previously_changed?
-      # Broadcast to the submission detail view (on the student submission page)
-      Turbo::StreamsChannel.broadcast_update_to(
-        "student_submission_#{submission.id}",
-        target: "#{dom_id(submission)}_detail",
-        partial: "student_submissions/detail",
-        locals: { student_submission: submission }
-      )
+    # Broadcast to the table row separately
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "grading_task_#{submission.grading_task_id}",
+      target: "#{dom_id(submission)}_table_row",
+      partial: "student_submissions/table_row",
+      locals: { submission: submission }
+    )
 
-      # Also broadcast to the header status section of the submission detail view
-      Turbo::StreamsChannel.broadcast_update_to(
-        "student_submission_#{submission.id}",
-        target: "header_status",
-        partial: "student_submissions/header_status",
-        locals: { student_submission: submission }
-      )
+    # Broadcast to the card separately
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "grading_task_#{submission.grading_task_id}",
+      target: "#{dom_id(submission)}_card",
+      partial: "student_submissions/submission_card",
+      locals: { submission: submission }
+    )
 
-      # Also update the grading task components since a submission status change
-      # affects the task's progress and counts
-      broadcast_task_components(
-        grading_task,
-        grading_task.student_submissions.order(created_at: :desc)
-      )
-    end
+    # Always broadcast to the detail views, as someone might be viewing them
+    # and to ensure statuses are always in sync
+    # Broadcast to the submission detail view (on the student submission page)
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "student_submission_#{submission.id}",
+      target: "#{dom_id(submission)}_detail",
+      partial: "student_submissions/detail",
+      locals: { student_submission: submission }
+    )
+
+    # Also broadcast to the header status section of the submission detail view
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "student_submission_#{submission.id}",
+      target: "header_status",
+      partial: "student_submissions/header_status",
+      locals: { student_submission: submission }
+    )
+
+    # Also update the grading task components since a submission status change
+    # affects the task's progress and counts
+    broadcast_task_components(
+      grading_task,
+      grading_task.student_submissions.order(created_at: :desc)
+    )
   end
 
   # Generate a DOM ID for a record (same as ApplicationController#dom_id)

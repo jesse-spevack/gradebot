@@ -1,97 +1,60 @@
-<%= render "shared/card" do %>
-  <div class="space-y-6">
-    <%= render "shared/card", title: "Document" do %>
+<%#
+  Detailed view of a student submission with all associated information
+  
+  Parameters:
+  - student_submission: The student submission object to display
+%>
+
+<div id="<%= dom_id(student_submission) %>_detail" class="bg-white rounded-lg shadow-sm p-6 space-y-8">
+  <!-- Document section -->
+  <div>
+    <div class="flex items-center mb-4">
+      <%= render "shared/icons/document", class: "h-5 w-5 text-blue-600 mr-2" %>
+      <h3 class="text-lg font-medium text-gray-900">Document</h3>
+    </div>
+    <div class="flex items-center justify-between">
+      <p class="text-gray-600">
+        <strong>Document ID:</strong> <%= student_submission.original_doc_id %>
+      </p>
+      
+      <%= link_to "https://docs.google.com/document/d/#{student_submission.original_doc_id}/edit",
+         target: "_blank",
+         class: "inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-sm transition-colors duration-150" do %>
+        <span>Open Original Document</span>
+        <%= render "shared/icons/external_link", class: "ml-1.5 h-4 w-4" rescue nil %>
+      <% end %>
+    </div>
+  </div>
+
+  <% if student_submission.completed? && student_submission.graded_doc_id.present? %>
+    <!-- Graded Document section -->
+    <div class="pt-2">
+      <div class="flex items-center mb-4">
+        <%= render "shared/icons/check_circle", class: "h-5 w-5 text-green-600 mr-2" %>
+        <h3 class="text-lg font-medium text-gray-900">Graded Document</h3>
+      </div>
       <div class="flex items-center justify-between">
         <p class="text-gray-600">
-          <strong>Document ID:</strong> <%= student_submission.original_doc_id %>
+          <strong>Graded Document ID:</strong> <%= student_submission.graded_doc_id %>
         </p>
         
-        <a href="https://docs.google.com/document/d/<%= student_submission.original_doc_id %>/edit" 
-           target="_blank"
-           class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors duration-150">
-          <span>Open Original Document</span>
-          <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-          </svg>
-        </a>
+        <%= link_to "https://docs.google.com/document/d/#{student_submission.graded_doc_id}/edit", 
+           target: "_blank",
+           class: "inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md shadow-sm transition-colors duration-150" do %>
+          <span>Open Graded Document</span>
+          <%= render "shared/icons/external_link", class: "ml-1.5 h-4 w-4" rescue nil %>
+        <% end %>
       </div>
-    <% end %>
+    </div>
+  <% end %>
 
-    <% if student_submission.completed? && student_submission.graded_doc_id.present? %>
-      <%= render "shared/card", title: "Graded Document" do %>
-        <div class="flex items-center justify-between">
-          <p class="text-gray-600">
-            <strong>Graded Document ID:</strong> <%= student_submission.graded_doc_id %>
-          </p>
-          
-          <a href="https://docs.google.com/document/d/<%= student_submission.graded_doc_id %>/edit" 
-             target="_blank"
-             class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md transition-colors duration-150">
-            <span>Open Graded Document</span>
-            <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-            </svg>
-          </a>
-        </div>
-      <% end %>
-    <% end %>
-
-    <% if student_submission.completed? %>
-      <%= render "shared/card", title: "Grading Results" do %>
-        <%= render "grading_results", student_submission: student_submission %>
-      <% end %>
-    <% end %>
-
-    <%= render "shared/card", title: "Status Timeline" do %>
-      <div class="mt-2 space-y-4">
-        <div class="flex items-start">
-          <div class="flex-shrink-0 h-5 w-5 rounded-full bg-blue-500 flex items-center justify-center">
-            <span class="h-2 w-2 rounded-full bg-white"></span>
-          </div>
-          <div class="ml-3">
-            <p class="text-sm font-medium text-gray-900">Created</p>
-            <p class="text-sm text-gray-500"><%= student_submission.created_at.strftime("%B %d, %Y at %I:%M %p") %></p>
-          </div>
-        </div>
-
-        <div class="flex items-start">
-          <div class="flex-shrink-0 h-5 w-5 rounded-full <%= student_submission.status == 'pending' ? 'bg-yellow-500' : 'bg-gray-200' %> flex items-center justify-center">
-            <span class="h-2 w-2 rounded-full bg-white"></span>
-          </div>
-          <div class="ml-3">
-            <p class="text-sm font-medium text-gray-900">Pending</p>
-            <p class="text-sm text-gray-500">Waiting to be processed</p>
-          </div>
-        </div>
-
-        <div class="flex items-start">
-          <div class="flex-shrink-0 h-5 w-5 rounded-full <%= student_submission.status == 'processing' ? 'bg-blue-500' : 'bg-gray-200' %> flex items-center justify-center">
-            <span class="h-2 w-2 rounded-full bg-white"></span>
-          </div>
-          <div class="ml-3">
-            <p class="text-sm font-medium text-gray-900">Processing</p>
-            <p class="text-sm text-gray-500">Document is being analyzed</p>
-          </div>
-        </div>
-
-        <div class="flex items-start">
-          <div class="flex-shrink-0 h-5 w-5 rounded-full <%= student_submission.status == 'completed' ? 'bg-green-500' : (student_submission.status == 'failed' ? 'bg-red-500' : 'bg-gray-200') %> flex items-center justify-center">
-            <span class="h-2 w-2 rounded-full bg-white"></span>
-          </div>
-          <div class="ml-3">
-            <p class="text-sm font-medium text-gray-900"><%= student_submission.status == 'failed' ? 'Failed' : 'Completed' %></p>
-            <p class="text-sm text-gray-500">
-              <% if student_submission.status == 'completed' %>
-                Grading completed successfully
-              <% elsif student_submission.status == 'failed' %>
-                Grading failed - see feedback for details
-              <% else %>
-                Waiting for processing to complete
-              <% end %>
-            </p>
-          </div>
-        </div>
+  <% if student_submission.completed? %>
+    <!-- Grading Results section -->
+    <div class="pt-2">
+      <div class="flex items-center mb-4">
+        <h3 class="text-lg font-medium text-gray-900">Grading Results</h3>
       </div>
-    <% end %>
-  </div>
-<% end %> 
+      <%= render "student_submissions/grading_results", student_submission: student_submission %>
+    </div>
+  <% end %>
+</div> 

@@ -1,0 +1,26 @@
+<%# Turbo stream template for submission updates %>
+
+<%# Update the main container %>
+<%= turbo_stream.replace dom_id(@student_submission) do %>
+  <%= render "student_submissions/student_submission_content", student_submission: @student_submission %>
+<% end %>
+
+<%# Update the table row specifically %>
+<%= turbo_stream.replace "#{dom_id(@student_submission)}_table_row" do %>
+  <%= render "student_submissions/table_row", submission: @student_submission %>
+<% end %>
+
+<%# Update the card specifically %>
+<%= turbo_stream.replace "#{dom_id(@student_submission)}_card" do %>
+  <%= render "student_submissions/submission_card", submission: @student_submission %>
+<% end %>
+
+<%# Update detail view if being viewed %>
+<%= turbo_stream.replace "#{dom_id(@student_submission)}_detail" do %>
+  <%= render "student_submissions/detail", student_submission: @student_submission %>
+<% end %>
+
+<%# Update the header status %>
+<%= turbo_stream.replace "header_status" do %>
+  <%= render "student_submissions/header_status", student_submission: @student_submission %>
+<% end %> 
