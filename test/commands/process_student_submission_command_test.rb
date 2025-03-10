@@ -80,6 +80,8 @@ class ProcessStudentSubmissionCommandTest < ActiveJob::TestCase
 
     # Mock the TokenService to raise an error
     TokenService.any_instance.stubs(:create_google_drive_client).raises(TokenService::NoValidTokenError, "Test token error")
+    # Mock DocumentFetcher to propagate the TokenService error
+    DocumentFetcherService.any_instance.stubs(:fetch).raises(TokenService::TokenError, "Test token error")
 
     # Run the command - ensure it gets to the token error
     StatusManager.transition_submission(@submission, :processing)
@@ -111,9 +113,8 @@ class ProcessStudentSubmissionCommandTest < ActiveJob::TestCase
     # Mock the TokenService to return our mock client
     TokenService.any_instance.stubs(:create_google_drive_client).returns(mock_client)
 
-    # Mock the fetch_document_content method to raise an error
-    ProcessStudentSubmissionCommand.any_instance.stubs(:fetch_document_content)
-      .raises(StandardError.new("Document not found or access denied"))
+    # Mock DocumentFetcher to raise an error for compatibility with refactored code
+    DocumentFetcherService.any_instance.stubs(:fetch).raises(StandardError.new("Document not found or access denied"))
 
     # Run the command
     StatusManager.transition_submission(@submission, :processing)
@@ -333,6 +334,65 @@ class ProcessStudentSubmissionCommandTest < ActiveJob::TestCase
 
     # Check status
     assert_equal "completed", @submission.status
+  end
+
+  test "returns nil when submission does not exist" do
+    StudentSubmission.stubs(:find_by).returns(nil)
+
+    command = ProcessStudentSubmissionCommand.new(student_submission_id: 999)
+    result = command.execute
+
+    assert_nil result
+    assert_includes command.errors, "Student submission not found with ID: 999"
+  end
+
+  test "transitions to failed state when document fetching fails" do
+    StatusManager.stubs(:transition_submission).returns(true)
+    DocumentFetcherService.any_instance.stubs(:fetch).raises(StandardError.new("Document fetch error"))
+
+    command = ProcessStudentSubmissionCommand.new(student_submission_id: @submission.id)
+    result = command.execute
+
+    assert_nil result
+    assert_includes command.errors, "Failed to fetch document content: Document fetch error"
+  end
+
+  test "transitions to failed state when grading fails" do
+    StatusManager.stubs(:transition_submission).returns(true)
+    DocumentFetcherService.any_instance.stubs(:fetch).returns("Document content")
+    GradingOrchestrator.any_instance.stubs(:grade).raises(StandardError.new("Grading error"))
+
+    command = ProcessStudentSubmissionCommand.new(student_submission_id: @submission.id)
+    result = command.execute
+
+    assert_nil result
+    assert_includes command.errors, "Error during grading: Grading error"
+  end
+
+  test "successfully processes submission when everything works" do
+    # Mock the status transitions
+    StatusManager.stubs(:transition_submission).returns(true)
+
+    # Mock document fetching
+    DocumentFetcherService.any_instance.stubs(:fetch).returns("Document content")
+
+    # Create a mock grading result
+    grading_result = mock("GradingResult")
+    grading_result.stubs(:error).returns(nil)
+    grading_result.stubs(:feedback).returns("Great work!")
+    grading_result.stubs(:strengths).returns([ "Good structure", "Clear writing" ])
+    grading_result.stubs(:opportunities).returns([ "Improve citations" ])
+    grading_result.stubs(:overall_grade).returns("A")
+    grading_result.stubs(:rubric_scores).returns({ "Writing": 9, "Content": 8 })
+
+    # Mock the grading service
+    GradingOrchestrator.any_instance.stubs(:grade).returns(grading_result)
+
+    command = ProcessStudentSubmissionCommand.new(student_submission_id: @submission.id)
+    result = command.execute
+
+    assert_equal @submission, result
+    assert_empty command.errors
   end
 
   teardown do
