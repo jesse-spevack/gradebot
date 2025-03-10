@@ -55,7 +55,7 @@ class NavbarTest < ApplicationSystemTestCase
           "No 'Feature Flags' link found"
     assert has_selector?("a", text: "LLM Pricing", count: 1, visible: true),
           "No 'LLM Pricing' link found"
-    assert has_selector?("a", text: "Cost Reports", count: 1, visible: true),
+    assert has_selector?("a", text: "Daily LLM Costs", count: 1, visible: true),
           "No 'Cost Reports' link found"
   end
 end
