@@ -1,0 +1,22 @@
+<%#
+  Displays formatted code snippet
+  
+  Parameters:
+  - code: The code content to display
+  - language: Optional language for syntax highlighting (not implemented yet)
+  - title: Optional title for the code block
+%>
+
+<div class="bg-gray-100 rounded-md p-4">
+  <% if local_assigns[:title].present? %>
+    <div class="text-xs font-medium text-gray-500 mb-2"><%= title %></div>
+  <% end %>
+  
+  <pre class="text-sm font-mono text-gray-800 overflow-x-auto"><%= code %></pre>
+  
+  <% if block_given? %>
+    <div class="mt-2 text-sm text-gray-500">
+      <%= yield %>
+    </div>
+  <% end %>
+</div> 

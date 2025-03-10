@@ -1,35 +1,33 @@
+<%# Feature Flag Detail View %>
+
 <% content_for :header do %>
-  <div class="space-y-4">
-    <%= render "admin/feature_flags/back_link", url: admin_feature_flags_path, text: "Back to Feature Flags" %>
-    
-    <div class="flex items-center justify-between">
-      <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-blue-950"><%= @feature_flag.name %></h1>
+  <%= render "shared/page_header", 
+             title: @feature_flag.name,
+             subtitle: nil,
+             back_link: {
+               path: admin_feature_flags_path,
+               text: "Back to Feature Flags"
+             } do %>
+    <div class="flex items-center space-x-3">
+      <%= link_to edit_admin_feature_flag_path(@feature_flag), class: "inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 shadow-sm transition-colors duration-150" do %>
+        <%= render "shared/icons/edit", class: "h-4 w-4 mr-1.5" %>
+        Edit
+      <% end %>
       
-      <div class="flex items-center space-x-3">
-        <%= link_to edit_admin_feature_flag_path(@feature_flag), class: "inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-          </svg>
-          Edit
-        <% end %>
-        
-        <%= form_with url: admin_feature_flag_path(@feature_flag), method: :delete, data: { confirm: "Are you sure you want to delete this feature flag? This cannot be undone." }, class: "inline" do %>
-          <button type="submit" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-red-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-            Delete
-          </button>
-        <% end %>
-      </div>
+      <%= form_with url: admin_feature_flag_path(@feature_flag), method: :delete, data: { confirm: "Are you sure you want to delete this feature flag? This cannot be undone." }, class: "inline" do %>
+        <button type="submit" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-red-700 bg-white hover:bg-gray-50 shadow-sm transition-colors duration-150">
+          <%= render "shared/icons/trash", class: "h-4 w-4 mr-1.5" %>
+          Delete
+        </button>
+      <% end %>
     </div>
-  </div>
+  <% end %>
 <% end %>
 
 <% content_for :content do %>
   <div class="space-y-6">
     <%= render "shared/card" do %>
-      <%= render "admin/feature_flags/card_header", title: "Feature Flag Details" %>
+      <%= render "shared/card_header", title: "Feature Flag Details", icon: "flag" %>
       
       <div class="px-4 sm:px-6 py-5">
         <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
@@ -45,9 +43,9 @@
             <dd class="mt-1 flex items-center">
               <%= form_with model: [:admin, @feature_flag], method: :patch, class: "flex items-center" do |f| %>
                 <%= f.hidden_field :enabled, value: !@feature_flag.enabled %>
-                <%= render "admin/feature_flags/status_badge", enabled: @feature_flag.enabled? %>
+                <%= render "shared/status_badge", status: @feature_flag.enabled? ? "Enabled" : "Disabled" %>
                 
-                <button type="submit" class="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ml-3">
+                <button type="submit" class="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 shadow-sm transition-colors duration-150 ml-3">
                   <%= @feature_flag.enabled? ? 'Disable' : 'Enable' %>
                 </button>
               <% end %>
@@ -67,15 +65,12 @@
           <div class="sm:col-span-2">
             <dt class="text-sm font-medium text-gray-500">Usage in Code</dt>
             <dd class="mt-1">
-              <div class="bg-gray-100 rounded-md p-4 text-sm font-mono">
-                <pre class="text-gray-800">if FeatureFlagService.new.enabled?("<%= @feature_flag.key %>")<br>  # Feature is enabled<br>else<br>  # Feature is disabled<br>end</pre>
-              </div>
-              <div class="mt-2 text-sm text-gray-500 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                </svg>
-                <%= link_to "Find usages in codebase", "https://github.com/jesse-spevack/gradebot/search?q=#{CGI.escape(@feature_flag.key)}&type=code", target: "_blank", rel: "noopener", class: "text-blue-600 hover:text-blue-800 hover:underline" %>
-              </div>
+              <%= render "shared/code_snippet", code: "if FeatureFlagService.new.enabled?(\"#{@feature_flag.key}\")\n  # Feature is enabled\nelse\n  # Feature is disabled\nend" do %>
+                <div class="flex items-center">
+                  <%= render "shared/icons/code", class: "h-4 w-4 mr-1.5 text-blue-500" %>
+                  <%= link_to "Find usages in codebase", "https://github.com/jesse-spevack/gradebot/search?q=#{CGI.escape(@feature_flag.key)}&type=code", target: "_blank", rel: "noopener", class: "text-blue-600 hover:text-blue-800 hover:underline" %>
+                </div>
+              <% end %>
             </dd>
           </div>
         </dl>
@@ -84,36 +79,45 @@
     
     <% if @audit_logs.any? %>
       <%= render "shared/card" do %>
-        <%= render "admin/feature_flags/card_header", title: "Change History" %>
+        <%= render "shared/card_header", title: "Change History", icon: "clock" %>
         
-        <%= render "admin/feature_flags/audit_logs_table", show_flag_name: false, show_states: true do %>
-          <% @audit_logs.each do |log| %>
-            <tr>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= log.user.email %></td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <% if log.action == "enabled" %>
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Enabled</span>
-                <% else %>
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Disabled</span>
-                <% end %>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <%= render "admin/feature_flags/status_badge", enabled: log.previous_state %>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <%= render "admin/feature_flags/status_badge", enabled: log.new_state %>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <time datetime="<%= log.created_at.iso8601 %>"><%= log.created_at.strftime("%b %d, %Y %H:%M") %></time>
-                <div class="text-xs text-gray-400"><%= time_ago_in_words(log.created_at) %> ago</div>
-              </td>
-            </tr>
-          <% end %>
-        <% end %>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead>
+              <tr class="bg-gray-50">
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Previous</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">New</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">When</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <% @audit_logs.each do |log| %>
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= log.user.email %></td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <%= render "shared/status_badge", status: log.action, size: "sm" %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <%= render "shared/status_badge", status: log.previous_state ? "Enabled" : "Disabled", size: "sm" %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <%= render "shared/status_badge", status: log.new_state ? "Enabled" : "Disabled", size: "sm" %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <time datetime="<%= log.created_at.iso8601 %>"><%= log.created_at.strftime("%b %d, %Y %H:%M") %></time>
+                    <div class="text-xs text-gray-400"><%= time_ago_in_words(log.created_at) %> ago</div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
       <% end %>
     <% else %>
       <%= render "shared/card" do %>
-        <%= render "admin/feature_flags/card_header", title: "Change History" %>
+        <%= render "shared/card_header", title: "Change History", icon: "clock" %>
         <div class="px-4 sm:px-6 py-10 text-center">
           <p class="text-sm text-gray-500">No changes have been made to this feature flag yet.</p>
         </div>

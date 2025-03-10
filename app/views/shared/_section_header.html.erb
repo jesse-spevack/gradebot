@@ -1,6 +1,43 @@
-<div class="relative">
-  <h2 class="text-center font-display font-bold text-4xl mb-16 text-blue-950">
-    <%= text %>
-    <div class="absolute -inset-x-4 -inset-y-2 bg-blue-100/30 rounded-lg -z-10 transform -skew-y-2"></div>
-  </h2>
-</div>
+<%#
+  Displays a section header for cards and content sections
+  
+  Parameters:
+  - title or text: The section title (supports both for backward compatibility)
+  - icon: Optional icon name to display (will render from shared/icons/_icon_name.html.erb)
+  - icon_class: Optional CSS classes for the icon
+%>
+
+<% 
+  # Handle both title and text params for backward compatibility
+  header_text = local_assigns[:title] || local_assigns[:text]
+%>
+
+<% if header_text.present? && local_assigns[:border].nil? %>
+  <!-- Card-style header with border -->
+  <div class="px-4 sm:px-6 py-4 border-b border-gray-200">
+    <div class="flex items-center">
+      <% if local_assigns[:icon].present? %>
+        <% icon_class = local_assigns[:icon_class] || "h-5 w-5 text-blue-600 mr-2" %>
+        <%= render "shared/icons/#{icon}", class: icon_class rescue nil %>
+      <% end %>
+      
+      <h3 class="text-lg font-medium text-gray-900">
+        <%= header_text %>
+      </h3>
+      
+      <% if block_given? %>
+        <div class="ml-auto">
+          <%= yield %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% else %>
+  <!-- Landing page style header -->
+  <div class="relative">
+    <h2 class="text-center font-display font-bold text-4xl mb-16 text-blue-950">
+      <%= header_text %>
+      <div class="absolute -inset-x-4 -inset-y-2 bg-blue-100/30 rounded-lg -z-10 transform -skew-y-2"></div>
+    </h2>
+  </div>
+<% end %>

@@ -1,0 +1,38 @@
+<%#
+  Displays a status badge with appropriate styling
+  
+  Parameters:
+  - status: The status value to display (string)
+  - color: Optional color override (default: auto-detected based on status)
+  - size: Badge size variant ('sm' or 'md', default: 'md')
+%>
+
+<%
+  # Determine badge color classes based on status unless explicitly provided
+  color_classes = local_assigns[:color] || begin
+    case status.to_s.downcase
+    when 'enabled', 'active', 'completed', 'success', 'green'
+      'bg-green-100 text-green-800'
+    when 'disabled', 'inactive', 'failed', 'error', 'gray'
+      'bg-gray-100 text-gray-800'
+    when 'pending', 'warning', 'yellow'
+      'bg-yellow-100 text-yellow-800'
+    when 'processing', 'info', 'blue'
+      'bg-blue-100 text-blue-800'
+    else
+      'bg-gray-100 text-gray-800'
+    end
+  end
+
+  # Determine size classes based on size param
+  size_classes = case local_assigns[:size]
+                 when 'sm'
+                   'px-2 py-0.5 text-xs'
+                 else
+                   'px-2.5 py-1 text-sm'
+                 end
+%>
+
+<span class="inline-flex items-center <%= size_classes %> rounded-full font-medium <%= color_classes %>">
+  <%= status.to_s.capitalize %>
+</span> 

@@ -1,27 +1,18 @@
-<% content_for :header do %>
-  <div class="space-y-6 sm:space-y-0 sm:flex sm:items-center sm:justify-between">
-    <div>
-      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-blue-950 mb-2">Feature Flags</h1>
-      <p class="text-base sm:text-lg text-gray-600">
-        Manage feature flags and toggle features across the application
-      </p>
-    </div>
+<%# Feature Flags Index View %>
 
-    <!-- New Feature Flag button - visible only on mobile and when flags exist -->
-    <% if @feature_flags.any? %>
-      <div class="sm:hidden w-full">
-        <%= link_to new_admin_feature_flag_path, 
-            class: "flex w-full items-center justify-center px-4 py-3 text-base font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-sm transition-colors duration-150" do %>
-          <%= render "shared/icons/plus", class: "h-5 w-5 mr-2" rescue nil %>
-          New Feature Flag
-        <% end %>
-      </div>
-    <% end %>
-  </div>
+<% content_for :header do %>
+  <%= render "shared/page_header", 
+             title: "Feature Flags",
+             subtitle: "Manage feature flags and toggle features across the application",
+             mobile_action: @feature_flags.any? ? {
+               path: new_admin_feature_flag_path,
+               text: "New Flag",
+               icon: "plus"
+             } : nil %>
 <% end %>
 
 <% content_for :content do %>
-  <!-- New Feature Flag button - visible only on desktop (floating) and when flags exist -->
+  <!-- Floating action button for desktop view -->
   <% if @feature_flags.any? %>
     <%= render "shared/floating_action_button", path: new_admin_feature_flag_path, icon: "plus", title: "New Feature Flag" %>
   <% end %>
@@ -29,14 +20,21 @@
   <div class="space-y-6">
     <%= render "shared/card" do %>
       <% if @feature_flags.any? %>
-        <%= render "admin/feature_flags/feature_flag_list", feature_flags: @feature_flags %>
-        <%= render "admin/feature_flags/feature_flag_table", feature_flags: @feature_flags %>
+        <% # Mobile cards only visible on small screens %>
+        <div class="sm:hidden">
+          <%= render "admin/feature_flags/feature_flag_list", feature_flags: @feature_flags %>
+        </div>
+        
+        <% # Desktop table only visible on larger screens %>
+        <div class="hidden sm:block">
+          <%= render "admin/feature_flags/feature_flag_table", feature_flags: @feature_flags %>
+        </div>
       <% else %>
         <%= render "admin/feature_flags/empty_state", 
                title: "No feature flags yet",
                description: "Get started by creating your first feature flag to control functionality across your application." do %>
           <%= link_to new_admin_feature_flag_path,
-              class: "inline-flex items-center px-6 py-3 text-base font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-sm transition-colors duration-150" do %>
+              class: "inline-flex items-center px-6 py-3 text-base font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-sm transition-colors duration-150" do %>
             <%= render "shared/icons/plus", class: "h-5 w-5 mr-2" rescue nil %>
             Create your first feature flag
           <% end %>
@@ -46,34 +44,38 @@
 
     <% if @audit_logs.any? %>
       <%= render "shared/card" do %>
-        <%= render "admin/feature_flags/card_header", title: "Recent Changes" %>
+        <%= render "shared/card_header", title: "Recent Changes", icon: "clock" %>
         
-        <%= render "admin/feature_flags/audit_logs_table", show_flag_name: true, show_states: false do %>
-          <% @audit_logs.each do |log| %>
-            <tr>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                <%= link_to log.feature_flag.name, admin_feature_flag_path(log.feature_flag), class: "text-blue-600 hover:text-blue-900" %>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <%= log.user.email %>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <% if log.action == "enabled" %>
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    Enabled
-                  </span>
-                <% else %>
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                    Disabled
-                  </span>
-                <% end %>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <%= time_ago_in_words(log.created_at) %> ago
-              </td>
-            </tr>
-          <% end %>
-        <% end %>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead>
+              <tr class="bg-gray-50">
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Feature Flag</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">When</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <% @audit_logs.each do |log| %>
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <%= link_to log.feature_flag.name, admin_feature_flag_path(log.feature_flag), class: "text-blue-600 hover:text-blue-900" %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <%= log.user.email %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <%= render "shared/status_badge", status: log.action, size: "sm" %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <%= time_ago_in_words(log.created_at) %> ago
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
       <% end %>
     <% end %>
   </div>
