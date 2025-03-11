@@ -41,6 +41,24 @@ class LLM::ConfigurationTest < ActiveSupport::TestCase
     assert_equal 4000, result[:max_tokens]
   end
 
+  test ".model_for returns the configuration for format_assignment task" do
+    result = LLM::Configuration.model_for(:format_assignment)
+
+    assert_equal :anthropic, result[:provider]
+    assert_equal "claude-3-5-haiku", result[:model]
+    assert_equal 0.7, result[:temperature]
+    assert_equal 4000, result[:max_tokens]
+  end
+
+  test ".model_for returns the configuration for format_rubric task" do
+    result = LLM::Configuration.model_for(:format_rubric)
+
+    assert_equal :anthropic, result[:provider]
+    assert_equal "claude-3-5-haiku", result[:model]
+    assert_equal 0.7, result[:temperature]
+    assert_equal 4000, result[:max_tokens]
+  end
+
   test ".model_for raises error for invalid task type" do
     error = assert_raises(ArgumentError) do
       LLM::Configuration.model_for(:invalid_task)

@@ -16,32 +16,6 @@ class ProcessGradingTaskCommandTest < ActiveJob::TestCase
 
     # Clear existing submissions for the grading task
     StudentSubmission.where(grading_task: @grading_task).delete_all
-
-    # Create a more complete mock for existing tests
-    @grading_task = mock("GradingTask")
-    @grading_task.stubs(:id).returns(123)
-    @grading_task.stubs(:folder_id).returns("folder_123")
-    @grading_task.stubs(:folder_name).returns("Test Folder")
-    @user = mock("User")
-    @user.stubs(:id).returns(456)
-    @grading_task.stubs(:user).returns(@user)
-
-    GradingTask.stubs(:find_by).with(id: 123).returns(@grading_task)
-
-    # Default mock documents
-    @mock_documents = [
-      { id: "doc1", name: "Document 1", mime_type: "application/vnd.google-apps.document" },
-      { id: "doc2", name: "Document 2", mime_type: "application/vnd.google-apps.document" }
-    ]
-
-    # Create ProcessStudentSubmissionJob if it doesn't exist
-    unless Object.const_defined?("ProcessStudentSubmissionJob")
-      Object.const_set("ProcessStudentSubmissionJob", Class.new)
-    end
-
-    # Set up logging
-    Rails.logger.stubs(:info)
-    Rails.logger.stubs(:error)
   end
 
   test "fetches documents from Google Drive and creates submissions" do
@@ -51,9 +25,17 @@ class ProcessGradingTaskCommandTest < ActiveJob::TestCase
     GradingTaskAccessTokenService.stubs(:new).with(@grading_task).returns(token_service)
     token_service.stubs(:fetch_token).returns("mock_access_token")
 
+    assignment_prompt_formatter_service = mock("AssignmentPromptFormatterService")
+    AssignmentPromptFormatterService.stubs(:new).returns(assignment_prompt_formatter_service)
+    assignment_prompt_formatter_service.stubs(:format).returns(@grading_task)
+
+    grading_rubric_formatter_service = mock("GradingRubricFormatterService")
+    GradingRubricFormatterService.stubs(:new).returns(grading_rubric_formatter_service)
+    grading_rubric_formatter_service.stubs(:format).returns(@grading_task)
+
     # Mock document fetcher
     document_fetcher = mock("FolderDocumentFetcherService")
-    FolderDocumentFetcherService.stubs(:new).with("mock_access_token", "folder_123").returns(document_fetcher)
+    FolderDocumentFetcherService.stubs(:new).with("mock_access_token", @grading_task.folder_id).returns(document_fetcher)
     document_fetcher.stubs(:fetch).returns(@mock_documents)
 
     # Mock submission creator
@@ -62,45 +44,10 @@ class ProcessGradingTaskCommandTest < ActiveJob::TestCase
     submission_creator.stubs(:create_submissions).returns(2)
 
     # Exercise
-    command = ProcessGradingTaskCommand.new(grading_task_id: 123)
+    command = ProcessGradingTaskCommand.new(grading_task_id: @grading_task.id)
     result = command.execute
 
     # Verify
-    assert_equal @grading_task, result
-    assert_empty command.errors
-  end
-
-  test "enqueues jobs for processing submissions" do
-    # Mock access token service
-    token_service = mock("GradingTaskAccessTokenService")
-    GradingTaskAccessTokenService.stubs(:new).with(@grading_task).returns(token_service)
-    token_service.stubs(:fetch_token).returns("mock_access_token")
-
-    # Mock document fetcher
-    document_fetcher = mock("FolderDocumentFetcherService")
-    FolderDocumentFetcherService.stubs(:new).with("mock_access_token", "folder_123").returns(document_fetcher)
-    document_fetcher.stubs(:fetch).returns(@mock_documents)
-
-    # Set up job expectations
-    ProcessStudentSubmissionJob.expects(:perform_later).with(101).once
-    ProcessStudentSubmissionJob.expects(:perform_later).with(102).once
-
-    # Create a submission creator that will trigger the job enqueuing
-    creator = Object.new
-    def creator.create_submissions
-      # This simulates what the real implementation would do
-      ProcessStudentSubmissionJob.perform_later(101)
-      ProcessStudentSubmissionJob.perform_later(102)
-      2 # Return count of submissions processed
-    end
-
-    SubmissionCreatorService.stubs(:new).with(@grading_task, @mock_documents).returns(creator)
-
-    # Exercise
-    command = ProcessGradingTaskCommand.new(grading_task_id: 123)
-    result = command.execute
-
-    # Verify command succeeded
     assert_equal @grading_task, result
     assert_empty command.errors
   end
@@ -111,9 +58,17 @@ class ProcessGradingTaskCommandTest < ActiveJob::TestCase
     GradingTaskAccessTokenService.stubs(:new).with(@grading_task).returns(token_service)
     token_service.stubs(:fetch_token).returns("mock_access_token")
 
+    assignment_prompt_formatter_service = mock("AssignmentPromptFormatterService")
+    AssignmentPromptFormatterService.stubs(:new).returns(assignment_prompt_formatter_service)
+    assignment_prompt_formatter_service.stubs(:format).returns(@grading_task)
+
+    grading_rubric_formatter_service = mock("GradingRubricFormatterService")
+    GradingRubricFormatterService.stubs(:new).returns(grading_rubric_formatter_service)
+    grading_rubric_formatter_service.stubs(:format).returns(@grading_task)
+
     # Mock document fetcher to return empty array
     document_fetcher = mock("FolderDocumentFetcherService")
-    FolderDocumentFetcherService.stubs(:new).with("mock_access_token", "folder_123").returns(document_fetcher)
+    FolderDocumentFetcherService.stubs(:new).with("mock_access_token", @grading_task.folder_id).returns(document_fetcher)
     document_fetcher.stubs(:fetch).returns([])
 
     # Mock submission creator to return 0 submissions
@@ -122,7 +77,7 @@ class ProcessGradingTaskCommandTest < ActiveJob::TestCase
     submission_creator.stubs(:create_submissions).returns(0)
 
     # Exercise
-    command = ProcessGradingTaskCommand.new(grading_task_id: 123)
+    command = ProcessGradingTaskCommand.new(grading_task_id: @grading_task.id)
     result = command.execute
 
     # Verify
@@ -136,13 +91,21 @@ class ProcessGradingTaskCommandTest < ActiveJob::TestCase
     GradingTaskAccessTokenService.stubs(:new).with(@grading_task).returns(token_service)
     token_service.stubs(:fetch_token).returns("mock_access_token")
 
+    assignment_prompt_formatter_service = mock("AssignmentPromptFormatterService")
+    AssignmentPromptFormatterService.stubs(:new).returns(assignment_prompt_formatter_service)
+    assignment_prompt_formatter_service.stubs(:format).returns(@grading_task)
+
+    grading_rubric_formatter_service = mock("GradingRubricFormatterService")
+    GradingRubricFormatterService.stubs(:new).returns(grading_rubric_formatter_service)
+    grading_rubric_formatter_service.stubs(:format).returns(@grading_task)
+
     # Mock document fetcher to raise an error
     document_fetcher = mock("FolderDocumentFetcherService")
-    FolderDocumentFetcherService.stubs(:new).with("mock_access_token", "folder_123").returns(document_fetcher)
+    FolderDocumentFetcherService.stubs(:new).with("mock_access_token", @grading_task.folder_id).returns(document_fetcher)
     document_fetcher.stubs(:fetch).raises(StandardError.new("Failed to fetch documents from Drive"))
 
     # Exercise
-    command = ProcessGradingTaskCommand.new(grading_task_id: 123)
+    command = ProcessGradingTaskCommand.new(grading_task_id: @grading_task.id)
     result = command.execute
 
     # Verify
@@ -151,15 +114,62 @@ class ProcessGradingTaskCommandTest < ActiveJob::TestCase
   end
 
   test "returns nil when grading task is not found" do
-    # Setup
-    GradingTask.stubs(:find_by).with(id: 999).returns(nil)
+    GradingTask.delete_all
 
     # Exercise
-    command = ProcessGradingTaskCommand.new(grading_task_id: 999)
+    command = ProcessGradingTaskCommand.new(grading_task_id: 12345)
     result = command.execute
 
     # Verify
     assert_nil result
-    assert_includes command.errors, "Grading task not found with ID: 999"
+    assert_includes command.errors, "Grading task not found with ID: 12345"
+  end
+
+  test "formats assignment prompt and rubric before processing submissions" do
+    formatted_prompt = "<div><h1>Assignment</h1><p>Write an essay</p></div>"
+    formatted_rubric = "<div><h1>Rubric</h1><ul><li>Grammar: 20%</li></ul></div>"
+
+    # Mock the formatting services
+    prompt_formatter = mock
+    AssignmentPromptFormatterService.stubs(:new).returns(prompt_formatter)
+    prompt_formatter.expects(:format).with(@grading_task).returns(@grading_task)
+
+    rubric_formatter = mock
+    GradingRubricFormatterService.stubs(:new).returns(rubric_formatter)
+    rubric_formatter.expects(:format).with(@grading_task).returns(@grading_task)
+
+    # Mock the rest of the services
+    token_service = mock
+    GradingTaskAccessTokenService.stubs(:new).with(@grading_task).returns(token_service)
+    token_service.stubs(:fetch_token).returns("mock_access_token")
+
+    document_fetcher = mock
+    FolderDocumentFetcherService.stubs(:new).with("mock_access_token", @grading_task.folder_id).returns(document_fetcher)
+    document_fetcher.stubs(:fetch).returns(@mock_documents)
+
+    submission_creator = mock
+    SubmissionCreatorService.stubs(:new).with(@grading_task, @mock_documents).returns(submission_creator)
+    submission_creator.stubs(:create_submissions).returns(2)
+
+    # Execute the command
+    command = ProcessGradingTaskCommand.new(grading_task_id: @grading_task.id)
+    result = command.execute
+
+    assert_equal @grading_task, result
+    assert_empty command.errors
+  end
+
+  test "handles formatting service errors gracefully" do
+    # Mock the formatting service to raise an error
+    prompt_formatter = mock
+    AssignmentPromptFormatterService.stubs(:new).returns(prompt_formatter)
+    prompt_formatter.expects(:format).raises(StandardError.new("LLM service unavailable"))
+
+    # Execute the command
+    command = ProcessGradingTaskCommand.new(grading_task_id: @grading_task.id)
+    result = command.execute
+
+    assert_nil result
+    assert_includes command.errors, "LLM service unavailable"
   end
 end

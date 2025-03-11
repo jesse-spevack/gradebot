@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_05_055837) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_11_034556) do
   create_table "email_signups", force: :cascade do |t|
     t.string "email"
     t.datetime "created_at", null: false
@@ -52,6 +52,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_05_055837) do
     t.text "grading_rubric"
     t.integer "status", default: 0
     t.integer "lock_version", default: 0, null: false
+    t.text "formatted_assignment_prompt"
+    t.text "formatted_grading_rubric"
     t.index ["user_id"], name: "index_grading_tasks_on_user_id"
   end
 

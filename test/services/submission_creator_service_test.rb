@@ -10,12 +10,6 @@ class SubmissionCreatorServiceTest < ActiveSupport::TestCase
       { id: "doc1", name: "Student 1 Essay", mime_type: "application/vnd.google-apps.document" },
       { id: "doc2", name: "Student 2 Essay", mime_type: "application/vnd.google-apps.document" }
     ]
-
-    # Stub the job class if it doesn't exist yet
-    unless defined?(ProcessStudentSubmissionJob)
-      Object.const_set("ProcessStudentSubmissionJob", Class.new)
-      ProcessStudentSubmissionJob.define_singleton_method(:perform_later) { |*args| }
-    end
   end
 
   test "initializes with grading task and documents" do
@@ -50,13 +44,12 @@ class SubmissionCreatorServiceTest < ActiveSupport::TestCase
       StudentSubmission.expects(:create!).with(
         grading_task: @grading_task,
         original_doc_id: doc[:id],
-        document_title: doc[:name],
         status: :pending,
         metadata: { doc_type: doc[:mime_type] }
       ).returns(submission)
 
       # The service should enqueue a job for each submission
-      ProcessStudentSubmissionJob.expects(:perform_later).with(submission.id)
+      StudentSubmissionJob.expects(:perform_later).with(submission.id)
     end
 
     # Exercise
@@ -76,17 +69,15 @@ class SubmissionCreatorServiceTest < ActiveSupport::TestCase
     StudentSubmission.expects(:create!).with(
       grading_task: @grading_task,
       original_doc_id: @documents[0][:id],
-      document_title: @documents[0][:name],
       status: :pending,
       metadata: { doc_type: @documents[0][:mime_type] }
     ).returns(submission1)
-    ProcessStudentSubmissionJob.expects(:perform_later).with(submission1.id)
+    StudentSubmissionJob.expects(:perform_later).with(submission1.id)
 
     # Second document creation fails
     StudentSubmission.expects(:create!).with(
       grading_task: @grading_task,
       original_doc_id: @documents[1][:id],
-      document_title: @documents[1][:name],
       status: :pending,
       metadata: { doc_type: @documents[1][:mime_type] }
     ).raises(ActiveRecord::RecordInvalid.new(StudentSubmission.new))
@@ -121,12 +112,11 @@ class SubmissionCreatorServiceTest < ActiveSupport::TestCase
         StudentSubmission.expects(:create!).with(
           grading_task: @grading_task,
           original_doc_id: doc[:id],
-          document_title: doc[:name],
           status: :pending,
           metadata: { doc_type: doc[:mime_type] }
         ).returns(submission)
 
-        ProcessStudentSubmissionJob.expects(:perform_later).with(submission.id)
+        StudentSubmissionJob.expects(:perform_later).with(submission.id)
         document_count += 1
       end
     end

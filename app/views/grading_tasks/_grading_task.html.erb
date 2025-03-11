@@ -9,13 +9,24 @@
         Created <%= time_ago_in_words(grading_task.created_at) %> ago
       </div>
     </div>
-
     <%= render "shared/card", title: "Assignment Prompt" do %>
-      <p class="text-gray-600"><%= grading_task.assignment_prompt %></p>
+        <% if grading_task.formatted_assignment_prompt.present? %>
+          <div class="">
+            <%= grading_task.formatted_assignment_prompt.html_safe %>
+          </div>
+        <% else %>
+          <p><%= grading_task.assignment_prompt %></p>
+        <% end %>
     <% end %>
 
     <%= render "shared/card", title: "Grading Rubric" do %>
-      <p class="text-gray-600"><%= grading_task.grading_rubric %></p>
+      <div class="prose">
+        <% if grading_task.formatted_grading_rubric.present? %>
+          <%= grading_task.formatted_grading_rubric.html_safe %>
+        <% else %>
+          <p><%= grading_task.grading_rubric %></p>
+        <% end %>
+      </div>
     <% end %>
 
     <%= render "shared/card", title: "Progress" do %>

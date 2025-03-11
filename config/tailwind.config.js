@@ -3,7 +3,8 @@ module.exports = {
     './app/views/**/*.{erb,haml,html,slim}',
     './app/helpers/**/*.rb',
     './app/assets/stylesheets/**/*.css',
-    './app/javascript/**/*.js'
+    './app/javascript/**/*.js',
+    './node_modules/@tailwindcss/typography/**/*.js',
   ],
   theme: {
     extend: {
@@ -11,11 +12,8 @@ module.exports = {
         sans: ['DM Sans', 'system-ui', 'sans-serif'],
         display: ['Fraunces', 'serif']
       },
-      fontSize: {
-        'mega': ['20rem', { lineHeight: '1' }],
-        'super': ['25rem', { lineHeight: '1' }]
-      }
     }
   },
-  plugins: []
+  plugins: [
+  ]
 }

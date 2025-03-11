@@ -51,7 +51,7 @@
 
 - [ ] Formatting of rubric and assignment prompt
     - [ ] In `ProcessGradingTask` we need to:
-        - [ ] Send the rubric to claude and save the result as "formatted_rubric"
+        - [x] Send the rubric to claude and save the result as "formatted_rubric"
         ```
         prompt = <<~PROMPT
             Convert the following text into well-formatted HTML. 
@@ -64,7 +64,7 @@
             #{text}
         PROMPT
         ```
-        - [ ] Send the assignment to claude and save the result as "formatted_assignment"
+        - [x] Send the assignment to claude and save the result as "formatted_assignment"
         ```
         Convert the following assignment text into well-formatted HTML. Use paragraph tags for main text, unordered list tags for bullet points, and emphasize key instructions or requirements with strong tags. Preserve the original meaning and structure while making it more readable. Return ONLY the HTML with no explanation or markdown.
 
@@ -73,6 +73,8 @@
         ```
         - [ ] Use tailwind prose to display sanitized html of the formatted rubric and formatted assignment
             - https://github.com/tailwindlabs/tailwindcss-typography
+        - [ ] Run the llm request as a background job 
+        - [ ] Use turbo streams to swap the unformatted text for the formatted text
 
 - [ ] Add validation llm task to check each student submission
     ```

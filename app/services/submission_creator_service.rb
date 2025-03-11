@@ -51,7 +51,6 @@ class SubmissionCreatorService
     StudentSubmission.create!(
       grading_task: @grading_task,
       original_doc_id: document[:id],
-      document_title: document[:name],
       status: :pending,
       metadata: { doc_type: document[:mime_type] }
     )
@@ -61,6 +60,6 @@ class SubmissionCreatorService
   # @param submission [StudentSubmission] The submission to process
   def enqueue_processing_job(submission)
     Rails.logger.info("Enqueuing processing job for submission #{submission.id}")
-    ProcessStudentSubmissionJob.perform_later(submission.id)
+    StudentSubmissionJob.perform_later(submission.id)
   end
 end

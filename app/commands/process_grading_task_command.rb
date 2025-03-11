@@ -15,6 +15,13 @@ class ProcessGradingTaskCommand < BaseCommand
     grading_task = find_grading_task
     return nil unless grading_task
 
+    # Update the grading task with the formatted rubric and assignment prompt
+    grading_task = format_assignment(grading_task)
+    return nil unless grading_task
+
+    grading_task = format_rubric(grading_task)
+    return nil unless grading_task
+
     begin
       # Fetch documents from Google Drive
       documents = fetch_documents(grading_task)
@@ -32,6 +39,22 @@ class ProcessGradingTaskCommand < BaseCommand
   end
 
   private
+
+  def format_assignment(grading_task)
+    formatter = AssignmentPromptFormatterService.new
+    formatter.format(grading_task)
+  rescue StandardError => e
+    handle_error(e.message)
+    nil
+  end
+
+  def format_rubric(grading_task)
+    formatter = GradingRubricFormatterService.new
+    formatter.format(grading_task)
+  rescue StandardError => e
+    handle_error(e.message)
+    nil
+  end
 
   # Find the grading task by ID
   # @return [GradingTask, nil] The grading task or nil if not found
