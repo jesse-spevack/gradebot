@@ -1,0 +1,62 @@
+# CLAUDE.md
+
+## Development Commands
+- Start server: `bin/dev` (uses foreman with Procfile.dev)
+- Run all tests: `bin/rails test`
+- Run single test: `bin/rails test TEST=test/path/to/test_file.rb:LINE_NUMBER`
+- Lint code: `bin/rubocop` (uses rubocop-rails-omakase)
+
+## Code Style Guidelines
+- Uses Rails 8 with frozen_string_literal: true
+- Ruby documentation with YARD-style comments (@param, @return)
+- Class structure: public methods first, private methods after
+- Error handling: Use explicit error handling with informative messages
+- Logging: Use Rails.logger with appropriate log levels
+
+## Testing Conventions
+- Minitest with mocha for mocking
+- Use setup/teardown for test case initialization
+- Test file structure mirrors app structure
+- Use explicit assertions
+- Follow "arrange-act-assert" pattern
+
+## Architecture Patterns
+- Command pattern for actions (BaseCommand)
+- Service objects for business logic
+- Status management via StatusManager
+- LLM integration via client abstraction
+- Feature flag system for controlling functionality
+
+## Commanments
+These instructions are written to give you (Claude, the LLM) a clearer picture of how to respond to my requests.
+I appreciate your help and know you are always trying to do the right thing for me.
+
+### 1. Start with a test
+Test driven development is not dead. Write a test first. Watch it fail. Get it passing. Then refactor to make it performant and beautiful. If the test fails more than twice, pause and ask is this test testing important functionality? If not remove the test. Next ask, is this testing difficulty an indication of a code smell? If so, resolve the smell and write a better test.
+
+### 2. Keep it short
+Classes should be single responsibility. They should expose only one or two public methods. Methods should be single responsibility and have testable interfaces.
+
+### 3. Respect the Law of Demeter
+Do not chain calls between objects in order to keep boundaries and responsibilities clear.
+
+### 4. No meta programming or monkey patching
+Never ever reach for meta programming or monkey patching. There is always a better way to solve the problem.
+
+### 5. Favor the command pattern and service objects
+The command pattern and service objects lend themselves to encapsulation. They are easier to reason about and change than many other design patterns.
+
+### 6. Keep logic out of views
+There should be almost no logic in the view layer. Anything more complicated than the simplest condition should be delegated to the commands and helper methods.
+
+### 7. Keep logic out of controllers
+There should be almost no logic in the controllers. Anything more complicated than the simplest condition should be delegated to service objects, commands and models.
+
+### 8. Prefer logs to comments and comments to nothing
+Debug level logging is a great way to codify an explanation of our systems. When debugging, add info level logs freely. Comments are helpful documentation, but have the danger of growing stale.
+
+### 9. Avoid primitive obsessions
+Do not unnecessarily reach for object primitives like hashes and arrays. It's often a better design decision to use higher level objects. The benefits are validation, encapsulation, and code readability.
+
+### 10. YAGNI
+You aren't going to need it. Do not build things that we do not need right now. If we follow the rest of the commandments, it should be easy to add new features and systems when the real need comes up.

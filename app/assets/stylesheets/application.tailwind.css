@@ -1,3 +1,127 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Typography styles for .prose class */
+.prose {
+  max-width: none;
+  color: #374151;
+  line-height: 1.75;
+  background-color: #f0f9ff; /* Very light blue for testing */
+}
+
+.prose p {
+  margin-bottom: 1rem;
+}
+
+.prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+  color: #111827;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.prose h1 {
+  font-size: 1.5rem;
+  line-height: 2rem;
+}
+
+.prose h2 {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+
+.prose h3 {
+  font-size: 1.125rem;
+  line-height: 1.5rem;
+}
+
+.prose ul, .prose ol {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  padding-left: 1.25rem;
+}
+
+.prose ul {
+  list-style-type: disc;
+}
+
+.prose ol {
+  list-style-type: decimal;
+}
+
+.prose li {
+  margin-bottom: 0.25rem;
+}
+
+.prose a {
+  color: #2563EB;
+  text-decoration: underline;
+}
+
+.prose a:hover {
+  color: #1D4ED8;
+}
+
+.prose-blue a {
+  color: #2563EB;
+  text-decoration: underline;
+}
+
+.prose-blue a:hover {
+  color: #1D4ED8;
+}
+
+.prose blockquote {
+  border-left: 4px solid #E5E7EB;
+  font-style: italic;
+  color: #6B7280;
+  margin: 1.5rem 0;
+  padding-left: 1rem;
+}
+
+.prose code {
+  font-family: monospace;
+  font-size: 0.875em;
+  background-color: #F3F4F6;
+  padding: 0.2em 0.4em;
+  border-radius: 0.25rem;
+}
+
+.prose pre {
+  background-color: #F3F4F6;
+  overflow-x: auto;
+  padding: 1rem;
+  margin: 1.5rem 0;
+  border-radius: 0.375rem;
+  font-family: monospace;
+}
+
+.prose img {
+  margin: 1.5rem 0;
+}
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+}
+
+.prose th {
+  background-color: #F3F4F6;
+  font-weight: 600;
+  text-align: left;
+  padding: 0.5rem;
+  border: 1px solid #E5E7EB;
+}
+
+.prose td {
+  padding: 0.5rem;
+  border: 1px solid #E5E7EB;
+}
+
+.prose hr {
+  border: 0;
+  border-top: 1px solid #E5E7EB;
+  margin: 2rem 0;
+}

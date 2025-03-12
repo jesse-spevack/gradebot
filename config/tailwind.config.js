@@ -4,7 +4,6 @@ module.exports = {
     './app/helpers/**/*.rb',
     './app/assets/stylesheets/**/*.css',
     './app/javascript/**/*.js',
-    './node_modules/@tailwindcss/typography/**/*.js',
   ],
   theme: {
     extend: {
@@ -13,7 +12,5 @@ module.exports = {
         display: ['Fraunces', 'serif']
       },
     }
-  },
-  plugins: [
-  ]
+  }
 }

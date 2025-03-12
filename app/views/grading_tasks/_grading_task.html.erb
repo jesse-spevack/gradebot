@@ -11,7 +11,7 @@
     </div>
     <%= render "shared/card", title: "Assignment Prompt" do %>
         <% if grading_task.formatted_assignment_prompt.present? %>
-          <div class="">
+          <div class="prose prose-blue max-w-none">
             <%= grading_task.formatted_assignment_prompt.html_safe %>
           </div>
         <% else %>
@@ -20,7 +20,7 @@
     <% end %>
 
     <%= render "shared/card", title: "Grading Rubric" do %>
-      <div class="prose">
+      <div class="prose prose-blue max-w-none">
         <% if grading_task.formatted_grading_rubric.present? %>
           <%= grading_task.formatted_grading_rubric.html_safe %>
         <% else %>
