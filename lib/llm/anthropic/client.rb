@@ -36,6 +36,7 @@ module LLM
       #
       # @param llm_request [LLMRequest] The request object for the LLM
       # @return [Hash] The response from the LLM
+      # @raise [ApiOverloadError] If the API returns a rate limit error
       def execute_request(llm_request)
         # Extract parameters from LLMRequest
         prompt = llm_request.prompt
@@ -92,10 +93,32 @@ module LLM
           }
         else
           # Handle error
-          error_body = JSON.parse(response.body, symbolize_names: true) rescue { error: response.body }
+          error_body = JSON.parse(response.body, symbolize_names: true) rescue { error: { message: response.body } }
           error_msg = error_body[:error][:message] rescue "Unknown API error"
 
-          raise "Anthropic API error (#{response.code}): #{error_msg}"
+          # Handle rate limiting errors (HTTP 429)
+          if response.code.to_i == 429
+            # Extract retry-after header if available
+            retry_after = response["retry-after"].to_i if response["retry-after"]
+
+            # If retry-after is not provided, use a default value
+            retry_after ||= 60
+
+            # Create a specific error for rate limiting
+            original_error = StandardError.new("#{response.code}: #{error_msg}")
+
+            Rails.logger.warn("Anthropic API rate limit exceeded. Retry after: #{retry_after} seconds")
+
+            # Raise ApiOverloadError which can be caught by RetryHandler
+            raise ApiOverloadError.new(
+              "Anthropic API error (#{response.code}): #{error_msg}",
+              retry_after: retry_after,
+              original_error: original_error
+            )
+          else
+            # For other errors, raise a standard error
+            raise "Anthropic API error (#{response.code}): #{error_msg}"
+          end
         end
       end
 

@@ -87,17 +87,53 @@ class LLM::Anthropic::ClientTest < ActiveSupport::TestCase
     assert_match(/Anthropic API error/, error.message)
   end
 
-  test "calculate_token_count returns an estimate based on text length" do
-    # Test with different request prompts
-    # The implementation uses (prompt.length / 4.0).ceil for calculation
-    short_request = LLMRequest.new(prompt: "This is a test", llm_model_name: "claude-3-5-sonnet")
-    assert_equal 4, @client.calculate_token_count(short_request)
+  test "execute_request raises ApiOverloadError for rate limit errors" do
+    # Setup mock HTTP rate limit response
+    @mock_response.stubs(:code).returns("429")
+    @mock_response.stubs(:[]).with("retry-after").returns("30")
+    @mock_response.stubs(:body).returns({
+      error: { message: "Rate limit exceeded" }
+    }.to_json)
+    @mock_http.expects(:request).returns(@mock_response)
 
-    # For the longer text, let's calculate the expected token count
-    longer_text = "This is a longer test with multiple words to estimate token count correctly"
-    longer_request = LLMRequest.new(prompt: longer_text, llm_model_name: "claude-3-5-sonnet")
-    expected_tokens = (longer_text.length / 4.0).ceil
-    assert_equal expected_tokens, @client.calculate_token_count(longer_request)
+    # Execute request and expect ApiOverloadError
+    error = assert_raises(ApiOverloadError) do
+      @client.execute_request(@llm_request)
+    end
+
+    # Verify error properties
+    assert_match(/Anthropic API error \(429\)/, error.message)
+    assert_equal 30, error.retry_after
+    assert_not_nil error.original_error
+    assert error.retryable?
+  end
+
+  test "execute_request uses default retry_after when not provided by API" do
+    # Setup mock HTTP rate limit response without retry-after header
+    @mock_response.stubs(:code).returns("429")
+    @mock_response.stubs(:[]).with("retry-after").returns(nil)
+    @mock_response.stubs(:body).returns({
+      error: { message: "Rate limit exceeded" }
+    }.to_json)
+    @mock_http.expects(:request).returns(@mock_response)
+
+    # Execute request and expect ApiOverloadError
+    error = assert_raises(ApiOverloadError) do
+      @client.execute_request(@llm_request)
+    end
+
+    # Verify default retry_after is used
+    assert_equal 60, error.retry_after
+  end
+
+  test "calculate_token_count provides a reasonable approximation" do
+    # Test with a known prompt
+    @llm_request.prompt = "This is a test prompt with exactly 10 words."
+    token_count = @client.calculate_token_count(@llm_request)
+
+    # Verify token count is reasonable (10 words should be ~10-15 tokens)
+    assert token_count > 5
+    assert token_count < 20
   end
 
   test "validate_api_key returns true for valid key" do

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "../errors/api_overload_error"
+
 # Parses LLM responses into structured data
 class ResponseParser
   def self.parse(response)
@@ -33,6 +35,10 @@ class ResponseParser
       begin
         result = strategy.parse(response)
         return result if result&.success?
+      rescue ApiOverloadError => e
+        # Re-raise ApiOverloadError to be handled by the retry mechanism
+        Rails.logger.error("ApiOverloadError encountered: #{e.message}")
+        raise e
       rescue => e
         Rails.logger.error("Error parsing response with strategy #{strategy}: #{e.message}")
         last_error = e

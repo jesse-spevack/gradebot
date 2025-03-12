@@ -37,14 +37,40 @@ class GradingRubricFormatterService
       Rails.logger.info("LLM response: #{response}")
       Rails.logger.info("LLM response content: #{response[:content]}")
 
-      grading_task.update(
-        formatted_grading_rubric: response[:content]
-      )
+      # Reload the grading task to get the latest lock_version before updating
+      grading_task.reload
+
+      # Try to update with retry logic specifically for optimistic locking errors
+      update_with_retry(grading_task, response[:content])
 
       grading_task
     end
   rescue StandardError => e
     Rails.logger.error("Error during grading rubric formatting: #{e.message}")
     Rails.logger.error("Error backtrace: #{e.backtrace&.first(10)&.join("\n")}")
+  end
+
+  private
+
+  # Update the grading task with retry logic for optimistic locking errors
+  # @param grading_task [GradingTask] The grading task to update
+  # @param formatted_content [String] The formatted content to save
+  # @param max_retries [Integer] Maximum number of retries
+  # @return [Boolean] Whether the update was successful
+  def update_with_retry(grading_task, formatted_content, max_retries = 3)
+    retries = 0
+    begin
+      grading_task.update(formatted_grading_rubric: formatted_content)
+    rescue ActiveRecord::StaleObjectError => e
+      retries += 1
+      if retries <= max_retries
+        Rails.logger.info("Retrying update after optimistic locking error (attempt #{retries}/#{max_retries})")
+        grading_task.reload
+        retry
+      else
+        Rails.logger.error("Failed to update grading task after #{max_retries} attempts: #{e.message}")
+        raise e
+      end
+    end
   end
 end

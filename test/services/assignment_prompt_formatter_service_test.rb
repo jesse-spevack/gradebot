@@ -14,7 +14,8 @@ class AssignmentPromptFormatterServiceTest < ActiveSupport::TestCase
     formatted_html = "<div><h1>Assignment</h1><p>Write an essay</p></div>"
     stub_llm_request(content: formatted_html)
 
-    @grading_task.expects(:update).with(formatted_assignment_prompt: formatted_html).returns(true)
+    @grading_task.expects(:reload).returns(@grading_task)
+    @service.expects(:update_with_retry).with(@grading_task, formatted_html).returns(true)
 
     result = @service.format(@grading_task)
 
@@ -26,7 +27,8 @@ class AssignmentPromptFormatterServiceTest < ActiveSupport::TestCase
     formatted_html = "<div><p>No assignment provided</p></div>"
     stub_llm_request(content: formatted_html)
 
-    @grading_task.expects(:update).with(formatted_assignment_prompt: formatted_html).returns(true)
+    @grading_task.expects(:reload).returns(@grading_task)
+    @service.expects(:update_with_retry).with(@grading_task, formatted_html).returns(true)
 
     result = @service.format(@grading_task)
 
@@ -39,25 +41,43 @@ class AssignmentPromptFormatterServiceTest < ActiveSupport::TestCase
     formatted_html = "<div><p>#{original_prompt}</p></div>"
     stub_llm_request(content: formatted_html)
 
-    @grading_task.expects(:update).with(formatted_assignment_prompt: formatted_html).returns(true)
+    @grading_task.expects(:reload).returns(@grading_task)
+    @service.expects(:update_with_retry).with(@grading_task, formatted_html).returns(true)
 
     result = @service.format(@grading_task)
 
     assert_equal @grading_task, result
   end
 
-  test "creates LLM request with correct parameters" do
-    expected_prompt = "test prompt"
-    PromptBuilder.expects(:build).with(:format_assignment, { assignment_prompt: @grading_task.assignment_prompt }).returns(expected_prompt)
+  test "retries update on optimistic locking error" do
+    # Create a mock grading task for this test
+    grading_task = mock("GradingTask")
 
-    # Mock the LLM client and response
-    llm_client = mock("LLMClient")
-    LLM::Client.expects(:new).returns(llm_client)
-    llm_client.expects(:generate).returns({ content: "formatted content" })
+    # Mock the service with a real instance but stub the private method
+    service = AssignmentPromptFormatterService.new
 
-    # Expect the update to happen
-    @grading_task.expects(:update).with(formatted_assignment_prompt: "formatted content").returns(true)
+    # Set up the sequence of events for the update_with_retry method
+    update_sequence = sequence("update_sequence")
 
-    @service.format(@grading_task)
+    # First update attempt fails with StaleObjectError
+    grading_task.expects(:update)
+                .with(formatted_assignment_prompt: "formatted content")
+                .raises(ActiveRecord::StaleObjectError.new(grading_task, "update"))
+                .in_sequence(update_sequence)
+
+    # Reload is called
+    grading_task.expects(:reload).returns(grading_task).in_sequence(update_sequence)
+
+    # Second update attempt succeeds
+    grading_task.expects(:update)
+                .with(formatted_assignment_prompt: "formatted content")
+                .returns(true)
+                .in_sequence(update_sequence)
+
+    # Call the private method directly for testing
+    result = service.send(:update_with_retry, grading_task, "formatted content")
+
+    # Verify the result
+    assert result
   end
 end

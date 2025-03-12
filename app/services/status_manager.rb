@@ -237,6 +237,9 @@ class StatusManager
         student_submissions: student_submissions
       }
     )
+
+    # We don't update the assignment prompt or grading rubric sections here
+    # Those are handled by their respective formatting jobs
   end
 
   # Broadcast an update to a student submission

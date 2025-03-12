@@ -1,0 +1,10 @@
+<section id="assignment_prompt_section_<%= grading_task.id %>" class="py-6">
+  <h2 class="text-lg font-semibold text-gray-900 mb-4">Assignment Prompt</h2>
+  <% if grading_task.formatted_assignment_prompt.present? %>
+    <div class="prose prose-blue max-w-none">
+      <%= grading_task.formatted_assignment_prompt.html_safe %>
+    </div>
+  <% else %>
+    <%= render "shared/loading_indicator", content: grading_task.assignment_prompt %>
+  <% end %>
+</section> 
