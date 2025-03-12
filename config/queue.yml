@@ -3,10 +3,24 @@ default: &default
     - polling_interval: 1
       batch_size: 500
   workers:
-    - queues: "*"
+    # Default worker configuration for most queues
+    - queues: default,mailers
       threads: 3
       processes: <%= ENV.fetch("JOB_CONCURRENCY", 1) %>
       polling_interval: 0.1
+    
+    # Sequential processing for student submissions
+    # Concurrency: 1 ensures only one job runs at a time
+    - queues: student_submissions
+      threads: 1
+      processes: 1
+      polling_interval: 2.0
+    
+    # Limited concurrency for formatting jobs
+    - queues: formatting
+      threads: 2
+      processes: 1
+      polling_interval: 1.0
 
 development:
   <<: *default

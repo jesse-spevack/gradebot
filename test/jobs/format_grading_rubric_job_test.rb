@@ -14,6 +14,9 @@ class FormatGradingRubricJobTest < ActiveJob::TestCase
     # Stub the reload
     GradingTask.any_instance.stubs(:reload).returns(@grading_task)
 
+    # Mock RetryHandler to avoid complexity
+    RetryHandler.stubs(:with_retry).yields
+
     # Mock the Turbo broadcast
     Turbo::StreamsChannel.expects(:broadcast_replace_to).with(
       "grading_task_#{@grading_task.id}",

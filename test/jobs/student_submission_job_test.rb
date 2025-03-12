@@ -7,37 +7,44 @@ class StudentSubmissionJobTest < ActiveJob::TestCase
     @student_submission = student_submissions(:pending_submission)
   end
 
-  test "job calls ProcessStudentSubmissionCommand with submission id" do
+  test "calls process command with submission id" do
     # Setup
-    command_mock = Minitest::Mock.new
-    command_mock.expect(:call, command_mock)
-    command_mock.expect(:failure?, false)
+    command_mock = mock("Command")
+    command_mock.stubs(:call).returns(command_mock)
+    command_mock.stubs(:failure?).returns(false)
 
-    # Exercise
-    ProcessStudentSubmissionCommand.stub(:new, ->(student_submission_id:) {
-      assert_equal @student_submission.id, student_submission_id
-      command_mock
-    }) do
-      StudentSubmissionJob.perform_now(@student_submission.id)
-    end
+    # Exercise - verify the command is called with the right ID
+    ProcessStudentSubmissionCommand.expects(:new).with(student_submission_id: @student_submission.id).returns(command_mock)
 
-    # Verify
-    assert_mock command_mock
+    # Mock RetryHandler to avoid complexity
+    RetryHandler.stubs(:with_retry).yields
+
+    # Run the job
+    StudentSubmissionJob.perform_now(@student_submission.id)
   end
 
-  test "logs error if command fails" do
+  test "marks submission as failed on unhandled errors" do
     # Setup
-    command_mock = Minitest::Mock.new
-    command_mock.expect(:call, command_mock)
-    command_mock.expect(:failure?, true)
-    command_mock.expect(:errors, [ "Failed to process student submission" ])
+    error = StandardError.new("Test error")
 
-    # Exercise & Verify
-    ProcessStudentSubmissionCommand.stub(:new, ->(**) { command_mock }) do
-      assert_logged(level: :error, message: /StudentSubmissionJob failed/) do
-        StudentSubmissionJob.perform_now(@student_submission.id)
-      end
-    end
+    # Mock the command to raise an error
+    ProcessStudentSubmissionCommand.stubs(:new).raises(error)
+
+    # Mock RetryHandler to re-raise the error
+    RetryHandler.stubs(:with_retry).raises(error)
+
+    # Silence logging
+    Rails.logger.stubs(:error)
+
+    # Verify the submission is marked as failed
+    StatusManager.expects(:transition_submission).with(
+      @student_submission,
+      :failed,
+      has_entry(feedback: includes("Failed to complete grading"))
+    ).returns(true)
+
+    # Run the job
+    StudentSubmissionJob.perform_now(@student_submission.id)
   end
 
   private

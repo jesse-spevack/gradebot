@@ -33,6 +33,9 @@ Rails.application.routes.draw do
     get "llm_cost_reports", to: redirect("admin/llm_cost_reports/daily_costs")
 
     resources :llm_pricing_configs
+
+    # Job monitoring
+    resources :job_monitoring, only: [ :index ]
   end
 
   # Application routes
