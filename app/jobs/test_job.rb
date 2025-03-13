@@ -7,9 +7,6 @@ class TestJob < ApplicationJob
   def perform(*args)
     # Log that the job was processed
     Rails.logger.info "TestJob was processed at #{Time.current}"
-
-    # Create a file in the tmp directory to verify the job ran
-    timestamp = Time.current.to_i
-    File.write(Rails.root.join("tmp", "test_job_#{timestamp}.txt"), "Job processed at #{Time.current}")
+    Rails.logger.info "Job arguments: #{args.inspect}" if args.present?
   end
 end
