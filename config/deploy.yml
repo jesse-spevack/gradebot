@@ -8,7 +8,7 @@ image: gradebot-451722/repository-1/gradebot
 # Deploy to these servers.
 servers:
   web:
-    - 34.55.101.218
+    - 34.44.244.114
   # job:
   #   hosts:
   #     - 192.168.0.1
