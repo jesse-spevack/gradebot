@@ -11,6 +11,16 @@ class ResponseParserTest < ActiveSupport::TestCase
       "overall_grade": "B+",
       "scores": {"Content": 8, "Organization": 9}
     }'
+
+    @valid_json_with_summary_question = '{
+      "feedback": "This is feedback",
+      "strengths": ["Strength 1", "Strength 2"],
+      "opportunities": ["Opportunity 1", "Opportunity 2"],
+      "overall_grade": "B+",
+      "scores": {"Content": 8, "Organization": 9},
+      "summary": "This is a summary",
+      "question": "This is a question"
+    }'
   end
 
   test "parses valid JSON response" do
@@ -21,6 +31,13 @@ class ResponseParserTest < ActiveSupport::TestCase
     assert_equal [ "Opportunity 1", "Opportunity 2" ], result.opportunities
     assert_equal "B+", result.overall_grade
     assert_equal({ "Content" => 8, "Organization" => 9 }, result.rubric_scores)
+  end
+
+  test "parses summary and question fields from JSON response" do
+    result = ResponseParser.parse(@valid_json_with_summary_question)
+    assert result.success?
+    assert_equal "This is a summary", result.summary
+    assert_equal "This is a question", result.question
   end
 
   test "returns error for blank response" do

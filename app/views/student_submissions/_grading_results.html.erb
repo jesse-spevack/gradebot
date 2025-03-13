@@ -7,9 +7,9 @@
       <%= render "shared/icons/comment", class: "h-5 w-5 text-blue-600 mr-2" %>
       <h4 class="text-base font-medium text-gray-900">Feedback</h4>
     </div>
-    <% if student_submission.feedback.present? %>
+    <% if student_submission.show_feedback? %>
       <div class="prose max-w-none bg-gray-50 p-4 rounded-md">
-        <%= simple_format(student_submission.feedback) %>
+        <%= student_submission.feedback %>
       </div>
     <% else %>
       <p class="text-gray-500 italic">No feedback available yet.</p>
@@ -38,7 +38,7 @@
         <h4 class="text-base font-medium text-gray-900">Strengths</h4>
       </div>
       <ul class="space-y-2 list-disc pl-5">
-        <% if student_submission.strengths.present? %>
+        <% if student_submission.show_strengths? %>
           <% student_submission.strengths.split("\n").each do |strength| %>
             <li class="text-gray-700"><%= strength.gsub(/^-\s*/, '') %></li>
           <% end %>
@@ -55,7 +55,7 @@
         <h4 class="text-base font-medium text-gray-900">Areas for Improvement</h4>
       </div>
       <ul class="space-y-2 list-disc pl-5">
-        <% if student_submission.opportunities.present? %>
+        <% if student_submission.show_opportunities? %>
           <% student_submission.opportunities.split("\n").each do |opportunity| %>
             <li class="text-gray-700"><%= opportunity.gsub(/^-\s*/, '') %></li>
           <% end %>
@@ -81,7 +81,7 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
-          <% if student_submission.rubric_scores.present? %>
+          <% if student_submission.show_rubric_scores? %>
             <% JSON.parse(student_submission.rubric_scores).each do |criterion, score| %>
               <tr>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= criterion %></td>
@@ -98,5 +98,43 @@
         </tbody>
       </table>
     </div>
+  </div>
+
+  <%# Teacher Notes %>
+  <div>
+    <div class="flex items-center justify-between border-b border-gray-200 pb-4 mb-6">
+      <div class="flex items-center">
+        <%= render "shared/icons/book_open", class: "h-5 w-5 text-blue-600 mr-2" %>
+        <h4 class="text-base font-medium text-gray-900">Teacher Notes</h4>
+      </div>
+    </div>
+
+    <%# Teacher's Summary %>
+    <% if student_submission.show_teacher_summary? %>
+      <div class="mb-6">
+        <div class="flex items-center mb-3">
+          <%= render "shared/icons/clipboard", class: "h-5 w-5 text-blue-600 mr-2" %>
+          <h5 class="text-sm font-medium text-gray-900">Summary</h5>
+          <span class="ml-2 text-xs text-gray-500 italic">Overview of the student's submission</span>
+        </div>
+        <div class="prose max-w-none bg-gray-50 p-4 rounded-md">
+          <%= student_submission.summary %>
+        </div>
+      </div>
+    <% end %>
+    
+    <%# Teacher's Question %>
+    <% if student_submission.show_teacher_question? %>
+      <div>
+        <div class="flex items-center mb-3">
+          <%= render "shared/icons/question_mark", class: "h-5 w-5 text-blue-600 mr-2" %>
+          <h5 class="text-sm font-medium text-gray-900">Question</h5>
+          <span class="ml-2 text-xs text-gray-500 italic">Prompt for the student</span>
+        </div>
+        <div class="prose max-w-none bg-gray-50 p-4 rounded-md">
+          <%= student_submission.question %>
+        </div>
+      </div>
+    <% end %>
   </div>
 </div> 

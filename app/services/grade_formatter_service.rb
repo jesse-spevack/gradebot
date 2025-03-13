@@ -48,7 +48,9 @@ class GradeFormatterService
     {
       doc_title: @submission.document_title || "Untitled Document",
       processing_time: (Time.current - @submission.updated_at).round(1),
-      word_count: @document_content.split(/\s+/).size
+      word_count: @document_content.split(/\s+/).size,
+      summary: @result.summary,
+      question: @result.question
     }.merge(existing_metadata)
   end
 end

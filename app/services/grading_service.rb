@@ -70,7 +70,9 @@ class GradingService
         strengths: result.strengths,
         opportunities: result.opportunities,
         overall_grade: result.overall_grade,
-        rubric_scores: result.rubric_scores
+        rubric_scores: result.rubric_scores,
+        summary: result.summary,
+        question: result.question
       )
     end
   rescue ParsingError => e

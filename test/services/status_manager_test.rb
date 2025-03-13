@@ -4,7 +4,6 @@ require "test_helper"
 
 class StatusManagerTest < ActiveSupport::TestCase
   setup do
-    # Use the actual fixture to avoid user missing errors
     @user = users(:teacher)
     @grading_task = GradingTask.create!(
       user: @user,

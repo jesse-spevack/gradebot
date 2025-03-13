@@ -8,7 +8,7 @@
 # providing a consistent interface regardless of how the grading was performed
 # or what parsing strategy was used.
 class GradingResponse
-  attr_reader :feedback, :strengths, :opportunities, :overall_grade, :rubric_scores, :error
+  attr_reader :feedback, :strengths, :opportunities, :overall_grade, :rubric_scores, :error, :summary, :question
 
   # Initialize a new GradingResponse
   #
@@ -27,6 +27,8 @@ class GradingResponse
     @overall_grade = attributes[:overall_grade] || "Not graded"
     @rubric_scores = attributes[:rubric_scores] || {}
     @error = attributes[:error]
+    @summary = attributes[:summary] || ""
+    @question = attributes[:question] || ""
   end
 
   # Create a new GradingResponse with an error message
@@ -51,7 +53,9 @@ class GradingResponse
       strengths: @strengths,
       opportunities: @opportunities,
       overall_grade: @overall_grade,
-      rubric_scores: @rubric_scores
+      rubric_scores: @rubric_scores,
+      summary: @summary,
+      question: @question
     }
   end
 end

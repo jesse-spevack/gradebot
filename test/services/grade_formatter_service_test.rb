@@ -17,6 +17,8 @@ class GradeFormatterServiceTest < ActiveSupport::TestCase
       "Structure" => 28,
       "Grammar" => 29
     })
+    @grading_result.stubs(:question).returns("How did you choose minecraft as your favorite game?")
+    @grading_result.stubs(:summary).returns("Student wrote about minecraft as their favorite game because it is a fun game to play with friends.")
 
     # Setup submission mock with default values
     @submission.stubs(:id).returns(123)

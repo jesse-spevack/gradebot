@@ -15,7 +15,9 @@ class ResponseParser
         strengths: result["strengths"],
         opportunities: result["opportunities"],
         overall_grade: result["overall_grade"],
-        rubric_scores: result["scores"]
+        rubric_scores: result["scores"],
+        question: result["question"],
+        summary: result["summary"]
       ) if valid_response?(result)
     rescue JSON::ParserError => e
       # Continue to other strategies if JSON parsing fails

@@ -159,4 +159,52 @@ class StudentSubmission < ApplicationRecord
   def retry!
     StatusManager.retry_submission(self)
   end
+
+  # Returns true if the submission has feedback
+  # @return [Boolean] True if the submission has feedback, false otherwise
+  def show_feedback?
+    feedback.present?
+  end
+
+  # Returns true if the submission has strengths
+  # @return [Boolean] True if the submission has strengths, false otherwise
+  def show_strengths?
+    strengths.present?
+  end
+
+  # Returns true if the submission has opportunities
+  # @return [Boolean] True if the submission has opportunities, false otherwise
+  def show_opportunities?
+    opportunities.present?
+  end
+
+  # Returns true if the submission has rubric scores
+  # @return [Boolean] True if the submission has rubric scores, false otherwise
+  def show_rubric_scores?
+    rubric_scores.present?
+  end
+
+  # Returns true if the submission has a teacher's summary
+  # @return [Boolean] True if the submission has a teacher's summary, false otherwise
+  def show_teacher_summary?
+    metadata.present? && metadata["summary"].present?
+  end
+
+  # Returns true if the submission has a teacher's question
+  # @return [Boolean] True if the submission has a teacher's question, false otherwise
+  def show_teacher_question?
+    metadata.present? && metadata["question"].present?
+  end
+
+  # Returns the teacher's question
+  # @return [String] The teacher's question
+  def question
+    metadata["question"] || ""
+  end
+
+  # Returns the teacher's summary
+  # @return [String] The teacher's summary
+  def summary
+    metadata["summary"] || ""
+  end
 end

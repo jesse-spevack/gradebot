@@ -384,6 +384,8 @@ class ProcessStudentSubmissionCommandTest < ActiveJob::TestCase
     grading_result.stubs(:opportunities).returns([ "Improve citations" ])
     grading_result.stubs(:overall_grade).returns("A")
     grading_result.stubs(:rubric_scores).returns({ "Writing": 9, "Content": 8 })
+    grading_result.stubs(:question).returns("How did you choose minecraft as your favorite game?")
+    grading_result.stubs(:summary).returns("Student wrote about minecraft as their favorite game because it is a fun game to play with friends.")
 
     # Mock the grading service
     GradingOrchestrator.any_instance.stubs(:grade).returns(grading_result)
