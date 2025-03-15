@@ -65,33 +65,36 @@ namespace :llm do
         test_logs.destroy_all
       end
 
-      puts "\nCreating LLM client..."
-      require "llm/client"
+      puts "\nSetting up test..."
 
       # Create a request with a unique identifier
       test_id = "flow-test-#{Time.now.to_i}"
+      request_id = SecureRandom.uuid
 
-      # Create a context with detailed tracking information
-      context = LLM::CostTracking.generate_context(
-        request_type: "diagnostic_test",
-        metadata: { test_id: test_id, source: "test_request_flow" }
-      )
+      puts "Created test ID: #{test_id}"
+      puts "Created request ID: #{request_id}"
 
-      puts "Created tracking context with request ID: #{context[:request_id]}"
-
-      # Create the request object
+      # Create the request object with all tracking information
+      # The LLMRequest object's to_context method will automatically build the context hash
+      # used for cost tracking
       request = LLMRequest.new(
         prompt: "This is a test prompt to verify cost tracking flow. Please respond with a short message.",
         llm_model_name: "claude-3-haiku", # Use the smallest/cheapest model for testing
-        request_type: "diagnostic_test"
+        request_type: "diagnostic_test",
+        request_id: request_id,
+        metadata: {
+          test_id: test_id,
+          source: "test_request_flow"
+        }
       )
 
       puts "Created LLM request with model: #{request.llm_model_name}"
+      puts "Request context: #{request.to_context.inspect}"
 
       begin
         puts "\nExecuting LLM request..."
         client = LLM::Client.new
-        response = client.generate(request, context: context)
+        response = client.generate(request)
 
         puts "Response received:"
         puts "- Content: #{response[:content].to_s.truncate(100)}"
