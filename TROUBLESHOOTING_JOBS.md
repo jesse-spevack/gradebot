@@ -130,7 +130,6 @@ bin/kamal console
 Once in the console, run:
 
 ```ruby
-require_relative "lib/solid_queue_status"
 SolidQueueStatus.check
 ```
 
@@ -228,27 +227,43 @@ sqlite3 /rails/storage/production_queue.sqlite3 "PRAGMA integrity_check"
 
 If you've identified the issue, here are some common solutions:
 
-1. **Database locking**: Change SQLite journal mode to WAL for better concurrency:
+1. **Missing tables**: If the Solid Queue tables don't exist, initialize them:
+   ```ruby
+   require_relative "lib/solid_queue_status"
+   SolidQueueStatus.initialize_tables
+   ```
+
+2. **Database locking**: Change SQLite journal mode to WAL for better concurrency:
    ```ruby
    require_relative "lib/solid_queue_status" 
    SolidQueueStatus.set_wal_mode
    ```
 
-2. **Permission issues**: Fix permissions on the database files:
+3. **Check migrations status**: Verify the database migrations are up to date:
+   ```ruby
+   require_relative "lib/solid_queue_status"
+   SolidQueueStatus.check_migrations
+   ```
+
+4. **Permission issues**: Fix permissions on the database files:
    ```bash
    chmod 666 /rails/storage/production_queue.sqlite3
    ```
 
-3. **Database corruption**: If the database is corrupted, you may need to recreate it:
+5. **Database corruption**: If the database is corrupted, you may need to recreate it:
    ```bash
    # Backup first
    cp /rails/storage/production_queue.sqlite3 /rails/storage/production_queue.sqlite3.bak
    
-   # Then recreate schema
+   # Then recreate schema using Rails migrations (preferred)
    bin/rails db:schema:load:queue RAILS_ENV=production
+   
+   # Or use our utility to create the essential tables if migrations aren't working
+   require_relative "lib/solid_queue_status"
+   SolidQueueStatus.initialize_tables
    ```
 
-4. **Consider using PostgreSQL**: For production deployments, consider switching to PostgreSQL for better concurrency handling.
+6. **Consider using PostgreSQL**: For production deployments, consider switching to PostgreSQL for better concurrency handling.
 
 ## Advanced Troubleshooting
 
