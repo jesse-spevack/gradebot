@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'rake'
 
 namespace :solid_queue do
   desc "Show status of Solid Queue processing"
