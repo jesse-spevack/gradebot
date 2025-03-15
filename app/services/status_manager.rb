@@ -176,8 +176,8 @@ class StatusManager
     # Reload to ensure we have the latest data including associations
     grading_task.reload
 
-    # Get the student submissions
-    student_submissions = grading_task.student_submissions.order(created_at: :desc)
+    # Get the student submissions - use ascending order to match the controller
+    student_submissions = grading_task.student_submissions.order(created_at: :asc)
 
     # Option 1: Broadcast to the entire grading task (less efficient but simpler)
     # This is kept for potential backwards compatibility

@@ -217,7 +217,9 @@ class StudentSubmission < ApplicationRecord
   # @return [void]
   def broadcast_creation
     # Broadcast to the submissions list
-    Turbo::StreamsChannel.broadcast_append_to(
+    # Use prepend_to instead of append_to to add new submissions at the beginning of the list
+    # This ensures newest submissions appear at the top when the controller orders by :asc
+    Turbo::StreamsChannel.broadcast_prepend_to(
       "grading_task_#{grading_task_id}_submissions",
       target: "student_submissions_list_#{grading_task_id}",
       partial: "student_submissions/student_submission",

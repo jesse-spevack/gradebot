@@ -27,7 +27,7 @@ class GradingTasksController < ApplicationController
     end
 
     # Get a fresh count of submissions directly from the database
-    @student_submissions = @grading_task.student_submissions.reload.order(created_at: :desc)
+    @student_submissions = @grading_task.student_submissions.reload.order(created_at: :asc)
 
     # Ensure submission counts are fresh by running the status manager count
     @submission_counts = StatusManager.count_submissions_by_status(@grading_task)
