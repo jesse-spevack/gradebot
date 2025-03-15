@@ -3,4 +3,10 @@
 require_relative "../config/environment"
 require "solid_queue/cli"
 
+# Log details about the environment
+Rails.logger.info "Starting Solid Queue with Rails env: #{Rails.env}"
+Rails.logger.info "Database config: #{ActiveRecord::Base.configurations.configs_for(env_name: Rails.env).inspect}"
+Rails.logger.info "Job worker config: #{Rails.configuration.solid_queue.workers_config.inspect}" if Rails.configuration.respond_to?(:solid_queue)
+Rails.logger.info "Job concurrency: #{ENV.fetch("JOB_CONCURRENCY", 1)}"
+
 SolidQueue::Cli.start(ARGV)
