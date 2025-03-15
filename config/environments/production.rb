@@ -51,8 +51,12 @@ Rails.application.configure do
 
   # Replace the default in-process and non-durable queuing backend for Active Job.
   config.active_job.queue_adapter = :solid_queue
-  # Fix the connection configuration syntax
-  config.solid_queue.connects_to = { writing: :queue }
+  
+  # Configure SolidQueue to use the queue database
+  config.solid_queue = { 
+    primary_url: "sqlite3:storage/production_queue.sqlite3",
+    # No custom connects_to configuration - let SolidQueue handle it
+  }
 
   # Ignore bad email addresses and do not raise email delivery errors.
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
