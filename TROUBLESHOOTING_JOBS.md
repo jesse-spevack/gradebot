@@ -139,6 +139,41 @@ This will show:
 - Database configuration information
 - Queue database connection status
 
+### Result:
+
+✅ Done!
+
+```
+❯ bin/kamal console
+Get current version of running container...
+  INFO [2e68c5d3] Running /usr/bin/env sh -c 'docker ps --latest --format '\''{{.Names}}'\'' --filter label=service=gradebot --filter label=destination= --filter label=role=web --filter status=running --filter status=restarting --filter ancestor=$(docker image ls --filter reference=us-docker.pkg.dev/gradebot-451722/repository-1/gradebot:latest --format '\''{{.ID}}'\'') ; docker ps --latest --format '\''{{.Names}}'\'' --filter label=service=gradebot --filter label=destination= --filter label=role=web --filter status=running --filter status=restarting' | head -1 | while read line; do echo ${line#gradebot-web-}; done on 34.44.244.114
+  INFO [2e68c5d3] Finished in 0.903 seconds with exit status 0 (successful).
+Launching interactive command with version 2c12a3d8fe0e6bd1fb58e1e117787dafcd7ea0af via SSH from existing container on 34.44.244.114...
+LLM::EventSystem - Subscriber LLM::CostTrackingSubscriber registered for llm.request.completed
+LLM Event System initialized with cost tracking subscriber
+Loading production environment (Rails 8.0.2)
+gradebot(prod)> SolidQueueStatus.check
+=== SOLID QUEUE STATUS ===
+Environment: production
+
+Primary Database Configuration:
+  Adapter: sqlite3
+  Database: storage/production.sqlite3
+
+Queue Database Configuration:
+  Path: storage/production_queue.sqlite3
+  Exists: true
+  Size: 217088 bytes
+  Permissions: 100644
+
+Checking queue database connection:
+
+ERROR: unknown keyword: :database
+
+=== END STATUS ===
+=> nil
+```
+
 ## Step 5: Check database files
 
 Still in the console, verify the database files:

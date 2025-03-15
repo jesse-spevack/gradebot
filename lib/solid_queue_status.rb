@@ -28,8 +28,47 @@ module SolidQueueStatus
         end
         
         # Try connecting to queue database
-        puts "\nChecking queue database connection:"
-        ActiveRecord::Base.connected_to(database: :queue) do
+        puts "\nChecking queue database connection directly:"
+        begin
+          # First try with sqlite3 command line to check if we can open the file
+          if system("which sqlite3 > /dev/null 2>&1")
+            puts "  Checking database with sqlite3 command:"
+            db_path = File.join(Rails.root, queue_db.database)
+            output = `sqlite3 "#{db_path}" ".tables" 2>&1`
+            if $?.success?
+              puts "  Successfully opened database file with sqlite3 command"
+              puts "  Tables found: #{output.gsub(/\s+/, ", ")}"
+            else
+              puts "  Error accessing database with sqlite3 command: #{output}"
+            end
+          end
+        rescue => e
+          puts "  Error checking with sqlite3 command: #{e.message}"
+        end
+        
+        # Now try with ActiveRecord
+        puts "\nChecking queue database connection with ActiveRecord:"
+        begin
+          ActiveRecord::Base.establish_connection(
+            adapter: 'sqlite3',
+            database: File.join(Rails.root, queue_db.database)
+          )
+          
+          tables = ActiveRecord::Base.connection.tables
+          puts "  Connected successfully directly to the file"
+          puts "  Tables (#{tables.count}): #{tables.join(', ')}"
+          
+          # Restore connection to original database
+          ActiveRecord::Base.establish_connection(Rails.env.to_sym)
+          
+        rescue => e
+          puts "  Error connecting directly to queue database: #{e.message}"
+        end
+        
+        # Try with connected_to method
+        puts "\nTrying connected_to method:"
+        begin
+          ActiveRecord::Base.connected_to(database: :queue) do
           begin
             tables = ActiveRecord::Base.connection.tables
             puts "  Connected successfully"
@@ -237,10 +276,33 @@ module SolidQueueStatus
     begin
       # Determine which database to use
       queue_db = ActiveRecord::Base.configurations.configs_for(env_name: Rails.env, name: "queue")
-      database = queue_db ? :queue : :primary
       
-      ActiveRecord::Base.connected_to(database: database) do
+      if queue_db
+        db_path = File.join(Rails.root, queue_db.database)
+        puts "Queue database path: #{db_path}"
+        puts "File exists: #{File.exist?(db_path)}"
+        
+        # Try with sqlite3 command line first
+        if system("which sqlite3 > /dev/null 2>&1")
+          puts "Setting WAL mode with sqlite3 command..."
+          output = `sqlite3 "#{db_path}" "PRAGMA journal_mode=WAL;" 2>&1`
+          if $?.success?
+            puts "SQLite command result: #{output.strip}"
+          else
+            puts "Error setting WAL mode with sqlite3 command: #{output}"
+          end
+        end
+        
+        # Connect directly to the database file
+        puts "\nSetting WAL mode with ActiveRecord..."
+        
         begin
+          # Connect directly to the SQLite file
+          ActiveRecord::Base.establish_connection(
+            adapter: 'sqlite3',
+            database: db_path
+          )
+          
           # Check current mode
           old_mode = ActiveRecord::Base.connection.execute("PRAGMA journal_mode").first["journal_mode"]
           puts "Current journal mode: #{old_mode}"
@@ -256,8 +318,42 @@ module SolidQueueStatus
             puts "WARNING: Failed to set journal mode to WAL. Current mode: #{new_mode}"
             puts "Check database permissions and file system support for WAL mode."
           end
+          
+          # Set busy timeout
+          ActiveRecord::Base.connection.execute("PRAGMA busy_timeout = 10000")
+          puts "Set busy timeout to 10000ms"
+          
+          # Restore the original connection
+          puts "\nRestoring original database connection..."
+          ActiveRecord::Base.establish_connection(Rails.env.to_sym)
+          
         rescue => e
           puts "Error setting WAL mode: #{e.message}"
+          # Restore the original connection
+          ActiveRecord::Base.establish_connection(Rails.env.to_sym)
+        end
+      else
+        puts "No separate queue database configuration found. Using primary database."
+        
+        # Use primary database
+        begin
+          old_mode = ActiveRecord::Base.connection.execute("PRAGMA journal_mode").first["journal_mode"]
+          puts "Current journal mode in primary database: #{old_mode}"
+          
+          result = ActiveRecord::Base.connection.execute("PRAGMA journal_mode = WAL")
+          new_mode = result.first["journal_mode"]
+          
+          if new_mode.downcase == "wal"
+            puts "Journal mode successfully set to: #{new_mode}"
+          else
+            puts "WARNING: Failed to set journal mode to WAL in primary database."
+          end
+          
+          # Set busy timeout
+          ActiveRecord::Base.connection.execute("PRAGMA busy_timeout = 10000")
+          puts "Set busy timeout to 10000ms"
+        rescue => e
+          puts "Error setting WAL mode in primary database: #{e.message}"
         end
       end
     rescue => e
@@ -273,10 +369,22 @@ module SolidQueueStatus
       
       # Determine which database to use
       queue_db = ActiveRecord::Base.configurations.configs_for(env_name: Rails.env, name: "queue")
-      database = queue_db ? :queue : :primary
       
-      ActiveRecord::Base.connected_to(database: database) do
+      if queue_db
+        db_path = File.join(Rails.root, queue_db.database)
+        puts "Queue database path: #{db_path}"
+        puts "File exists: #{File.exist?(db_path)}"
+        
+        # Connect directly to the database file
+        puts "Connecting directly to database file..."
+        
         begin
+          # Connect directly to the SQLite file
+          ActiveRecord::Base.establish_connection(
+            adapter: 'sqlite3',
+            database: db_path
+          )
+          
           # Check if tables exist
           tables = ActiveRecord::Base.connection.tables
           solid_queue_tables = tables.select { |t| t.start_with?("solid_queue_") }
@@ -399,8 +507,38 @@ module SolidQueueStatus
             puts "Solid Queue tables already exist (#{solid_queue_tables.count} tables)"
             puts solid_queue_tables.join(", ")
           end
+          
+          # Restore the original connection
+          puts "\nRestoring original database connection..."
+          ActiveRecord::Base.establish_connection(Rails.env.to_sym)
+          
         rescue => e
           puts "Error initializing tables: #{e.message}"
+          # Restore the original connection
+          ActiveRecord::Base.establish_connection(Rails.env.to_sym)
+        end
+      else
+        puts "No separate queue database configuration found. Using primary database."
+        # Use primary database
+        begin
+          # Check if tables exist
+          tables = ActiveRecord::Base.connection.tables
+          solid_queue_tables = tables.select { |t| t.start_with?("solid_queue_") }
+          
+          if solid_queue_tables.empty?
+            puts "No Solid Queue tables found in primary database, creating tables..."
+            
+            # Implementation for primary database (similar to above)
+            # ...
+            
+            puts "Skipping table creation in primary database."
+            puts "Please run: bin/rails db:schema:load RAILS_ENV=production"
+          else
+            puts "Solid Queue tables already exist in primary database (#{solid_queue_tables.count} tables)"
+            puts solid_queue_tables.join(", ")
+          end
+        rescue => e
+          puts "Error checking primary database: #{e.message}"
         end
       end
     rescue LoadError => e
