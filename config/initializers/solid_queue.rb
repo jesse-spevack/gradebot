@@ -5,7 +5,7 @@ require "erb"
 # Load the queue configuration from queue.yml
 queue_config_path = Rails.root.join("config", "queue.yml")
 if File.exist?(queue_config_path)
-  queue_config = YAML.load(ERB.new(File.read(queue_config_path)).result)[Rails.env]
+  queue_config = YAML.safe_load(ERB.new(File.read(queue_config_path)).result, aliases: true)[Rails.env]
   
   # Set the configuration
   if defined?(Rails.configuration.solid_queue)
