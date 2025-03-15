@@ -1,57 +1,14 @@
-<div id="<%= dom_id(student_submission) %>" class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-150">
-  <div class="flex items-center justify-between">
-    <div class="flex items-center space-x-3">
-      <div class="flex-shrink-0">
-        <% case student_submission.status %>
-        <% when 'pending' %>
-          <span class="h-8 w-8 rounded-full bg-yellow-100 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </span>
-        <% when 'processing' %>
-          <span class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-            <%= render "shared/spinner", size: "h-5 w-5", color: "text-blue-600" %>
-          </span>
-        <% when 'completed' %>
-          <span class="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
-          </span>
-        <% when 'failed' %>
-          <span class="h-8 w-8 rounded-full bg-red-100 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </span>
-        <% end %>
-      </div>
-      <div>
-        <h3 class="text-sm font-medium text-gray-900">Document: <%= student_submission.original_doc_id.truncate(20) %></h3>
-        <p class="text-xs text-gray-500">Created <%= time_ago_in_words(student_submission.created_at) %> ago</p>
-      </div>
-    </div>
+<%# 
+  Partial for a single student submission, used for Turbo Stream broadcasts
+  
+  Parameters:
+  - student_submission: The student submission to display
+%>
 
-    <div class="flex items-center space-x-2">
-      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-        <%= case student_submission.status
-            when 'pending' then 'bg-yellow-100 text-yellow-800'
-            when 'processing' then 'bg-blue-100 text-blue-800'
-            when 'completed' then 'bg-green-100 text-green-800'
-            when 'failed' then 'bg-red-100 text-red-800'
-            end %>"
-      >
-        <%= student_submission.status.capitalize %>
-      </span>
+<div id="<%= dom_id(student_submission) %>" class="submission-container">
+  <%= render "student_submissions/submission_card", submission: student_submission %>
+</div>
 
-      <%= link_to "View Details", student_submission_path(student_submission), class: "px-3 py-1 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors duration-150" %>
-    </div>
-  </div>
-
-  <% if student_submission.feedback.present? %>
-    <div class="mt-4 text-sm text-gray-700 border-t border-gray-200 pt-4">
-      <div class="line-clamp-2"><%= student_submission.feedback.truncate(100) %></div>
-    </div>
-  <% end %>
-</div> 
+<% if respond_to?(:table_row) && table_row %>
+  <%= render "student_submissions/table_row", submission: student_submission %>
+<% end %> 

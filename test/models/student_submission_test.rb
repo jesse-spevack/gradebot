@@ -3,6 +3,8 @@
 require "test_helper"
 
 class StudentSubmissionTest < ActiveSupport::TestCase
+  include ActionCable::TestHelper
+
   setup do
     @grading_task = grading_tasks(:one)
     @submission = StudentSubmission.new(
@@ -153,6 +155,16 @@ class StudentSubmissionTest < ActiveSupport::TestCase
 
     assert_not submission.retry!
     assert_equal "completed", submission.reload.status
+  end
+
+  test "broadcasts on creation" do
+    assert_broadcasts("grading_task_#{@grading_task.id}_submissions", 1) do
+      StudentSubmission.create!(
+        grading_task: @grading_task,
+        original_doc_id: "google_doc_id_789",
+        status: :pending
+      )
+    end
   end
 
   # Tests for structured grading data

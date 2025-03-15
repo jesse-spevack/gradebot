@@ -33,14 +33,13 @@
       <section class="py-6">
         <h2 class="text-lg font-semibold text-gray-900 mb-4">Student Submissions</h2>
         <div id="student_submissions">
+          <%= turbo_stream_from "grading_task_#{grading_task.id}_submissions" %>
           <% if student_submissions.any? %>
-            <div data-controller="submission-refresh" 
-                data-submission-refresh-interval-value="3000"
-                data-submission-refresh-grade-task-id-value="<%= grading_task.id %>">
-              <%= render 'student_submissions/submission_list', submissions: student_submissions %>
+            <div id="student_submissions_list_<%= grading_task.id %>">
+              <%= render 'student_submissions/submission_list', submissions: student_submissions, grading_task: grading_task %>
             </div>
           <% else %>
-            <div class="text-center py-8">
+            <div id="empty_submissions_<%= grading_task.id %>" class="text-center py-8">
               <div class="p-3 bg-blue-50 rounded-xl inline-flex">
                 <%= render "shared/icons/document", class: "h-10 w-10 text-blue-500" rescue nil %>
               </div>

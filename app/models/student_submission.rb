@@ -41,6 +41,9 @@ class StudentSubmission < ApplicationRecord
   # Status transitions are now validated by StatusManager service
   # Status updates should go through StatusManager.transition_submission
 
+  # Callbacks
+  after_create_commit :broadcast_creation
+
   # Enums
   enum :status, {
     pending: 0,
@@ -206,5 +209,29 @@ class StudentSubmission < ApplicationRecord
   # @return [String] The teacher's summary
   def summary
     metadata["summary"] || ""
+  end
+
+  private
+
+  # Broadcasts the creation of this submission to the appropriate Turbo Stream
+  # @return [void]
+  def broadcast_creation
+    # Broadcast to the submissions list
+    Turbo::StreamsChannel.broadcast_append_to(
+      "grading_task_#{grading_task_id}_submissions",
+      target: "student_submissions_list_#{grading_task_id}",
+      partial: "student_submissions/student_submission",
+      locals: { student_submission: self }
+    )
+
+    # If this is the first submission, replace the empty state
+    if grading_task.student_submissions.count == 1
+      Turbo::StreamsChannel.broadcast_replace_to(
+        "grading_task_#{grading_task_id}",
+        target: "student_submissions",
+        partial: "student_submissions/submission_list",
+        locals: { submissions: [ self ], grading_task: grading_task }
+      )
+    end
   end
 end

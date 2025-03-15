@@ -3,6 +3,8 @@
 require "test_helper"
 
 class StatusManagerTest < ActiveSupport::TestCase
+  include ActionCable::TestHelper
+
   setup do
     @user = users(:teacher)
     @grading_task = GradingTask.create!(
@@ -190,6 +192,33 @@ class StatusManagerTest < ActiveSupport::TestCase
     assert_equal "Great job!", submission.feedback
     assert_equal "graded_doc1", submission.graded_doc_id
     assert_equal "completed", @grading_task.reload.status
+  end
+
+  test "broadcasts when first submission is created" do
+    # Create a new grading task with no submissions
+    empty_grading_task = GradingTask.create!(
+      user: @user,
+      assignment_prompt: "Write an essay about history",
+      grading_rubric: "Content: 40%, Structure: 30%, Grammar: 30%",
+      folder_id: "empty_folder_123",
+      folder_name: "Empty Test Folder",
+      status: "pending"
+    )
+
+    # This test will fail until we implement the empty state replacement
+    assert_broadcasts("grading_task_#{empty_grading_task.id}", 1) do
+      # Simulate the first submission being created
+      # The actual broadcast will be implemented in the StudentSubmission model
+      submission = StudentSubmission.new(
+        grading_task: empty_grading_task,
+        original_doc_id: "first_doc",
+        status: :pending
+      )
+
+      # We'll need to manually trigger the broadcast in our implementation
+      # This is just setting up the test expectation
+      submission.save!
+    end
   end
 
   test "retry_submission resets a failed submission to pending" do
