@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "shellwords"
+
 # Utility to check Solid Queue status
 module SolidQueueStatus
   def self.check
@@ -34,7 +36,9 @@ module SolidQueueStatus
           if system("which sqlite3 > /dev/null 2>&1")
             puts "  Checking database with sqlite3 command:"
             db_path = File.join(Rails.root, queue_db.database)
-            output = `sqlite3 "#{db_path}" ".tables" 2>&1`
+            # Use Shellwords.escape to prevent command injection
+            escaped_db_path = Shellwords.escape(db_path)
+            output = `sqlite3 #{escaped_db_path} ".tables" 2>&1`
             if $?.success?
               puts "  Successfully opened database file with sqlite3 command"
               puts "  Tables found: #{output.gsub(/\s+/, ", ")}"
@@ -236,7 +240,9 @@ module SolidQueueStatus
         # Try with sqlite3 command line first
         if system("which sqlite3 > /dev/null 2>&1")
           puts "Checking with sqlite3 command line:"
-          output = `sqlite3 "#{db_path}" "PRAGMA journal_mode; PRAGMA busy_timeout;" 2>&1`
+          # Use Shellwords.escape to prevent command injection
+          escaped_db_path = Shellwords.escape(db_path)
+          output = `sqlite3 #{escaped_db_path} "PRAGMA journal_mode; PRAGMA busy_timeout;" 2>&1`
           if $?.success?
             puts "Command line result:\n#{output}"
           else
@@ -347,7 +353,9 @@ module SolidQueueStatus
         # Try with sqlite3 command line first
         if system("which sqlite3 > /dev/null 2>&1")
           puts "Setting WAL mode with sqlite3 command..."
-          output = `sqlite3 "#{db_path}" "PRAGMA journal_mode=WAL;" 2>&1`
+          # Use Shellwords.escape to prevent command injection
+          escaped_db_path = Shellwords.escape(db_path)
+          output = `sqlite3 #{escaped_db_path} "PRAGMA journal_mode=WAL;" 2>&1`
           if $?.success?
             puts "SQLite command result: #{output.strip}"
           else
