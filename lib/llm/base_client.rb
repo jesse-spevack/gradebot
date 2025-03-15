@@ -76,17 +76,26 @@ module LLM
           # Log completion
           Rails.logger.debug "LLM Request - Received response from provider"
 
-          # Publish the request completed event
-          EventSystem::Publisher.publish(
-            EventSystem::EVENTS[:request_completed],
-            {
-              request: llm_request,
-              response: response,
-              context: context
-            }
-          )
+          # Try to publish the event for cost tracking
+          begin
+            Rails.logger.info "LLM Request - Publishing event for cost tracking"
+            EventSystem::Publisher.publish(
+              EventSystem::EVENTS[:request_completed],
+              {
+                request: llm_request,
+                response: response,
+                context: context
+              }
+            )
+            Rails.logger.info "LLM Request - Event published successfully"
+          rescue => e
+            Rails.logger.error "LLM Request - Failed to publish event: #{e.message}"
+            Rails.logger.error "LLM Request - Error backtrace: #{e.backtrace&.first(5)&.join("\n")}"
 
-          Rails.logger.debug "LLM Request - Event published for cost tracking"
+            # Fallback: Direct cost tracking if event system fails
+            Rails.logger.info "LLM Request - Attempting direct cost tracking as fallback"
+            track_cost_directly(llm_request, response, context)
+          end
 
           # Return the response
           response
@@ -95,6 +104,48 @@ module LLM
           Rails.logger.error e.backtrace.join("\n")
           raise
         end
+      end
+    end
+
+    # Fallback method to track costs directly if the event system fails
+    # @param llm_request [LLMRequest] The request object
+    # @param response [Hash] The response from the LLM
+    # @param context [Hash] The context for tracking
+    def track_cost_directly(llm_request, response, context)
+      begin
+        # Skip if we don't have token information
+        unless response.is_a?(Hash) && response[:metadata] && response[:metadata][:tokens]
+          Rails.logger.warn "LLM Request - Missing token information in response, skipping fallback cost tracking"
+          return
+        end
+
+        tokens = response[:metadata][:tokens]
+
+        # Calculate cost
+        cost = CostTracking.calculate_cost(
+          llm_request.llm_model_name,
+          tokens[:prompt] || 0,
+          tokens[:completion] || 0
+        )
+
+        # Create cost data for tracking
+        cost_data = {
+          llm_model_name: llm_request.llm_model_name,
+          prompt_tokens: tokens[:prompt] || 0,
+          completion_tokens: tokens[:completion] || 0,
+          total_tokens: tokens[:total] || 0,
+          cost: cost,
+          request_id: context[:request_id]
+        }
+
+        Rails.logger.info "LLM Request - Fallback cost tracking: #{cost_data[:cost]}"
+
+        # Record cost data directly
+        CostTracking.record(cost_data, context)
+        Rails.logger.info "LLM Request - Fallback cost tracking completed successfully"
+      rescue => e
+        Rails.logger.error "LLM Request - Fallback cost tracking failed: #{e.message}"
+        Rails.logger.error "LLM Request - Error backtrace: #{e.backtrace&.first(5)&.join("\n")}"
       end
     end
 
