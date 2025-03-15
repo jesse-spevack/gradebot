@@ -8,7 +8,7 @@ class TestJob < ApplicationJob
     # Get database connection info
     db_config = ActiveRecord::Base.connection_db_config.configuration_hash
     db_path = db_config[:database]
-    
+
     # Log extensive debugging information
     Rails.logger.info "=== TEST JOB EXECUTED AT #{Time.current} ==="
     Rails.logger.info "Arguments: #{args.inspect}"
@@ -20,24 +20,40 @@ class TestJob < ApplicationJob
     Rails.logger.info "Queue name: #{queue_name}"
     Rails.logger.info "Process ID: #{Process.pid}"
     Rails.logger.info "Rails env: #{Rails.env}"
-    
+
     # Try to access the queue database directly
     begin
-      queue_db = ActiveRecord::Base.configurations.configs_for(env_name: Rails.env, name: 'queue')
+      queue_db = ActiveRecord::Base.configurations.configs_for(env_name: Rails.env, name: "queue")
       if queue_db
         Rails.logger.info "Queue database path: #{queue_db.database}"
         # Attempt to verify connection to queue database
-        result = ActiveRecord::Base.connected_to(database: :queue) do
-          ActiveRecord::Base.connection.execute("SELECT COUNT(*) FROM sqlite_master")
+        ActiveRecord::Base.establish_connection(
+          Rails.application.config.database_configuration["production"]["queue"]
+        )
+        tables = ActiveRecord::Base.connection.tables
+        puts "Tables (#{tables.count}): #{tables.join(', ')}"
+
+        # Check if your Solid Queue tables exist
+        required_tables = [
+          "solid_queue_processes", "solid_queue_ready_executions",
+          "solid_queue_scheduled_executions", "solid_queue_claimed_executions",
+          "solid_queue_failed_executions", "solid_queue_semaphores"
+        ]
+
+        missing_tables = required_tables - tables
+        if missing_tables.any?
+          puts "WARNING: Missing required tables: #{missing_tables.join(', ')}"
+        else
+          puts "All required Solid Queue tables present"
+          # Run your other queries here
         end
-        Rails.logger.info "Queue database tables count: #{result.first.first}"
       else
         Rails.logger.info "No separate queue database configuration found"
       end
     rescue => e
       Rails.logger.error "Error connecting to queue database: #{e.message}"
     end
-    
+
     Rails.logger.info "=== TEST JOB COMPLETED ==="
   end
 end

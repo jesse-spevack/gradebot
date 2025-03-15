@@ -146,9 +146,9 @@ This will show:
 ```
 ❯ bin/kamal console
 Get current version of running container...
-  INFO [2e68c5d3] Running /usr/bin/env sh -c 'docker ps --latest --format '\''{{.Names}}'\'' --filter label=service=gradebot --filter label=destination= --filter label=role=web --filter status=running --filter status=restarting --filter ancestor=$(docker image ls --filter reference=us-docker.pkg.dev/gradebot-451722/repository-1/gradebot:latest --format '\''{{.ID}}'\'') ; docker ps --latest --format '\''{{.Names}}'\'' --filter label=service=gradebot --filter label=destination= --filter label=role=web --filter status=running --filter status=restarting' | head -1 | while read line; do echo ${line#gradebot-web-}; done on 34.44.244.114
-  INFO [2e68c5d3] Finished in 0.903 seconds with exit status 0 (successful).
-Launching interactive command with version 2c12a3d8fe0e6bd1fb58e1e117787dafcd7ea0af via SSH from existing container on 34.44.244.114...
+  INFO [ddf3e151] Running /usr/bin/env sh -c 'docker ps --latest --format '\''{{.Names}}'\'' --filter label=service=gradebot --filter label=destination= --filter label=role=web --filter status=running --filter status=restarting --filter ancestor=$(docker image ls --filter reference=us-docker.pkg.dev/gradebot-451722/repository-1/gradebot:latest --format '\''{{.ID}}'\'') ; docker ps --latest --format '\''{{.Names}}'\'' --filter label=service=gradebot --filter label=destination= --filter label=role=web --filter status=running --filter status=restarting' | head -1 | while read line; do echo ${line#gradebot-web-}; done on 34.44.244.114
+  INFO [ddf3e151] Finished in 0.741 seconds with exit status 0 (successful).
+Launching interactive command with version 597e4674457ecad5242ccb9554e2210c815ab798 via SSH from existing container on 34.44.244.114...
 LLM::EventSystem - Subscriber LLM::CostTrackingSubscriber registered for llm.request.completed
 LLM Event System initialized with cost tracking subscriber
 Loading production environment (Rails 8.0.2)
@@ -166,12 +166,22 @@ Queue Database Configuration:
   Size: 217088 bytes
   Permissions: 100644
 
-Checking queue database connection:
+Checking queue database connection directly:
+  Checking database with sqlite3 command:
+  Successfully opened database file with sqlite3 command
+  Tables found: ar_internal_metadata, solid_queue_processes, schema_migrations, solid_queue_ready_executions, solid_queue_blocked_executions, solid_queue_recurring_executions, solid_queue_claimed_executions, solid_queue_recurring_tasks, solid_queue_failed_executions, solid_queue_scheduled_executions, solid_queue_jobs, solid_queue_semaphores, solid_queue_pauses,
 
-ERROR: unknown keyword: :database
+Checking queue database connection with ActiveRecord:
+  Connected successfully directly to the file
+  Tables (13): solid_queue_failed_executions, solid_queue_jobs, solid_queue_pauses, solid_queue_scheduled_executions, solid_queue_processes, schema_migrations, solid_queue_recurring_executions, solid_queue_ready_executions, solid_queue_semaphores, solid_queue_recurring_tasks, solid_queue_blocked_executions, ar_internal_metadata, solid_queue_claimed_executions
+
+Trying connected_to method:
+  Error using connected_to: unknown keyword: :database
 
 === END STATUS ===
 => nil
+gradebot(prod)>
+
 ```
 
 ## Step 5: Check database files
@@ -184,12 +194,56 @@ File.exist?(queue_db.database)
 File.stat(queue_db.database).mode.to_s(8)  # Check permissions
 ```
 
+### Result:
+
+✅ Done!
+
+```
+gradebot(prod)> queue_db = ActiveRecord::Base.configurations.configs_for(env_name: Rails.env, name: 'queue')
+=> #<ActiveRecord::DatabaseConfigurations::HashConfig env_name=production name=queue adapter_class=ActiveRecord::ConnectionAdapters::SQLite3Adapter>
+gradebot(prod)> File.exist?(queue_db.database)
+=> true
+gradebot(prod)> File.stat(queue_db.database).mode.to_s(8)  # Check permissions
+=> "100644"
+gradebot(prod)>
+```
+
 ## Step 6: Enqueue a test job
 
 Test job processing by enqueuing a test job:
 
 ```ruby
 TestJob.perform_later("test_#{Time.current.to_i}")
+```
+
+### Result:
+
+✅ Done!
+
+```
+gradebot(prod)> TestJob.perform_later("test_#{Time.current.to_i}")
+[ActiveJob]   TRANSACTION (0.2ms)  BEGIN immediate TRANSACTION
+[ActiveJob]   SolidQueue::Job Create (2.7ms)  INSERT INTO "solid_queue_jobs" ("queue_name", "class_name", "arguments", "priority", "active_job_id", "scheduled_at", "finished_at", "concurrency_key", "created_at", "updated_at") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING "id"  [["queue_name", "default"], ["class_name", "TestJob"], ["arguments", "{\"job_class\":\"TestJob\",\"job_id\":\"df0abecf-9089-4c58-9cff-b23ff49cefea\",\"provider_job_id\":null,\"queue_name\":\"default\",\"priority\":null,\"arguments\":[\"test_1742002954\"],\"executions\":0,\"exception_executions\":{},\"locale\":\"en\",\"timezone\":\"UTC\",\"enqueued_at\":\"2025-03-15T01:42:34.281570408Z\",\"scheduled_at\":\"2025-03-15T01:42:34.281409608Z\"}"], ["priority", 0], ["active_job_id", "df0abecf-9089-4c58-9cff-b23ff49cefea"], ["scheduled_at", "2025-03-15 01:42:34.281409"], ["finished_at", nil], ["concurrency_key", "[FILTERED]"], ["created_at", "2025-03-15 01:42:34.301808"], ["updated_at", "2025-03-15 01:42:34.301808"]]
+[ActiveJob]   TRANSACTION (0.1ms)  SAVEPOINT active_record_1
+[ActiveJob]   SolidQueue::Job Load (0.3ms)  SELECT "solid_queue_jobs".* FROM "solid_queue_jobs" WHERE "solid_queue_jobs"."id" = ? LIMIT ?  [["id", 52], ["LIMIT", 1]]
+[ActiveJob]   SolidQueue::ReadyExecution Create (0.3ms)  INSERT INTO "solid_queue_ready_executions" ("job_id", "queue_name", "priority", "created_at") VALUES (?, ?, ?, ?) RETURNING "id"  [["job_id", 52], ["queue_name", "default"], ["priority", 0], ["created_at", "2025-03-15 01:42:34.320756"]]
+[ActiveJob]   TRANSACTION (0.1ms)  RELEASE SAVEPOINT active_record_1
+[ActiveJob]   TRANSACTION (7.7ms)  COMMIT TRANSACTION
+[ActiveJob] Enqueued TestJob (Job ID: df0abecf-9089-4c58-9cff-b23ff49cefea) to SolidQueue(default) with arguments: "test_1742002954"
+=>
+#<TestJob:0x00007fdbfef72998
+ @_halted_callback_hook_called=nil,
+ @arguments=["test_1742002954"],
+ @exception_executions={},
+ @executions=0,
+ @job_id="df0abecf-9089-4c58-9cff-b23ff49cefea",
+ @priority=nil,
+ @provider_job_id=52,
+ @queue_name="default",
+ @scheduled_at=2025-03-15 01:42:34.281409608 UTC +00:00,
+ @successfully_enqueued=true,
+ @timezone="UTC">
+gradebot(prod)>
 ```
 
 ## Step 7: Check job status
@@ -201,6 +255,38 @@ require_relative "lib/solid_queue_status"
 SolidQueueStatus.list_jobs
 ```
 
+### Result:
+
+✅ Done!
+
+```
+gradebot(prod)> SolidQueueStatus.list_jobs
+=== PENDING JOBS ===
+   (0.1ms)  SELECT COUNT(*) as count FROM solid_queue_ready_executions
+Ready jobs: 3
+
+Ready job details:
+   (0.3ms)  SELECT r.id, r.job_id, j.class_name, j.arguments, r.created_at
+FROM solid_queue_ready_executions r
+JOIN solid_queue_jobs j ON r.job_id = j.id
+
+  ID: 50, Job ID: 50
+  Class: TestJob
+  Arguments: {"job_class":"TestJob","job_id":"dda4f2aa-91ad-45fa-b9fc-cae76d7f2c61","provider_job_id":null,"queue_name":"default","priority":null,"arguments":["fresh_job_1741927183"],"executions":0,"exception_executions":{},"locale":"en","timezone":"UTC","enqueued_at":"2025-03-14T04:39:43.762092927Z","scheduled_at":"2025-03-14T04:39:43.762012817Z"}
+  Created at: 2025-03-14 04:39:43.767612
+  ---
+  ID: 51, Job ID: 51
+  Class: TestJob
+  Arguments: {"job_class":"TestJob","job_id":"c8fa0256-9bc9-4d83-a056-66dce33e43fe","provider_job_id":null,"queue_name":"default","priority":null,"arguments":[],"executions":0,"exception_executions":{},"locale":"en","timezone":"UTC","enqueued_at":"2025-03-15T00:30:41.159803446Z","scheduled_at":"2025-03-15T00:30:41.159668976Z"}
+  Created at: 2025-03-15 00:30:41.196825
+  ---
+  ID: 52, Job ID: 52
+  Class: TestJob
+  Arguments: {"job_class":"TestJob","job_id":"df0abecf-9089-4c58-9cff-b23ff49cefea","provider_job_id":null,"queue_name":"default","priority":null,"arguments":["test_1742002954"],"executions":0,"exception_executions":{},"locale":"en","timezone":"UTC","enqueued_at":"2025-03-15T01:42:34.281570408Z","scheduled_at":"2025-03-15T01:42:34.281409608Z"}
+  Created at: 2025-03-15 01:42:34.320756
+  ---
+=> #<ActiveRecord::ConnectionAdapters::ConnectionPool env_name="production" role=:writing>
+```
 ## Step 8: Monitor job logs
 
 Exit the console and watch the job container logs to see if the test job gets processed:
@@ -210,6 +296,34 @@ bin/kamal logs -f -r job
 ```
 
 Look for "=== TEST JOB EXECUTED AT ..." which indicates the job was processed.
+
+### Result:
+
+✅ Done!
+
+
+```
+❯ bin/kamal logs -f -r job
+  INFO Following logs on 34.44.244.114...
+  INFO ssh -t jesse@34.44.244.114 -p 22 'sh -c '\''docker ps --latest --quiet --filter label=service=gradebot --filter label=destination= --filter label=role=job --filter status=running --filter status=restarting --filter ancestor=$(docker image ls --filter reference=us-docker.pkg.dev/gradebot-451722/repository-1/gradebot:latest --format '\''\'\'''\''{{.ID}}'\''\'\'''\'') ; docker ps --latest --quiet --filter label=service=gradebot --filter label=destination= --filter label=role=job --filter status=running --filter status=restarting'\'' | head -1 | xargs docker logs --timestamps --tail 10 --follow 2>&1'
+2025-03-15T01:45:35.516126767Z   SolidQueue::Process Update (0.1ms)  UPDATE "solid_queue_processes" SET "last_heartbeat_at" = ? WHERE "solid_queue_processes"."id" = ?  [["last_heartbeat_at", "2025-03-15 01:45:35.515011"], ["id", 267]]
+2025-03-15T01:45:35.517822057Z   TRANSACTION (1.2ms)  COMMIT TRANSACTION
+2025-03-15T01:45:35.530184142Z   TRANSACTION (0.2ms)  BEGIN immediate TRANSACTION
+2025-03-15T01:45:35.530636162Z   SolidQueue::Process Load (0.7ms)  SELECT "solid_queue_processes".* FROM "solid_queue_processes" WHERE "solid_queue_processes"."id" = ? LIMIT ?   [["id", 268], ["LIMIT", 1]]
+2025-03-15T01:45:35.532148237Z   SolidQueue::Process Update (0.1ms)  UPDATE "solid_queue_processes" SET "last_heartbeat_at" = ? WHERE "solid_queue_processes"."id" = ?  [["last_heartbeat_at", "2025-03-15 01:45:35.530924"], ["id", 268]]
+2025-03-15T01:45:35.534218731Z   TRANSACTION (1.5ms)  COMMIT TRANSACTION
+2025-03-15T01:45:35.547636105Z   TRANSACTION (0.2ms)  BEGIN immediate TRANSACTION
+2025-03-15T01:45:35.548083353Z   SolidQueue::Process Load (0.7ms)  SELECT "solid_queue_processes".* FROM "solid_queue_processes" WHERE "solid_queue_processes"."id" = ? LIMIT ?   [["id", 269], ["LIMIT", 1]]
+2025-03-15T01:45:35.549232713Z   SolidQueue::Process Update (0.1ms)  UPDATE "solid_queue_processes" SET "last_heartbeat_at" = ? WHERE "solid_queue_processes"."id" = ?  [["last_heartbeat_at", "2025-03-15 01:45:35.548338"], ["id", 269]]
+2025-03-15T01:45:35.550802088Z   TRANSACTION (1.2ms)  COMMIT TRANSACTION
+```
+
+```
+❯ bin/kamal app logs -r job -g "=== TEST JOB EXECUTED AT"
+  INFO [cca3f316] Running /usr/bin/env sh -c 'docker ps --latest --quiet --filter label=service=gradebot --filter label=destination= --filter label=role=job --filter status=running --filter status=restarting --filter ancestor=$(docker image ls --filter reference=us-docker.pkg.dev/gradebot-451722/repository-1/gradebot:latest --format '\''{{.ID}}'\'') ; docker ps --latest --quiet --filter label=service=gradebot --filter label=destination= --filter label=role=job --filter status=running --filter status=restarting' | head -1 | xargs docker logs --timestamps 2>&1 | grep '=== TEST JOB EXECUTED AT' on 34.44.244.114
+App Host: 34.44.244.114
+Nothing found
+```
 
 ## Step 9: Check for database locking issues
 
@@ -224,6 +338,32 @@ require_relative "lib/solid_queue_status"
 SolidQueueStatus.check_locks
 ```
 
+### Result:
+
+✅ Done!
+
+```
+gradebot(prod)> SolidQueueStatus.check_locks
+=== DATABASE LOCK STATUS ===
+Checking with sqlite3 command line:
+Command line result:
+wal
+0
+   (1.2ms)  PRAGMA busy_timeout = 10000
+Set busy timeout to 10000ms
+   (0.1ms)  PRAGMA journal_mode
+Journal mode: wal
+   (0.1ms)  PRAGMA lock_status
+Lock status: []
+   (0.8ms)  PRAGMA integrity_check
+Integrity check: ok
+   (0.1ms)  BEGIN IMMEDIATE TRANSACTION
+   (0.1ms)  ROLLBACK
+Database is writable: Yes
+=> #<ActiveRecord::ConnectionAdapters::ConnectionPool env_name="production" role=:writing>
+```
+
+
 ## Step 10: Check for file permission issues
 
 If suspecting file permission issues:
@@ -234,6 +374,29 @@ bin/kamal shell
 
 ```bash
 ls -la /rails/storage/
+```
+
+### Result:
+
+✅ Done!
+
+```
+❯ kamal shell
+Get current version of running container...
+  INFO [b32c1a62] Running /usr/bin/env sh -c 'docker ps --latest --format '\''{{.Names}}'\'' --filter label=service=gradebot --filter label=destination= --filter label=role=web --filter status=running --filter status=restarting --filter ancestor=$(docker image ls --filter reference=us-docker.pkg.dev/gradebot-451722/repository-1/gradebot:latest --format '\''{{.ID}}'\'') ; docker ps --latest --format '\''{{.Names}}'\'' --filter label=service=gradebot --filter label=destination= --filter label=role=web --filter status=running --filter status=restarting' | head -1 | while read line; do echo ${line#gradebot-web-}; done on 34.44.244.114
+  INFO [b32c1a62] Finished in 0.604 seconds with exit status 0 (successful).
+Launching interactive command with version 597e4674457ecad5242ccb9554e2210c815ab798 via SSH from existing container on 34.44.244.114...
+rails@34:/rails$ ls -la /rails/storage/
+total 7696
+drwxr-xr-x 2 rails rails    4096 Mar 15 01:46 .
+drwxr-xr-x 1 root  root     4096 Mar 15 01:33 ..
+-rw-r--r-- 1 rails rails       0 Feb 23 04:59 .keep
+-rw-r--r-- 1 rails rails  180224 Mar 13 14:48 production.sqlite3
+-rw-r--r-- 1 rails rails 3244032 Mar 13 02:58 production_cable.sqlite3
+-rw-r--r-- 1 rails rails   49152 Mar 13 14:47 production_cache.sqlite3
+-rw-r--r-- 1 rails rails  217088 Mar 15 01:16 production_queue.sqlite3
+-rw-r--r-- 1 rails rails   32768 Mar 15 01:47 production_queue.sqlite3-shm
+-rw-r--r-- 1 rails rails 4140632 Mar 15 01:47 production_queue.sqlite3-wal
 ```
 
 Ensure the sqlite database files are readable/writable by the application user.
@@ -256,6 +419,17 @@ bin/kamal shell
 
 ```bash
 sqlite3 /rails/storage/production_queue.sqlite3 "PRAGMA integrity_check"
+```
+
+
+### Result:
+
+✅ Done!
+
+
+```
+rails@34:/rails$ sqlite3 /rails/storage/production_queue.sqlite3 "PRAGMA integrity_check"
+ok
 ```
 
 ## Possible Solutions
