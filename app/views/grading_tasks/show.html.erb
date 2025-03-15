@@ -1,8 +1,8 @@
 <% content_for :header do %>
-  <div class="flex items-center justify-between">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div class="flex items-center space-x-4">
-      <%= link_to grading_tasks_path, class: "text-gray-500 hover:text-gray-700 transition-colors duration-150" do %>
-        <%= render "shared/icons/back" %>
+      <%= link_to grading_tasks_path, class: "text-gray-600 hover:text-gray-900 transition-colors duration-150" do %>
+        <%= render "shared/icons/back", class: "h-5 w-5" %>
       <% end %>
       <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-blue-950"><%= @grading_task.folder_name %></h1>
     </div>
