@@ -22,15 +22,11 @@ Rails.application.routes.draw do
   namespace :admin do
     resources :feature_flags
 
-    # LLM Cost reporting
-    resources :llm_cost_reports, only: [] do
-      collection do
-        get :daily_costs
-      end
+    # Reports namespace
+    namespace :reports do
+      get "daily", to: "daily#show"
+      get "grading_tasks", to: "grading_tasks#show"
     end
-
-    # Redirect old cost reports index to daily_costs
-    get "llm_cost_reports", to: redirect("admin/llm_cost_reports/daily_costs")
 
     resources :llm_pricing_configs
 

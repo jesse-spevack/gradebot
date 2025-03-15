@@ -9,6 +9,18 @@
 <% end %>
 
 <% content_for :content do %>
+  <!-- Navigation Tabs -->
+  <div class="mb-6">
+    <div class="border-b border-gray-200">
+      <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+        <%= link_to "Daily Costs", daily_costs_admin_llm_cost_reports_path, 
+            class: "border-indigo-500 text-indigo-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" %>
+        <%= link_to "Grading Task Costs", grading_task_costs_admin_llm_cost_reports_path, 
+            class: "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" %>
+      </nav>
+    </div>
+  </div>
+
   <!-- Date Range Filter -->
   <div class="bg-white rounded-lg shadow p-6 mb-8">
     <%= form_with url: daily_costs_admin_llm_cost_reports_path, method: :get, 
@@ -35,7 +47,7 @@
             ["Last 7 days", 7], 
             ["Last 30 days", 30], 
             ["Last 90 days", 90]
-          ], selected: @date_range),
+          ], selected: params[:date_range] || 7),
           {}, 
           class: "rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500",
           data: { 

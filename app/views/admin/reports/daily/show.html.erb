@@ -1,0 +1,60 @@
+<% content_for :header do %>
+  <%= render "shared/page_header", 
+             title: "Daily LLM Costs",
+             subtitle: "View daily costs for LLM usage",
+             back_link: {
+               path: admin_feature_flags_path,
+               text: "Back to Admin"
+             } %>
+<% end %>
+
+<% content_for :content do %>
+  <%= render "admin/reports/navigation" %>
+
+  <%= render "shared/card" do %>
+    <div class="mb-6">
+      <%= render "admin/reports/date_range_form", 
+                 url: admin_reports_daily_path,
+                 start_date: @start_date,
+                 end_date: @end_date %>
+    </div>
+
+    <%= render "admin/reports/total_cost_card", 
+               total_cost: @total_cost, 
+               count: @logs.count, 
+               label: "LLM requests" %>
+
+    <% if @daily_costs.any? %>
+      <div class="h-80">
+        <%= column_chart @daily_costs, 
+                        title: "Daily LLM Costs", 
+                        xtitle: "Date", 
+                        ytitle: "Cost ($)",
+                        colors: ["#3b82f6"],
+                        thousands: ",",
+                        prefix: "$",
+                        library: {
+                          scales: {
+                            y: {
+                              beginAtZero: true
+                            }
+                          }
+                        } %>
+      </div>
+    <% else %>
+      <div class="py-12 text-center">
+        <div class="inline-block p-6 bg-gray-50 rounded-lg">
+          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">No data available</h3>
+          <p class="mt-1 text-sm text-gray-500">
+            No LLM cost data was found for the selected date range.
+          </p>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%= render "shared/page_wrapper" %> 
