@@ -195,7 +195,7 @@ class StatusManagerTest < ActiveSupport::TestCase
     )
 
     # This test will fail until we implement the empty state replacement
-    assert_broadcasts("grading_task_#{empty_grading_task.id}", 5) do
+    assert_broadcasts("grading_task_#{empty_grading_task.id}", 4) do
       # Simulate the first submission being created
       # The actual broadcast will be implemented in the StudentSubmission model
       submission = StudentSubmission.new(

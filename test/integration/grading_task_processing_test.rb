@@ -28,9 +28,7 @@ class GradingTaskProcessingTest < ActionDispatch::IntegrationTest
   end
 
   test "processing a grading task creates and broadcasts submissions" do
-    # This test will fail until we implement the broadcast on creation
-    assert_broadcasts("grading_task_#{@grading_task.id}_submissions", 4) do
-      # Process the grading task
+    assert_broadcasts("grading_task_#{@grading_task.id}_submissions", 1) do
       ProcessGradingTaskCommand.new(grading_task_id: @grading_task.id).execute
     end
 
@@ -57,7 +55,7 @@ class GradingTaskProcessingTest < ActionDispatch::IntegrationTest
     )
 
     # This test will fail until we implement the empty state replacement
-    assert_broadcasts("grading_task_#{empty_grading_task.id}", 5) do
+    assert_broadcasts("grading_task_#{empty_grading_task.id}", 4) do
       # Simulate the first submission being created
       # The actual broadcast will be implemented in the StudentSubmission model
       submission = StudentSubmission.new(

@@ -159,7 +159,7 @@ class StudentSubmissionTest < ActiveSupport::TestCase
 
   test "broadcasts_to_correct_targets_on_creation" do
     # Test that the submission broadcasts to the correct targets
-    assert_broadcasts("grading_task_#{@grading_task.id}_submissions", 2) do
+    assert_broadcasts("grading_task_#{@grading_task.id}_submissions", 1) do
       # The broadcast_append_to should happen twice (once for mobile, once for desktop)
       StudentSubmission.create!(
         grading_task: @grading_task,
@@ -171,13 +171,15 @@ class StudentSubmissionTest < ActiveSupport::TestCase
     # Test that the first submission also replaces the empty state
     @grading_task.student_submissions.delete_all
 
-    assert_broadcasts("grading_task_#{@grading_task.id}", 5) do
-      # Should broadcast 5 times:
+    assert_broadcasts("grading_task_#{@grading_task.id}", 4) do
+      # Should broadcast 4 times to this channel:
       # 1. Replace the empty state with the submission list
-      # 2. Replace the student_submissions_list
-      # 3. Replace the submissions list container
-      # 4. Update the progress section
-      # 5. Replace the entire grading task
+      # 2. Replace the submissions list container
+      # 3. Update the progress section
+      # 4. Replace the entire grading task
+      #
+      # Note: For subsequent submissions, there's a 5th broadcast to a different channel
+      # (grading_task_#{grading_task_id}_submissions) to replace the student_submissions_list
       StudentSubmission.create!(
         grading_task: @grading_task,
         original_doc_id: "first_doc_id",

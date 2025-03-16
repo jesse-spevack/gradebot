@@ -222,22 +222,6 @@ class StudentSubmission < ApplicationRecord
         # Reload to ensure we have the latest data
         reload
 
-        # Broadcast to the mobile submissions list (card view)
-        Turbo::StreamsChannel.broadcast_append_to(
-          "grading_task_#{grading_task_id}_submissions",
-          target: "mobile_submissions_list_#{grading_task_id}",
-          partial: "student_submissions/student_submission",
-          locals: { student_submission: self }
-        )
-
-        # Broadcast to the desktop submissions list (table view)
-        Turbo::StreamsChannel.broadcast_append_to(
-          "grading_task_#{grading_task_id}_submissions",
-          target: "desktop_submissions_list_#{grading_task_id}",
-          partial: "student_submissions/table_row",
-          locals: { submission: self }
-        )
-
         # If this is the first submission, replace the empty state
         # Use count directly from the database to avoid race conditions
         if grading_task.student_submissions.count == 1
@@ -247,18 +231,19 @@ class StudentSubmission < ApplicationRecord
             partial: "student_submissions/submission_list",
             locals: { submissions: grading_task.student_submissions.oldest_first, grading_task: grading_task }
           )
+        else
+          # For subsequent submissions, always update the entire list
+          # This ensures all submissions are visible without a page refresh
+          Turbo::StreamsChannel.broadcast_replace_to(
+            "grading_task_#{grading_task_id}_submissions",
+            target: "student_submissions_list_#{grading_task_id}",
+            partial: "student_submissions/submission_list",
+            locals: {
+              submissions: grading_task.student_submissions.reload.oldest_first,
+              grading_task: grading_task
+            }
+          )
         end
-
-        # Also broadcast to the main submissions list to ensure it's updated
-        Turbo::StreamsChannel.broadcast_replace_to(
-          "grading_task_#{grading_task_id}",
-          target: "student_submissions_list_#{grading_task_id}",
-          partial: "student_submissions/submission_list",
-          locals: {
-            submissions: grading_task.student_submissions.reload.oldest_first,
-            grading_task: grading_task
-          }
-        )
 
         # Also broadcast to the submissions list container to ensure it's updated
         Turbo::StreamsChannel.broadcast_replace_to(
