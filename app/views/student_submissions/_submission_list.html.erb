@@ -8,7 +8,7 @@
 
 <!-- Mobile View (Card Layout) -->
 <div class="sm:hidden">
-  <div class="divide-y divide-gray-200">
+  <div id="mobile_submissions_list_<%= grading_task.id %>" class="divide-y divide-gray-200">
     <% submissions.each do |submission| %>
       <div id="<%= dom_id(submission) %>" class="submission-container">
         <%= render "student_submissions/submission_card", submission: submission %>
@@ -30,7 +30,7 @@
         </th>
       </tr>
     </thead>
-    <tbody class="divide-y divide-gray-200">
+    <tbody id="desktop_submissions_list_<%= grading_task.id %>" class="divide-y divide-gray-200">
       <% submissions.each do |submission| %>
         <%= render "student_submissions/table_row", submission: submission %>
       <% end %>

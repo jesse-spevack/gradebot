@@ -216,14 +216,20 @@ class StudentSubmission < ApplicationRecord
   # Broadcasts the creation of this submission to the appropriate Turbo Stream
   # @return [void]
   def broadcast_creation
-    # Broadcast to the submissions list
-    # Use prepend_to instead of append_to to add new submissions at the beginning of the list
-    # This ensures newest submissions appear at the top when the controller orders by :asc
-    Turbo::StreamsChannel.broadcast_prepend_to(
+    # Broadcast to the mobile submissions list (card view)
+    Turbo::StreamsChannel.broadcast_append_to(
       "grading_task_#{grading_task_id}_submissions",
-      target: "student_submissions_list_#{grading_task_id}",
+      target: "mobile_submissions_list_#{grading_task_id}",
       partial: "student_submissions/student_submission",
       locals: { student_submission: self }
+    )
+
+    # Broadcast to the desktop submissions list (table view)
+    Turbo::StreamsChannel.broadcast_append_to(
+      "grading_task_#{grading_task_id}_submissions",
+      target: "desktop_submissions_list_#{grading_task_id}",
+      partial: "student_submissions/table_row",
+      locals: { submission: self }
     )
 
     # If this is the first submission, replace the empty state
@@ -232,7 +238,7 @@ class StudentSubmission < ApplicationRecord
         "grading_task_#{grading_task_id}",
         target: "student_submissions",
         partial: "student_submissions/submission_list",
-        locals: { submissions: [ self ], grading_task: grading_task }
+        locals: { submissions: grading_task.student_submissions.oldest_first, grading_task: grading_task }
       )
     end
   end

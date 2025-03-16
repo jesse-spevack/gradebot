@@ -158,7 +158,8 @@ class StudentSubmissionTest < ActiveSupport::TestCase
   end
 
   test "broadcasts on creation" do
-    assert_broadcasts("grading_task_#{@grading_task.id}_submissions", 1) do
+    # Test that the submission broadcasts to the correct stream
+    assert_broadcasts("grading_task_#{@grading_task.id}_submissions", 2) do
       StudentSubmission.create!(
         grading_task: @grading_task,
         original_doc_id: "google_doc_id_789",

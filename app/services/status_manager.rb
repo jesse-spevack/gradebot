@@ -284,15 +284,15 @@ class StatusManager
     # Get the parent grading task
     grading_task = submission.grading_task
 
-    # Broadcast the main submission content
+    # Broadcast to the mobile view (card)
     Turbo::StreamsChannel.broadcast_replace_to(
       "grading_task_#{submission.grading_task_id}",
       target: dom_id(submission),
-      partial: "student_submissions/student_submission_content",
-      locals: { student_submission: submission }
+      partial: "student_submissions/submission_card",
+      locals: { submission: submission }
     )
 
-    # Broadcast to the table row separately
+    # Broadcast to the desktop view (table row)
     Turbo::StreamsChannel.broadcast_replace_to(
       "grading_task_#{submission.grading_task_id}",
       target: "#{dom_id(submission)}_table_row",
@@ -300,17 +300,7 @@ class StatusManager
       locals: { submission: submission }
     )
 
-    # Broadcast to the card separately
-    Turbo::StreamsChannel.broadcast_replace_to(
-      "grading_task_#{submission.grading_task_id}",
-      target: "#{dom_id(submission)}_card",
-      partial: "student_submissions/submission_card",
-      locals: { submission: submission }
-    )
-
-    # Always broadcast to the detail views, as someone might be viewing them
-    # and to ensure statuses are always in sync
-    # Broadcast to the submission detail view (on the student submission page)
+    # Also broadcast to the submission detail view (on the student submission page)
     Turbo::StreamsChannel.broadcast_replace_to(
       "student_submission_#{submission.id}",
       target: "#{dom_id(submission)}_detail",

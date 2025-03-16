@@ -29,7 +29,7 @@ class GradingTaskProcessingTest < ActionDispatch::IntegrationTest
 
   test "processing a grading task creates and broadcasts submissions" do
     # This test will fail until we implement the broadcast on creation
-    assert_broadcasts("grading_task_#{@grading_task.id}_submissions", 2) do
+    assert_broadcasts("grading_task_#{@grading_task.id}_submissions", 4) do
       # Process the grading task
       ProcessGradingTaskCommand.new(grading_task_id: @grading_task.id).execute
     end
