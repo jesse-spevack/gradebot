@@ -11,7 +11,7 @@ class GradingTaskProcessingTest < ActionDispatch::IntegrationTest
       grading_rubric: "Content: 40%, Structure: 30%, Grammar: 30%",
       folder_id: "test_folder_123",
       folder_name: "Test Folder",
-      status: "pending"
+      status: "created"
     )
 
     # Clear existing submissions

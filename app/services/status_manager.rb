@@ -7,7 +7,7 @@
 class StatusManager
   # Determine the current status of a grading task based on its submissions
   # @param grading_task [GradingTask] the grading task to check
-  # @return [Symbol] the calculated status (:pending, :processing, :completed, :completed_with_errors)
+  # @return [Symbol] the calculated status
   def self.calculate_grading_task_status(grading_task)
     # Get counts for different statuses
     submission_counts = count_submissions_by_status(grading_task)
@@ -15,11 +15,11 @@ class StatusManager
 
     # Determine status based on submission counts
     if total.zero?
-      :pending
+      :created
     elsif submission_counts[:processing] > 0
-      :processing
+      :submissions_processing
     elsif submission_counts[:pending] > 0
-      :pending
+      :submissions_processing
     elsif submission_counts[:failed] > 0
       :completed_with_errors
     else
@@ -31,18 +31,51 @@ class StatusManager
   # @param grading_task [GradingTask] the grading task to update
   # @return [Boolean] true if the status was updated, false otherwise
   def self.update_grading_task_status(grading_task)
-    new_status = calculate_grading_task_status(grading_task)
+    # Only update status if we're in the submissions processing phase or later
+    return true unless grading_task.rubric_processed? ||
+                       grading_task.submissions_processing? ||
+                       grading_task.completed? ||
+                       grading_task.completed_with_errors?
 
-    # Only update if the status has changed
-    return true if grading_task.status.to_sym == new_status
+    submission_counts = count_submissions_by_status(grading_task)
+    total = submission_counts.values.sum
 
-    Rails.logger.info("Updating grading task #{grading_task.id} status from #{grading_task.status} to #{new_status}")
-    success = grading_task.update(status: new_status)
+    # If no submissions, nothing to do
+    return true if total.zero?
 
-    # Broadcast the update to all connected clients if the update was successful
-    broadcast_grading_task_update(grading_task) if success
+    # If any submissions are processing, ensure we're in submissions_processing state
+    if submission_counts[:processing] > 0 && !grading_task.submissions_processing?
+      Rails.logger.info("Starting submissions processing for grading task #{grading_task.id}")
+      return grading_task.start_submissions_processing!
+    end
 
-    success
+    # If all submissions are completed or failed
+    if submission_counts[:pending] == 0 && submission_counts[:processing] == 0
+      # If we're already in completed or completed_with_errors state, nothing to do
+      return true if grading_task.completed? || grading_task.completed_with_errors?
+
+      # If any submissions failed, mark as completed with errors
+      if submission_counts[:failed] > 0
+        Rails.logger.info("Marking grading task #{grading_task.id} as completed with errors")
+        return grading_task.mark_completed_with_errors!
+      else
+        # All submissions completed successfully
+        Rails.logger.info("Completing processing for grading task #{grading_task.id}")
+        return grading_task.complete_processing!
+      end
+    end
+
+    # If we have pending submissions but none processing, we're waiting for processing to start
+    if submission_counts[:pending] > 0 && submission_counts[:processing] == 0
+      # Make sure we're in submissions_processing state
+      return true if grading_task.submissions_processing?
+
+      Rails.logger.info("Starting submissions processing for grading task #{grading_task.id}")
+      return grading_task.start_submissions_processing!
+    end
+
+    # No state change needed
+    true
   end
 
   # Check if a transition is allowed for a student submission

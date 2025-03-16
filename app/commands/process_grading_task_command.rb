@@ -15,22 +15,22 @@ class ProcessGradingTaskCommand < BaseCommand
     grading_task = find_grading_task
     return nil unless grading_task
 
-    # Enqueue formatting jobs instead of doing it synchronously
-    FormatAssignmentPromptJob.perform_later(grading_task.id)
-    FormatGradingRubricJob.perform_later(grading_task.id)
-
     begin
       # Fetch documents from Google Drive
       documents = fetch_documents(grading_task)
       return nil unless documents
 
-      # Create student submissions and enqueue jobs
+      # Create student submissions
       create_submissions(documents, grading_task)
+
+      # Start the workflow
+      grading_task.start_assignment_processing!
 
       # Return the grading task as the result
       grading_task
     rescue StandardError => e
       handle_error(e.message)
+      grading_task.fail! if grading_task
       nil
     end
   end
@@ -71,7 +71,7 @@ class ProcessGradingTaskCommand < BaseCommand
   # @param grading_task [GradingTask] The grading task
   # @return [Integer] The number of submissions created
   def create_submissions(documents, grading_task)
-    submission_creator = SubmissionCreatorService.new(grading_task, documents)
+    submission_creator = SubmissionCreatorService.new(grading_task, documents, enqueue_jobs: false)
     submission_count = submission_creator.create_submissions
 
     if submission_count == 0

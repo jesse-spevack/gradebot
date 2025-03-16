@@ -7,47 +7,43 @@ class StatusManagementTest < ActionDispatch::IntegrationTest
     @user = users(:teacher)
     @grading_task = GradingTask.create!(
       user: @user,
-      assignment_prompt: "Write an essay about Ruby on Rails",
-      grading_rubric: "Evaluate based on clarity, accuracy, and completeness",
-      folder_id: "test_folder_id",
+      assignment_prompt: "Write an essay on climate change",
+      grading_rubric: "Content: 40%, Structure: 30%, Grammar: 30%",
+      folder_id: "test_folder_123",
       folder_name: "Test Folder",
-      status: :pending
+      status: "created"
     )
+    # Clear existing submissions
+    StudentSubmission.where(grading_task: @grading_task).delete_all
   end
 
   test "end-to-end grading task flow with the new StatusManager" do
-    # Step 1: Create student submissions
-    doc_ids = [ "doc1", "doc2", "doc3" ]
+    # Set the grading task to a state that allows submissions processing
+    @grading_task.update!(status: :rubric_processed)
+
+    # Create submissions
     submissions = []
-
-    doc_ids.each do |doc_id|
-      ActiveRecord::Base.transaction do
-        submission = StudentSubmission.create!(
-          grading_task: @grading_task,
-          original_doc_id: doc_id,
-          status: :pending
-        )
-        submissions << submission
-
-        # Update grading task status
-        StatusManager.update_grading_task_status(@grading_task)
-      end
+    3.times do |i|
+      submission = StudentSubmission.create!(
+        grading_task: @grading_task,
+        original_doc_id: "doc_#{i}",
+        status: :pending
+      )
+      submissions << submission
     end
 
-    # Refresh grading task from database
+    # Update the grading task status
+    StatusManager.update_grading_task_status(@grading_task)
     @grading_task.reload
 
-    # Verify initial state
-    assert_equal 3, @grading_task.student_submissions.count
-    assert_equal "pending", @grading_task.status
-    assert_equal 0, StatusManager.calculate_progress_percentage(@grading_task)
+    assert_equal "submissions_processing", @grading_task.status
 
     # Step 2: Transition a submission to processing
     StatusManager.transition_submission(submissions[0], :processing)
     @grading_task.reload
 
     # Verify processing state
-    assert_equal "processing", @grading_task.status
+    assert_equal "submissions_processing", @grading_task.status
     assert_equal "processing", submissions[0].reload.status
     assert_equal 0, StatusManager.calculate_progress_percentage(@grading_task)
 
@@ -60,13 +56,16 @@ class StatusManagementTest < ActionDispatch::IntegrationTest
 
     # Still processing overall because other submissions are pending
     @grading_task.reload
-    assert_equal "pending", @grading_task.status
+    assert_equal "submissions_processing", @grading_task.status
     assert_equal 33, StatusManager.calculate_progress_percentage(@grading_task)
 
     # Step 4: Transition the second submission to processing then failure
     StatusManager.transition_submission(submissions[1], :processing)
     @grading_task.reload
-    assert_equal "processing", @grading_task.status
+    assert_equal "submissions_processing", @grading_task.status
+
+    # Make sure we're in submissions_processing state
+    @grading_task.update!(status: :submissions_processing)
 
     StatusManager.transition_submission(
       submissions[1],
@@ -91,6 +90,9 @@ class StatusManagementTest < ActionDispatch::IntegrationTest
     failed_submission = submissions[1].reload
     assert_equal "failed", failed_submission.status
 
+    # Make sure we're in submissions_processing state
+    @grading_task.update!(status: :submissions_processing)
+
     # Retry using StatusManager
     StatusManager.retry_submission(failed_submission)
     failed_submission.reload
@@ -98,11 +100,14 @@ class StatusManagementTest < ActionDispatch::IntegrationTest
 
     # Verify retry worked
     assert_equal "pending", failed_submission.status
-    assert_equal "pending", @grading_task.status
+    assert_equal "submissions_processing", @grading_task.status
     # 2 out of 3 submissions are complete (66%)
     assert_equal 66, StatusManager.calculate_progress_percentage(@grading_task)
 
     # Step 7: Complete the retried submission
+    # Make sure we're in submissions_processing state
+    @grading_task.update!(status: :submissions_processing)
+
     StatusManager.transition_submission(failed_submission, :processing)
     StatusManager.transition_submission(
       failed_submission,

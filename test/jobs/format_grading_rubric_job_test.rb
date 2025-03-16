@@ -8,6 +8,9 @@ class FormatGradingRubricJobTest < ActiveJob::TestCase
   end
 
   test "formats grading rubric" do
+    # Set the grading task to the correct state
+    @grading_task.update_column(:status, :rubric_processing)
+
     # Mock the formatter service
     mock_formatter = Minitest::Mock.new
     mock_formatter.expect :format, @grading_task, [ @grading_task ]

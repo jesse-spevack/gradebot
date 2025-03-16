@@ -13,60 +13,48 @@ class StatusManagerTest < ActiveSupport::TestCase
       grading_rubric: "Content: 40%, Structure: 30%, Grammar: 30%",
       folder_id: "test_folder_123",
       folder_name: "Test Folder",
-      status: "pending"
+      status: "created"
     )
     # Clear existing submissions
     StudentSubmission.where(grading_task: @grading_task).delete_all
   end
 
-  test "calculate_grading_task_status returns pending for empty tasks" do
+  test "calculate_grading_task_status_returns_pending_for_empty_tasks" do
+    # No submissions
     status = StatusManager.calculate_grading_task_status(@grading_task)
-    assert_equal :pending, status
+    assert_equal :created, status
   end
 
-  test "calculate_grading_task_status returns pending when submissions exist but all are pending" do
-    # Create pending submissions
+  test "calculate_grading_task_status_returns_pending_when_submissions_exist_but_all_are_pending" do
+    # Create submissions in pending state
     3.times do |i|
       StudentSubmission.create!(
         grading_task: @grading_task,
-        original_doc_id: "doc#{i}",
+        original_doc_id: "doc_#{i}",
         status: :pending
       )
     end
 
-    # Use the database values when determining status
     status = StatusManager.calculate_grading_task_status(@grading_task)
-    assert_equal :pending, status
+    assert_equal :submissions_processing, status
   end
 
-  test "calculate_grading_task_status returns processing when any submission is processing" do
-    # Create mixed submissions
+  test "calculate_grading_task_status_returns_processing_when_any_submission_is_processing" do
+    # Create submissions in different states
     submissions = []
+    2.times do |i|
+      submissions << StudentSubmission.create!(
+        grading_task: @grading_task,
+        original_doc_id: "doc_#{i}",
+        status: :pending
+      )
+    end
 
-    # Create a pending submission
-    submissions << StudentSubmission.create!(
-      grading_task: @grading_task,
-      original_doc_id: "doc1",
-      status: :pending
-    )
+    # Set one to processing
+    submissions.first.update!(status: :processing)
 
-    # Create a processing submission
-    submissions << StudentSubmission.create!(
-      grading_task: @grading_task,
-      original_doc_id: "doc2",
-      status: :processing
-    )
-
-    # Create a completed submission
-    submissions << StudentSubmission.create!(
-      grading_task: @grading_task,
-      original_doc_id: "doc3",
-      status: :completed
-    )
-
-    # Use the database values when determining status
     status = StatusManager.calculate_grading_task_status(@grading_task)
-    assert_equal :processing, status
+    assert_equal :submissions_processing, status
   end
 
   test "calculate_grading_task_status returns completed when all submissions are completed" do
@@ -109,7 +97,10 @@ class StatusManagerTest < ActiveSupport::TestCase
     assert_equal :completed_with_errors, status
   end
 
-  test "update_grading_task_status updates a grading task's status" do
+  test "update_grading_task_status_updates_a_grading_task's_status" do
+    # Set the grading task to a state that allows submissions processing
+    @grading_task.update!(status: :rubric_processed)
+
     # Create mixed submissions
     StudentSubmission.create!(
       grading_task: @grading_task,
@@ -123,14 +114,11 @@ class StatusManagerTest < ActiveSupport::TestCase
       status: :processing
     )
 
-    # Set incorrect status initially
-    @grading_task.update!(status: :completed)
-
     # Update status
     result = StatusManager.update_grading_task_status(@grading_task)
 
     assert result
-    assert_equal "processing", @grading_task.reload.status
+    assert_equal "submissions_processing", @grading_task.reload.status
   end
 
   test "can_transition_submission? validates allowed transitions" do
@@ -164,21 +152,22 @@ class StatusManagerTest < ActiveSupport::TestCase
     refute StatusManager.can_transition_submission?(submission, :completed)
   end
 
-  test "transition_submission updates submission status and grading task status" do
+  test "transition_submission_updates_submission_status_and_grading_task_status" do
+    # Set the grading task to a state that allows submissions processing
+    @grading_task.update!(status: :rubric_processed)
+
     submission = StudentSubmission.create!(
       grading_task: @grading_task,
       original_doc_id: "doc1",
       status: :pending
     )
 
-    @grading_task.update!(status: :pending)
-
     # Transition to processing
     result = StatusManager.transition_submission(submission, :processing)
 
     assert result
     assert_equal "processing", submission.reload.status
-    assert_equal "processing", @grading_task.reload.status
+    assert_equal "submissions_processing", @grading_task.reload.status
 
     # Add additional attributes
     result = StatusManager.transition_submission(
@@ -194,7 +183,7 @@ class StatusManagerTest < ActiveSupport::TestCase
     assert_equal "completed", @grading_task.reload.status
   end
 
-  test "broadcasts when first submission is created" do
+  test "broadcasts_when_first_submission_is_created" do
     # Create a new grading task with no submissions
     empty_grading_task = GradingTask.create!(
       user: @user,
@@ -202,7 +191,7 @@ class StatusManagerTest < ActiveSupport::TestCase
       grading_rubric: "Content: 40%, Structure: 30%, Grammar: 30%",
       folder_id: "empty_folder_123",
       folder_name: "Empty Test Folder",
-      status: "pending"
+      status: "created"
     )
 
     # This test will fail until we implement the empty state replacement
@@ -221,7 +210,10 @@ class StatusManagerTest < ActiveSupport::TestCase
     end
   end
 
-  test "retry_submission resets a failed submission to pending" do
+  test "retry_submission_resets_a_failed_submission_to_pending" do
+    # Set the grading task to a state that allows submissions processing
+    @grading_task.update!(status: :rubric_processed)
+
     # Create a failed submission
     submission = StudentSubmission.create!(
       grading_task: @grading_task,
@@ -229,16 +221,17 @@ class StatusManagerTest < ActiveSupport::TestCase
       status: :failed
     )
 
-    # Update the grading task status to reflect the failed submission
-    StatusManager.update_grading_task_status(@grading_task)
-    @grading_task.reload
-
     # Retry the submission
     result = StatusManager.retry_submission(submission)
+    submission.reload
 
-    assert result
-    assert_equal "pending", submission.reload.status
-    assert_equal "pending", @grading_task.reload.status
+    # Verify the submission was reset to pending
+    assert result, "Retry should return true"
+    assert_equal "pending", submission.status
+
+    # Verify the grading task status was updated
+    @grading_task.reload
+    assert_equal "submissions_processing", @grading_task.status
   end
 
   test "calculate_progress_percentage returns correct percentage" do

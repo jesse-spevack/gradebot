@@ -11,21 +11,30 @@ class FormatAssignmentPromptJob < ApplicationJob
     grading_task = GradingTask.find_by(id: grading_task_id)
     return unless grading_task
 
-    formatter = AssignmentPromptFormatterService.new
-    formatter.format(grading_task)
+    # Ensure we're in the correct state
+    return unless grading_task.assignment_processing?
 
-    # Reload the grading task to ensure we have the latest data
-    grading_task.reload
+    begin
+      formatter = AssignmentPromptFormatterService.new
+      formatter.format(grading_task)
 
-    # Broadcast the update to the UI
-    Turbo::StreamsChannel.broadcast_replace_to(
-      "grading_task_#{grading_task.id}",
-      target: "assignment_prompt_container_#{grading_task.id}",
-      partial: "grading_tasks/assignment_prompt_container",
-      locals: { grading_task: grading_task }
-    )
-  rescue => e
-    Rails.logger.error("FormatAssignmentPromptJob failed with error: #{e.message}")
-    Rails.logger.error(e.backtrace.join("\n"))
+      # Reload the grading task to ensure we have the latest data
+      grading_task.reload
+
+      # Broadcast the update to the UI
+      Turbo::StreamsChannel.broadcast_replace_to(
+        "grading_task_#{grading_task.id}",
+        target: "assignment_prompt_container_#{grading_task.id}",
+        partial: "grading_tasks/assignment_prompt_container",
+        locals: { grading_task: grading_task }
+      )
+
+      # Transition to the next state
+      grading_task.complete_assignment_processing!
+    rescue => e
+      Rails.logger.error("FormatAssignmentPromptJob failed with error: #{e.message}")
+      Rails.logger.error(e.backtrace.join("\n"))
+      grading_task.fail! if grading_task
+    end
   end
 end
