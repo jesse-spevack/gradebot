@@ -7,6 +7,9 @@ require "mocha/minitest"
 require "active_support/testing/parallelization"
 require "minitest/autorun"
 
+# Use memory store for cache in tests
+Rails.cache = ActiveSupport::Cache.lookup_store(:memory_store)
+
 Dir[Rails.root.join("test/support/**/*.rb")].each { |f| require f }
 
 # Define test helpers before including them
@@ -35,6 +38,11 @@ module ActiveSupport
     include LLMConfigurationHelper
 
     include LLMTestHelpers
+
+    # Clear the cache before each test
+    setup do
+      Rails.cache.clear
+    end
   end
 end
 

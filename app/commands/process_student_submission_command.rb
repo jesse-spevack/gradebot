@@ -21,6 +21,14 @@ class ProcessStudentSubmissionCommand < BaseCommand
     return nil unless submission
 
     begin
+      # Record first attempt time if not set
+      if submission.first_attempted_at.nil?
+        submission.update(first_attempted_at: Time.current)
+      end
+
+      # Increment attempt counter
+      submission.increment!(:attempt_count)
+
       # Transition to processing state
       return nil unless transition_to_processing(submission)
 
@@ -38,7 +46,7 @@ class ProcessStudentSubmissionCommand < BaseCommand
       # Return the processed submission
       submission
     rescue StandardError => e
-      handle_error(submission, e)
+      handle_error(e)
       nil
     end
   end
@@ -108,7 +116,45 @@ class ProcessStudentSubmissionCommand < BaseCommand
     )
 
     orchestrator.grade
+  rescue LLM::ServiceUnavailableError => e
+    # Circuit breaker is open
+    Rails.logger.error("Service unavailable: #{e.message}")
+    @errors << "Service temporarily unavailable: #{e.message}"
+
+    # Transition to pending state
+    SubmissionStatusUpdater.new(submission).transition_to(
+      :pending,
+      {
+        feedback: "Grading service temporarily unavailable. Your submission will be automatically retried later."
+      }
+    )
+
+    # Schedule a retry after the circuit breaker timeout
+    # Add 30 seconds buffer to ensure circuit has time to transition to half-open
+    retry_after = LLM::CircuitBreaker::TIMEOUT_SECONDS + 30
+    StudentSubmissionJob.set(wait: retry_after.seconds).perform_later(submission.id)
+
+    nil
+  rescue LLM::Errors::AnthropicOverloadError => e
+    # Rate limit or overload, but circuit still closed
+    Rails.logger.error("API error: #{e.message}")
+    @errors << "API temporarily unavailable: #{e.message}"
+
+    # Transition to pending state with retry information
+    SubmissionStatusUpdater.new(submission).transition_to(
+      :pending,
+      {
+        feedback: "Grading service is busy. Your submission will be automatically retried soon."
+      }
+    )
+
+    # Schedule a retry after the recommended retry time
+    retry_after = e.respond_to?(:retry_after) ? e.retry_after : 60
+    StudentSubmissionJob.set(wait: retry_after.seconds).perform_later(submission.id)
+
+    nil
   rescue => e
+    # Other errors...
     Rails.logger.error("Error during grading: #{e.message}")
     @errors << "Error during grading: #{e.message}"
 
@@ -136,13 +182,14 @@ class ProcessStudentSubmissionCommand < BaseCommand
   end
 
   # Handle any errors that occur during processing
-  # @param submission [StudentSubmission] The submission being processed
   # @param error [StandardError] The error that occurred
-  def handle_error(submission, error)
+  def handle_error(error)
     Rails.logger.error("Error processing submission #{student_submission_id}: #{error.message}")
     Rails.logger.error(error.backtrace.first(10).join("\n"))
     @errors << error.message
 
+    # Find the submission
+    submission = find_submission
     return unless submission
 
     # Transition to failed state

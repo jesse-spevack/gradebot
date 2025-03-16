@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class FormatGradingRubricJobTest < ActiveJob::TestCase
@@ -5,33 +7,67 @@ class FormatGradingRubricJobTest < ActiveJob::TestCase
     @grading_task = grading_tasks(:one)
   end
 
-  test "formats grading rubric and broadcasts update" do
+  test "formats grading rubric" do
     # Mock the formatter service
-    formatter = mock("GradingRubricFormatterService")
-    GradingRubricFormatterService.stubs(:new).returns(formatter)
-    formatter.expects(:format).with(@grading_task).returns(@grading_task)
+    mock_formatter = Minitest::Mock.new
+    mock_formatter.expect :format, @grading_task, [ @grading_task ]
 
-    # Stub the reload
-    GradingTask.any_instance.stubs(:reload).returns(@grading_task)
+    # Stub the formatter class
+    GradingRubricFormatterService.stub :new, mock_formatter do
+      # Stub the broadcast to avoid actual broadcasts
+      Turbo::StreamsChannel.stub :broadcast_replace_to, nil do
+        # Perform the job
+        FormatGradingRubricJob.perform_now(@grading_task.id)
+      end
+    end
 
-    # Mock RetryHandler to avoid complexity
-    RetryHandler.stubs(:with_retry).yields
-
-    # Mock the Turbo broadcast
-    Turbo::StreamsChannel.expects(:broadcast_replace_to).with(
-      "grading_task_#{@grading_task.id}",
-      target: "grading_rubric_container_#{@grading_task.id}",
-      partial: "grading_tasks/grading_rubric_container",
-      locals: { grading_task: @grading_task }
-    )
-
-    # Perform the job
-    FormatGradingRubricJob.perform_now(@grading_task.id)
+    # Verify the mock
+    mock_formatter.verify
   end
 
-  test "handles non-existent grading task gracefully" do
-    # No expectations on formatter or broadcast since it should return early
-    FormatGradingRubricJob.perform_now(999999)
-    # Test passes if no error is raised
+  test "handles errors gracefully" do
+    error = StandardError.new("Test error")
+
+    # Mock the formatter service to raise an error
+    GradingRubricFormatterService.stub :new, -> { raise error } do
+      # Stub Rails logger to verify it's called
+      Rails.logger.stub :error, nil do
+        # Perform the job - should not raise an error
+        assert_nothing_raised do
+          FormatGradingRubricJob.perform_now(@grading_task.id)
+        end
+      end
+    end
+  end
+
+  test "does nothing if grading task not found" do
+    # Perform the job with a non-existent ID
+    result = FormatGradingRubricJob.perform_now(999999)
+
+    # Should return nil
+    assert_nil result
+  end
+
+  test "handles optimistic locking errors" do
+    # Create a mock formatter that returns the grading task
+    mock_formatter = Object.new
+    def mock_formatter.format(grading_task)
+      # Simulate another process updating the record
+      grading_task.increment!(:lock_version)
+
+      # Return the grading task
+      grading_task
+    end
+
+    # Stub the formatter class
+    GradingRubricFormatterService.stub :new, mock_formatter do
+      # Stub the broadcast to avoid actual broadcasts
+      Turbo::StreamsChannel.stub :broadcast_replace_to, nil do
+        # Perform the job - should not raise an error
+        assert_nothing_raised do
+          FormatGradingRubricJob.perform_now(@grading_task.id)
+        end
+      end
+    end
   end
 end

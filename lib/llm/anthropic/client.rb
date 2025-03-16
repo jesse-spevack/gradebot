@@ -37,6 +37,7 @@ module LLM
       # @param llm_request [LLMRequest] The request object for the LLM
       # @return [Hash] The response from the LLM
       # @raise [ApiOverloadError] If the API returns a rate limit error
+      # @raise [LLM::Errors::AnthropicOverloadError] If the API returns an overload error
       def execute_request(llm_request)
         # Extract parameters from LLMRequest
         prompt = llm_request.prompt
@@ -115,10 +116,49 @@ module LLM
               retry_after: retry_after,
               original_error: original_error
             )
+          # Handle overload errors (HTTP 529)
+          elsif response.code.to_i == 529
+            # Extract retry-after header if available
+            retry_after = response["retry-after"].to_i if response["retry-after"]
+
+            # If retry-after is not provided, use a default value
+            retry_after ||= 60
+
+            # Create a specific error for overload
+            original_error = StandardError.new("#{response.code}: #{error_msg}")
+
+            Rails.logger.warn("Anthropic API overloaded. Retry after: #{retry_after} seconds")
+
+            # Raise AnthropicOverloadError which can be caught by RetryHandler
+            raise LLM::Errors::AnthropicOverloadError.new(
+              "Anthropic API is overloaded",
+              retry_after: retry_after,
+              status_code: 529
+            )
           else
             # For other errors, raise a standard error
             raise "Anthropic API error (#{response.code}): #{error_msg}"
           end
+        end
+      rescue => e
+        # Handle HTTP errors
+        if e.respond_to?(:response) && e.response
+          case e.response.status
+          when 429
+            # Rate limit error
+            retry_after = e.response.headers["retry-after"].to_i || 30
+            raise ApiOverloadError.new("Rate limited by Anthropic API", retry_after: retry_after)
+          when 529
+            # Overload error
+            retry_after = e.response.headers["retry-after"].to_i || 60
+            raise LLM::Errors::AnthropicOverloadError.new("Anthropic API is overloaded", retry_after: retry_after, status_code: 529)
+          else
+            # Other HTTP errors
+            raise e
+          end
+        else
+          # Non-HTTP errors
+          raise e
         end
       end
 

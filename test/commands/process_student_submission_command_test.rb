@@ -397,6 +397,155 @@ class ProcessStudentSubmissionCommandTest < ActiveJob::TestCase
     assert_empty command.errors
   end
 
+  test "records first_attempted_at timestamp" do
+    # Create a token for the user
+    token = UserToken.create!(
+      user: @user,
+      access_token: "test_access_token",
+      refresh_token: "test_refresh_token",
+      expires_at: 1.hour.from_now,
+      scopes: "drive.file"
+    )
+
+    assert_nil @submission.first_attempted_at
+    assert_equal 0, @submission.attempt_count
+
+    # Mock the document fetcher to return content
+    mock_fetcher = Minitest::Mock.new
+    mock_fetcher.expect :fetch, "Test document content"
+
+    # Mock the grading orchestrator to return a result
+    mock_orchestrator = Minitest::Mock.new
+    mock_orchestrator.expect :grade, { feedback: "Good job!" }
+
+    DocumentFetcherService.stub :new, mock_fetcher do
+      GradingOrchestrator.stub :new, mock_orchestrator do
+        ProcessStudentSubmissionCommand.new(student_submission_id: @submission.id).call
+      end
+    end
+
+    # Reload the submission
+    @submission.reload
+
+    # Should have recorded first attempt time
+    assert_not_nil @submission.first_attempted_at
+    assert_equal 1, @submission.attempt_count
+
+    # Verify mocks
+    mock_fetcher.verify
+    mock_orchestrator.verify
+  end
+
+  test "re-enqueues job when circuit breaker is open" do
+    # Create a token for the user
+    token = UserToken.create!(
+      user: @user,
+      access_token: "test_access_token",
+      refresh_token: "test_refresh_token",
+      expires_at: 1.hour.from_now,
+      scopes: "drive.file"
+    )
+
+    # Create a command instance
+    command = ProcessStudentSubmissionCommand.new(student_submission_id: @submission.id)
+
+    # Mock the status updater to ensure it's called with the right parameters
+    mock_updater = Minitest::Mock.new
+    mock_updater.expect :transition_to, true, [ :pending, Hash ]
+
+    # Simulate ServiceUnavailableError from circuit breaker
+    orchestrator_stub = ->(*args) { raise LLM::ServiceUnavailableError.new("Circuit open") }
+
+    # Test the job enqueuing
+    SubmissionStatusUpdater.stub :new, ->(_) { mock_updater } do
+      # Use a time freeze to make the test deterministic
+      travel_to Time.current do
+        assert_enqueued_with(job: StudentSubmissionJob, at: Time.current + LLM::CircuitBreaker::TIMEOUT_SECONDS + 30, args: [ @submission.id ]) do
+          # Stub the orchestrator and call the method directly
+          GradingOrchestrator.stub :new, orchestrator_stub do
+            result = command.send(:grade_submission, @submission, "Test document content")
+            assert_nil result
+          end
+        end
+      end
+    end
+
+    # Verify mock
+    mock_updater.verify
+  end
+
+  test "re-enqueues job when API is overloaded" do
+    # Create a token for the user
+    token = UserToken.create!(
+      user: @user,
+      access_token: "test_access_token",
+      refresh_token: "test_refresh_token",
+      expires_at: 1.hour.from_now,
+      scopes: "drive.file"
+    )
+
+    # Create a command instance
+    command = ProcessStudentSubmissionCommand.new(student_submission_id: @submission.id)
+
+    # Mock the status updater to ensure it's called with the right parameters
+    mock_updater = Minitest::Mock.new
+    mock_updater.expect :transition_to, true, [ :pending, Hash ]
+
+    # Simulate AnthropicOverloadError
+    orchestrator_stub = ->(*args) { raise LLM::Errors::AnthropicOverloadError.new(retry_after: 60) }
+
+    # Test the job enqueuing
+    SubmissionStatusUpdater.stub :new, ->(_) { mock_updater } do
+      # Use a time freeze to make the test deterministic
+      travel_to Time.current do
+        assert_enqueued_with(job: StudentSubmissionJob, at: Time.current + 60, args: [ @submission.id ]) do
+          # Stub the orchestrator and call the method directly
+          GradingOrchestrator.stub :new, orchestrator_stub do
+            result = command.send(:grade_submission, @submission, "Test document content")
+            assert_nil result
+          end
+        end
+      end
+    end
+
+    # Verify mock
+    mock_updater.verify
+  end
+
+  test "increments attempt counter on each attempt" do
+    # Create a token for the user
+    token = UserToken.create!(
+      user: @user,
+      access_token: "test_access_token",
+      refresh_token: "test_refresh_token",
+      expires_at: 1.hour.from_now,
+      scopes: "drive.file"
+    )
+
+    # Set initial attempt count
+    @submission.update!(attempt_count: 2)
+
+    # Mock the document fetcher to return content
+    mock_fetcher = Minitest::Mock.new
+    mock_fetcher.expect :fetch, "Test document content"
+
+    # Simulate AnthropicOverloadError
+    DocumentFetcherService.stub :new, mock_fetcher do
+      GradingOrchestrator.stub :new, ->(*args) { raise LLM::Errors::AnthropicOverloadError.new(retry_after: 60) } do
+        ProcessStudentSubmissionCommand.new(student_submission_id: @submission.id).call
+      end
+    end
+
+    # Reload the submission
+    @submission.reload
+
+    # Should have incremented attempt count
+    assert_equal 3, @submission.attempt_count
+
+    # Verify mock
+    mock_fetcher.verify
+  end
+
   teardown do
     # Clean up stubs
     ProcessStudentSubmissionCommand.any_instance.unstub(:execute) if Object.const_defined?("ProcessStudentSubmissionCommand")

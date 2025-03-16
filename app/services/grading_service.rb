@@ -26,55 +26,53 @@ class GradingService
   def grade_submission(document_content, assignment_prompt, grading_rubric, submission = nil, user = nil)
     return GradingResponse.error("LLM grading is not enabled. Please contact an administrator.") unless LLM::Configuration.enabled?
 
-    RetryHandler.with_retry do
-      content = ContentCleaner.clean(document_content)
-      prompt = PromptBuilder.build(:grading, {
-        document_content: content,
-        assignment_prompt: assignment_prompt,
-        grading_rubric: grading_rubric
-      })
+    content = ContentCleaner.clean(document_content)
+    prompt = PromptBuilder.build(:grading, {
+      document_content: content,
+      assignment_prompt: assignment_prompt,
+      grading_rubric: grading_rubric
+    })
 
-      Rails.logger.info("LLM prompt: #{prompt}")
+    Rails.logger.info("LLM prompt: #{prompt}")
 
-      # Create metadata for the request
-      metadata = {
-        prompt_length: prompt.length,
-        assignment_length: assignment_prompt.length,
-        document_length: document_content.length
-      }
+    # Create metadata for the request
+    metadata = {
+      prompt_length: prompt.length,
+      assignment_length: assignment_prompt.length,
+      document_length: document_content.length
+    }
 
-      # Create an LLMRequest object
-      llm_request = LLMRequest.new(
-        prompt: prompt,
-        llm_model_name: @config[:model],
-        request_type: "grade_assignment",
-        trackable: submission,
-        user: user || submission&.user,
-        metadata: metadata,
-        temperature: @config[:temperature],
-        max_tokens: @config[:max_tokens]
-      )
+    # Create an LLMRequest object
+    llm_request = LLMRequest.new(
+      prompt: prompt,
+      llm_model_name: @config[:model],
+      request_type: "grade_assignment",
+      trackable: submission,
+      user: user || submission&.user,
+      metadata: metadata,
+      temperature: @config[:temperature],
+      max_tokens: @config[:max_tokens]
+    )
 
-      # Log that we're about to make the LLM request
-      Rails.logger.info("Making LLM request with model: #{llm_request.llm_model_name}")
+    # Log that we're about to make the LLM request
+    Rails.logger.info("Making LLM request with model: #{llm_request.llm_model_name}")
 
-      # Pass the LLMRequest to the LLM client
-      response = LLM::Client.new.generate(llm_request)
+    # Pass the LLMRequest to the LLM client
+    response = LLM::Client.new.generate(llm_request)
 
-      Rails.logger.info("LLM response: #{response}")
-      Rails.logger.info("LLM response content: #{response[:content]}")
-      result = ResponseParser.parse(response[:content])
+    Rails.logger.info("LLM response: #{response}")
+    Rails.logger.info("LLM response content: #{response[:content]}")
+    result = ResponseParser.parse(response[:content])
 
-      GradingResponse.new(
-        feedback: result.feedback,
-        strengths: result.strengths,
-        opportunities: result.opportunities,
-        overall_grade: result.overall_grade,
-        rubric_scores: result.rubric_scores,
-        summary: result.summary,
-        question: result.question
-      )
-    end
+    GradingResponse.new(
+      feedback: result.feedback,
+      strengths: result.strengths,
+      opportunities: result.opportunities,
+      overall_grade: result.overall_grade,
+      rubric_scores: result.rubric_scores,
+      summary: result.summary,
+      question: result.question
+    )
   rescue ParsingError => e
     Rails.logger.error("Failed to parse LLM response: #{e.message}")
     Rails.logger.error("Error backtrace: #{e.backtrace&.first(10)&.join("\n")}")

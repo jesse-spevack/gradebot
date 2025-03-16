@@ -11,22 +11,16 @@ class StudentSubmissionJob < ApplicationJob
   #
   # @param student_submission_id [Integer] The ID of the student submission to process
   def perform(student_submission_id)
-    # Use RetryHandler to handle API overload errors with exponential backoff
-    result = RetryHandler.with_retry(error_class: ApiOverloadError, max_retries: 5, base_delay: 2) do
-      # Call the command to process the student submission
-      command = ProcessStudentSubmissionCommand.new(student_submission_id: student_submission_id).call
+    # Call the command to process the student submission
+    command = ProcessStudentSubmissionCommand.new(student_submission_id: student_submission_id).call
 
-      if command.failure?
-        # Log any errors that occurred during processing
-        Rails.logger.error("StudentSubmissionJob failed: #{command.errors.join(', ')}")
-      end
-
-      # Explicitly return the command from the block
-      command
+    if command.failure?
+      # Log any errors that occurred during processing
+      Rails.logger.error("StudentSubmissionJob failed: #{command.errors.join(', ')}")
     end
 
-    # Return the result from RetryHandler
-    result
+    # Return the command
+    command
   rescue => e
     # Log the unhandled error
     Rails.logger.error("StudentSubmissionJob failed with unhandled error: #{e.message}")
