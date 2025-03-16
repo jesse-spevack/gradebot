@@ -1,10 +1,27 @@
-<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+<%# 
+  This partial renders a status badge for a grading task
+  
+  Parameters:
+  - grading_task: The grading task to render the status badge for
+%>
+
+<span 
+  id="<%= dom_id(grading_task) %>_status_badge"
+  data-controller="status-badge"
+  data-status-badge-status-value="<%= grading_task.status %>"
+  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
   <%= case grading_task.status
-      when 'pending' then 'bg-yellow-100 text-yellow-800'
-      when 'processing' then 'bg-blue-100 text-blue-800'
+      when 'created' then 'bg-gray-100 text-gray-800'
+      when 'assignment_processing' then 'bg-blue-100 text-blue-800'
+      when 'assignment_processed' then 'bg-blue-100 text-blue-800'
+      when 'rubric_processing' then 'bg-blue-100 text-blue-800'
+      when 'rubric_processed' then 'bg-blue-100 text-blue-800'
+      when 'submissions_processing' then 'bg-blue-100 text-blue-800'
       when 'completed' then 'bg-green-100 text-green-800'
       when 'completed_with_errors' then 'bg-orange-100 text-orange-800'
+      when 'failed' then 'bg-red-100 text-red-800'
+      else 'bg-gray-100 text-gray-800'
       end %>"
 >
-  <%= grading_task.status.humanize %>
+  <%= grading_task.status_label %>
 </span> 

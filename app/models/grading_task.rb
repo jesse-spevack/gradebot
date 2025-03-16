@@ -194,6 +194,13 @@ class GradingTask < ApplicationRecord
 
   # Broadcast status update to the UI
   def broadcast_status_update
+    Rails.logger.debug("Broadcasting status update for grading task #{id}")
+    Rails.logger.debug("Current status: #{status}")
+    Rails.logger.debug("Status label: #{status_label}")
+
+    # Reload to ensure we have the latest data
+    reload
+
     # Broadcast the status badge update
     Turbo::StreamsChannel.broadcast_replace_to(
       "grading_task_#{id}",
@@ -202,15 +209,6 @@ class GradingTask < ApplicationRecord
       locals: { grading_task: self }
     )
 
-    # Also broadcast to the progress section to ensure it's updated
-    Turbo::StreamsChannel.broadcast_update_to(
-      "grading_task_#{id}",
-      target: "progress_section_#{ActionView::RecordIdentifier.dom_id(self)}",
-      partial: "grading_tasks/progress_section",
-      locals: {
-        grading_task: self,
-        student_submissions: student_submissions.reload.oldest_first
-      }
-    )
+    Rails.logger.debug("Finished broadcasting status update for grading task #{id}")
   end
 end

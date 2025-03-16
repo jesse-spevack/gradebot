@@ -26,6 +26,9 @@ class GradingTasksController < ApplicationController
       return
     end
 
+    # Reload to ensure we have the latest data
+    @grading_task.reload
+
     # Get a fresh count of submissions directly from the database
     @student_submissions = @grading_task.student_submissions.reload.oldest_first
 

@@ -5,6 +5,7 @@
   - status: The status value to display (string)
   - color: Optional color override (default: auto-detected based on status)
   - size: Badge size variant ('sm' or 'md', default: 'md')
+  - object: Optional object that has a status_label method (default: nil)
 %>
 
 <%
@@ -19,6 +20,12 @@
       'bg-yellow-100 text-yellow-800'
     when 'processing', 'info', 'blue'
       'bg-blue-100 text-blue-800'
+    when 'assignment_processing', 'rubric_processing', 'submissions_processing'
+      'bg-blue-100 text-blue-800'
+    when 'assignment_processed', 'rubric_processed'
+      'bg-blue-100 text-blue-800'
+    when 'completed_with_errors'
+      'bg-orange-100 text-orange-800'
     else
       'bg-gray-100 text-gray-800'
     end
@@ -31,16 +38,26 @@
                  else
                    'px-2.5 py-1 text-sm'
                  end
+                 
+  # Determine the label to display
+  display_label = if local_assigns[:object].respond_to?(:status_label)
+                    local_assigns[:object].status_label
+                  else
+                    status.to_s.humanize
+                  end
 %>
 
 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
   <%= case status.to_s
+      when 'created' then 'bg-gray-100 text-gray-800'
       when 'pending' then 'bg-yellow-100 text-yellow-800'
-      when 'processing' then 'bg-blue-100 text-blue-800'
+      when 'processing', 'assignment_processing', 'rubric_processing', 'submissions_processing' then 'bg-blue-100 text-blue-800'
+      when 'assignment_processed', 'rubric_processed' then 'bg-blue-100 text-blue-800'
       when 'completed' then 'bg-green-100 text-green-800'
-      when 'completed_with_errors', 'failed' then 'bg-orange-100 text-orange-800'
+      when 'completed_with_errors' then 'bg-orange-100 text-orange-800'
+      when 'failed' then 'bg-red-100 text-red-800'
       else 'bg-gray-100 text-gray-800'
       end %>"
 >
-  <%= status.to_s.humanize %>
+  <%= display_label %>
 </span> 

@@ -45,18 +45,30 @@ class GradingTaskProcessingTest < ActionDispatch::IntegrationTest
     assert_equal "pending", submissions.last.status
   end
 
-  test "empty state is replaced when first submission is created" do
+  test "empty_state_is_replaced_when_first_submission_is_created" do
+    # Create a new grading task with no submissions
+    empty_grading_task = GradingTask.create!(
+      user: @user,
+      assignment_prompt: "Write an essay about history",
+      grading_rubric: "Content: 40%, Structure: 30%, Grammar: 30%",
+      folder_id: "empty_folder_123",
+      folder_name: "Empty Test Folder",
+      status: "created"
+    )
+
     # This test will fail until we implement the empty state replacement
-    assert_broadcasts("grading_task_#{@grading_task.id}", 2) do
-      # Create just one submission to test the empty state replacement
-      StudentSubmission.create!(
-        grading_task: @grading_task,
+    assert_broadcasts("grading_task_#{empty_grading_task.id}", 5) do
+      # Simulate the first submission being created
+      # The actual broadcast will be implemented in the StudentSubmission model
+      submission = StudentSubmission.new(
+        grading_task: empty_grading_task,
         original_doc_id: "first_doc",
         status: :pending
       )
-    end
 
-    # Verify the submission was created
-    assert_equal 1, @grading_task.student_submissions.count
+      # We'll need to manually trigger the broadcast in our implementation
+      # This is just setting up the test expectation
+      submission.save!
+    end
   end
 end

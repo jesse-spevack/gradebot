@@ -1,6 +1,8 @@
 require "test_helper"
 
 class GradingTaskTest < ActiveSupport::TestCase
+  include ActionCable::TestHelper
+
   setup do
     @user = users(:teacher)
 
@@ -267,5 +269,43 @@ class GradingTaskTest < ActiveSupport::TestCase
 
     grading_task.update!(status: :completed)
     assert_equal "Completed", grading_task.status_label
+  end
+
+  test "broadcasts_status_updates_on_state_changes" do
+    # Test that status updates are broadcast when state changes
+    assert_broadcasts("grading_task_#{@grading_task.id}", 1) do
+      @grading_task.start_assignment_processing!
+    end
+
+    # Reset the grading task for the next test
+    @grading_task.update_column(:status, "created")
+
+    # Test that status updates are broadcast when transitioning through multiple states
+    assert_broadcasts("grading_task_#{@grading_task.id}", 3) do
+      @grading_task.start_assignment_processing!
+      @grading_task.complete_assignment_processing!
+      # The complete_assignment_processing! method also calls start_rubric_processing!
+    end
+  end
+
+  test "status_label_returns_correct_label" do
+    # Test each status and its corresponding label
+    statuses_and_labels = {
+      created: "Created",
+      assignment_processing: "Processing Assignment...",
+      assignment_processed: "Assignment Processed",
+      rubric_processing: "Processing Rubric...",
+      rubric_processed: "Rubric Processed",
+      submissions_processing: "Processing Submissions...",
+      completed: "Completed",
+      completed_with_errors: "Completed with Errors",
+      failed: "Failed"
+    }
+
+    statuses_and_labels.each do |status, label|
+      @grading_task.update_column(:status, status)
+      @grading_task.reload
+      assert_equal label, @grading_task.status_label, "Expected status '#{status}' to have label '#{label}'"
+    end
   end
 end

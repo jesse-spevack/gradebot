@@ -157,12 +157,30 @@ class StudentSubmissionTest < ActiveSupport::TestCase
     assert_equal "completed", submission.reload.status
   end
 
-  test "broadcasts on creation" do
-    # Test that the submission broadcasts to the correct stream
+  test "broadcasts_to_correct_targets_on_creation" do
+    # Test that the submission broadcasts to the correct targets
     assert_broadcasts("grading_task_#{@grading_task.id}_submissions", 2) do
+      # The broadcast_append_to should happen twice (once for mobile, once for desktop)
       StudentSubmission.create!(
         grading_task: @grading_task,
-        original_doc_id: "google_doc_id_789",
+        original_doc_id: "test_doc_id_123",
+        status: :pending
+      )
+    end
+
+    # Test that the first submission also replaces the empty state
+    @grading_task.student_submissions.delete_all
+
+    assert_broadcasts("grading_task_#{@grading_task.id}", 5) do
+      # Should broadcast 5 times:
+      # 1. Replace the empty state with the submission list
+      # 2. Replace the student_submissions_list
+      # 3. Replace the submissions list container
+      # 4. Update the progress section
+      # 5. Replace the entire grading task
+      StudentSubmission.create!(
+        grading_task: @grading_task,
+        original_doc_id: "first_doc_id",
         status: :pending
       )
     end

@@ -249,11 +249,44 @@ class StudentSubmission < ApplicationRecord
           )
         end
 
+        # Also broadcast to the main submissions list to ensure it's updated
+        Turbo::StreamsChannel.broadcast_replace_to(
+          "grading_task_#{grading_task_id}",
+          target: "student_submissions_list_#{grading_task_id}",
+          partial: "student_submissions/submission_list",
+          locals: {
+            submissions: grading_task.student_submissions.reload.oldest_first,
+            grading_task: grading_task
+          }
+        )
+
+        # Also broadcast to the submissions list container to ensure it's updated
+        Turbo::StreamsChannel.broadcast_replace_to(
+          "grading_task_#{grading_task_id}",
+          target: "submissions_list_container_#{grading_task_id}",
+          partial: "student_submissions/submissions_list_container",
+          locals: {
+            grading_task: grading_task.reload,
+            submissions: grading_task.student_submissions.reload.oldest_first
+          }
+        )
+
         # Also update the grading task's progress section
         Turbo::StreamsChannel.broadcast_update_to(
           "grading_task_#{grading_task_id}",
           target: "progress_section_#{ActionView::RecordIdentifier.dom_id(grading_task)}",
           partial: "grading_tasks/progress_section",
+          locals: {
+            grading_task: grading_task.reload,
+            student_submissions: grading_task.student_submissions.reload.oldest_first
+          }
+        )
+
+        # Also broadcast to the entire grading task to ensure all components are updated
+        Turbo::StreamsChannel.broadcast_replace_to(
+          "grading_task_#{grading_task_id}",
+          target: ActionView::RecordIdentifier.dom_id(grading_task),
+          partial: "grading_tasks/grading_task",
           locals: {
             grading_task: grading_task.reload,
             student_submissions: grading_task.student_submissions.reload.oldest_first

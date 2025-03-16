@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+# Exit on error
+set -e
+
+echo "=== Running Brakeman security checks ==="
+bin/brakeman
+
+echo "=== Running Rubocop with auto-correct ==="
+bundle exec rubocop -a
+
+echo "=== Running Rails tests ==="
+bin/rails test
+
+echo "=== All checks completed successfully! ===" 

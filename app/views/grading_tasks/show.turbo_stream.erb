@@ -1,3 +1,8 @@
+<% 
+  # Reload the grading task to ensure we have the latest data
+  @grading_task.reload 
+%>
+
 <%= turbo_stream.replace dom_id(@grading_task) do %>
   <%= render "grading_task", grading_task: @grading_task, student_submissions: @student_submissions %>
 <% end %>
@@ -11,7 +16,7 @@
 <% end %>
 
 <%= turbo_stream.replace "grading_task_#{@grading_task.id}_submission_counts" do %>
-  <%= render "submission_counts", grading_task: @grading_task, student_submissions: @student_submissions %>
+  <%= render "submission_counts", student_submissions: @student_submissions %>
 <% end %>
 
 <%= turbo_stream.update "progress_section_#{dom_id(@grading_task)}" do %>

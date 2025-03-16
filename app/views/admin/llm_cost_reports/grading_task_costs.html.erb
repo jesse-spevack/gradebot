@@ -73,7 +73,7 @@
                   <%= task_cost.grading_task.created_at.strftime("%b %d, %Y") %>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <%= render "shared/status_badge", status: task_cost.grading_task.status %>
+                  <%= render "shared/status_badge", status: task_cost.grading_task.status, object: task_cost.grading_task %>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <%= task_cost.grading_task.student_submissions.count %>
