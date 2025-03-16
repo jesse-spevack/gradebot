@@ -216,30 +216,54 @@ class StudentSubmission < ApplicationRecord
   # Broadcasts the creation of this submission to the appropriate Turbo Stream
   # @return [void]
   def broadcast_creation
-    # Broadcast to the mobile submissions list (card view)
-    Turbo::StreamsChannel.broadcast_append_to(
-      "grading_task_#{grading_task_id}_submissions",
-      target: "mobile_submissions_list_#{grading_task_id}",
-      partial: "student_submissions/student_submission",
-      locals: { student_submission: self }
-    )
+    # Use a transaction to ensure atomicity
+    ActiveRecord::Base.transaction do
+      begin
+        # Reload to ensure we have the latest data
+        reload
 
-    # Broadcast to the desktop submissions list (table view)
-    Turbo::StreamsChannel.broadcast_append_to(
-      "grading_task_#{grading_task_id}_submissions",
-      target: "desktop_submissions_list_#{grading_task_id}",
-      partial: "student_submissions/table_row",
-      locals: { submission: self }
-    )
+        # Broadcast to the mobile submissions list (card view)
+        Turbo::StreamsChannel.broadcast_append_to(
+          "grading_task_#{grading_task_id}_submissions",
+          target: "mobile_submissions_list_#{grading_task_id}",
+          partial: "student_submissions/student_submission",
+          locals: { student_submission: self }
+        )
 
-    # If this is the first submission, replace the empty state
-    if grading_task.student_submissions.count == 1
-      Turbo::StreamsChannel.broadcast_replace_to(
-        "grading_task_#{grading_task_id}",
-        target: "student_submissions",
-        partial: "student_submissions/submission_list",
-        locals: { submissions: grading_task.student_submissions.oldest_first, grading_task: grading_task }
-      )
+        # Broadcast to the desktop submissions list (table view)
+        Turbo::StreamsChannel.broadcast_append_to(
+          "grading_task_#{grading_task_id}_submissions",
+          target: "desktop_submissions_list_#{grading_task_id}",
+          partial: "student_submissions/table_row",
+          locals: { submission: self }
+        )
+
+        # If this is the first submission, replace the empty state
+        # Use count directly from the database to avoid race conditions
+        if grading_task.student_submissions.count == 1
+          Turbo::StreamsChannel.broadcast_replace_to(
+            "grading_task_#{grading_task_id}",
+            target: "student_submissions",
+            partial: "student_submissions/submission_list",
+            locals: { submissions: grading_task.student_submissions.oldest_first, grading_task: grading_task }
+          )
+        end
+
+        # Also update the grading task's progress section
+        Turbo::StreamsChannel.broadcast_update_to(
+          "grading_task_#{grading_task_id}",
+          target: "progress_section_#{ActionView::RecordIdentifier.dom_id(grading_task)}",
+          partial: "grading_tasks/progress_section",
+          locals: {
+            grading_task: grading_task.reload,
+            student_submissions: grading_task.student_submissions.reload.oldest_first
+          }
+        )
+      rescue => e
+        # Log any errors but don't crash
+        Rails.logger.error("Error broadcasting submission creation: #{e.message}")
+        Rails.logger.error(e.backtrace.join("\n"))
+      end
     end
   end
 end

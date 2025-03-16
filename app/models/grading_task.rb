@@ -64,6 +64,8 @@ class GradingTask < ApplicationRecord
     return false unless may_start_assignment_processing?
 
     update!(status: :assignment_processing)
+    # Broadcast status update
+    broadcast_status_update
     # Enqueue the job
     FormatAssignmentPromptJob.perform_later(id)
     true
@@ -73,6 +75,8 @@ class GradingTask < ApplicationRecord
     return false unless may_complete_assignment_processing?
 
     update!(status: :assignment_processed)
+    # Broadcast status update
+    broadcast_status_update
     # Start the next step
     start_rubric_processing!
     true
@@ -82,6 +86,8 @@ class GradingTask < ApplicationRecord
     return false unless may_start_rubric_processing?
 
     update!(status: :rubric_processing)
+    # Broadcast status update
+    broadcast_status_update
     # Enqueue the job
     FormatGradingRubricJob.perform_later(id)
     true
@@ -91,6 +97,8 @@ class GradingTask < ApplicationRecord
     return false unless may_complete_rubric_processing?
 
     update!(status: :rubric_processed)
+    # Broadcast status update
+    broadcast_status_update
     # Start the next step
     start_submissions_processing!
     true
@@ -100,6 +108,8 @@ class GradingTask < ApplicationRecord
     return false unless may_start_submissions_processing?
 
     update!(status: :submissions_processing)
+    # Broadcast status update
+    broadcast_status_update
     # Enqueue the job
     StudentSubmissionsForGradingTaskJob.perform_later(id)
     true
@@ -109,11 +119,15 @@ class GradingTask < ApplicationRecord
     return false unless may_complete_processing?
 
     update!(status: :completed)
+    # Broadcast status update
+    broadcast_status_update
     true
   end
 
   def fail!
     update!(status: :failed)
+    # Broadcast status update
+    broadcast_status_update
     true
   end
 
@@ -122,6 +136,8 @@ class GradingTask < ApplicationRecord
     return false unless may_complete_processing?
 
     update!(status: :completed_with_errors)
+    # Broadcast status update
+    broadcast_status_update
     true
   end
 
@@ -174,5 +190,27 @@ class GradingTask < ApplicationRecord
     unless new_status > old_status
       errors.add(:status, "cannot transition from #{status_was} to #{status}")
     end
+  end
+
+  # Broadcast status update to the UI
+  def broadcast_status_update
+    # Broadcast the status badge update
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "grading_task_#{id}",
+      target: "#{ActionView::RecordIdentifier.dom_id(self)}_status_badge",
+      partial: "grading_tasks/task_status_badge",
+      locals: { grading_task: self }
+    )
+
+    # Also broadcast to the progress section to ensure it's updated
+    Turbo::StreamsChannel.broadcast_update_to(
+      "grading_task_#{id}",
+      target: "progress_section_#{ActionView::RecordIdentifier.dom_id(self)}",
+      partial: "grading_tasks/progress_section",
+      locals: {
+        grading_task: self,
+        student_submissions: student_submissions.reload.oldest_first
+      }
+    )
   end
 end
