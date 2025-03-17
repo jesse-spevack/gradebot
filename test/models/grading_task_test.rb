@@ -281,10 +281,9 @@ class GradingTaskTest < ActiveSupport::TestCase
     @grading_task.update_column(:status, "created")
 
     # Test that status updates are broadcast when transitioning through multiple states
-    assert_broadcasts("grading_task_#{@grading_task.id}", 3) do
+    assert_broadcasts("grading_task_#{@grading_task.id}", 4) do
       @grading_task.start_assignment_processing!
       @grading_task.complete_assignment_processing!
-      # The complete_assignment_processing! method also calls start_rubric_processing!
     end
   end
 

@@ -48,8 +48,7 @@ class SubmissionCreatorServiceTest < ActiveSupport::TestCase
         metadata: { doc_type: doc[:mime_type] }
       ).returns(submission)
 
-      # The service should enqueue a job for each submission
-      StudentSubmissionJob.expects(:perform_later).with(submission.id)
+      # No longer expect job enqueuing here - it's handled by the GradingTask state machine
     end
 
     # Exercise
@@ -72,7 +71,8 @@ class SubmissionCreatorServiceTest < ActiveSupport::TestCase
       status: :pending,
       metadata: { doc_type: @documents[0][:mime_type] }
     ).returns(submission1)
-    StudentSubmissionJob.expects(:perform_later).with(submission1.id)
+
+    # No longer expect job enqueuing here
 
     # Second document creation fails
     StudentSubmission.expects(:create!).with(
@@ -116,7 +116,7 @@ class SubmissionCreatorServiceTest < ActiveSupport::TestCase
           metadata: { doc_type: doc[:mime_type] }
         ).returns(submission)
 
-        StudentSubmissionJob.expects(:perform_later).with(submission.id)
+        # No longer expect job enqueuing here
         document_count += 1
       end
     end

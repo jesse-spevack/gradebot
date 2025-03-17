@@ -201,133 +201,25 @@ class StatusManager
     }
   end
 
+  # Broadcast an update to a student submission
+  # @param submission [StudentSubmission] the submission to broadcast
+  def self.broadcast_student_submission_update(submission)
+    # Delegate to the SubmissionBroadcaster service
+    SubmissionBroadcaster.new(submission).broadcast_update
+  end
+
   private
 
   # Broadcast an update to a grading task
   # @param grading_task [GradingTask] the grading task to broadcast
   def self.broadcast_grading_task_update(grading_task)
-    # Reload to ensure we have the latest data including associations
-    grading_task.reload
+    # Find the most recent submission for this grading task
+    submission = grading_task.student_submissions.order(updated_at: :desc).first
 
-    # Get the student submissions - use ascending order to match the controller
-    student_submissions = grading_task.student_submissions.order(created_at: :asc)
-
-    # Option 1: Broadcast to the entire grading task (less efficient but simpler)
-    # This is kept for potential backwards compatibility
-    Turbo::StreamsChannel.broadcast_replace_to(
-      "grading_task_#{grading_task.id}",
-      target: dom_id(grading_task),
-      partial: "grading_tasks/grading_task",
-      locals: {
-        grading_task: grading_task,
-        student_submissions: student_submissions
-      }
-    )
-
-    # Option 2: Broadcast to individual components (more efficient)
-    broadcast_task_components(grading_task, student_submissions)
-  end
-
-  # Broadcast updates to individual components of a grading task
-  # @param grading_task [GradingTask] the grading task to broadcast
-  # @param student_submissions [ActiveRecord::Relation] the submissions for this task
-  def self.broadcast_task_components(grading_task, student_submissions)
-    # 1. Update the status badge
-    Turbo::StreamsChannel.broadcast_replace_to(
-      "grading_task_#{grading_task.id}",
-      target: "#{dom_id(grading_task)}_status_badge",
-      partial: "grading_tasks/task_status_badge",
-      locals: { grading_task: grading_task }
-    )
-
-    # 2. Update the progress metrics
-    Turbo::StreamsChannel.broadcast_replace_to(
-      "grading_task_#{grading_task.id}",
-      target: "#{dom_id(grading_task)}_progress_metrics",
-      partial: "grading_tasks/progress_metrics",
-      locals: {
-        grading_task: grading_task,
-        student_submissions: student_submissions
-      }
-    )
-
-    # 3. Update the submission counts
-    Turbo::StreamsChannel.broadcast_replace_to(
-      "grading_task_#{grading_task.id}",
-      target: "#{dom_id(grading_task)}_submission_counts",
-      partial: "grading_tasks/submission_counts",
-      locals: { student_submissions: student_submissions }
-    )
-
-    # 4. Send a full update for the progress section to ensure it catches all changes
-    # This helps prevent race conditions where individual updates might be missed
-    Turbo::StreamsChannel.broadcast_update_to(
-      "grading_task_#{grading_task.id}",
-      target: "progress_section_#{dom_id(grading_task)}",
-      partial: "grading_tasks/progress_section",
-      locals: {
-        grading_task: grading_task,
-        student_submissions: student_submissions
-      }
-    )
-
-    # We don't update the assignment prompt or grading rubric sections here
-    # Those are handled by their respective formatting jobs
-  end
-
-  # Broadcast an update to a student submission
-  # @param submission [StudentSubmission] the submission to broadcast
-  def self.broadcast_student_submission_update(submission)
-    # Reload to ensure we have the latest data
-    submission.reload
-
-    # Get the parent grading task
-    grading_task = submission.grading_task
-
-    # Broadcast to the mobile view (card)
-    Turbo::StreamsChannel.broadcast_replace_to(
-      "grading_task_#{submission.grading_task_id}",
-      target: dom_id(submission),
-      partial: "student_submissions/submission_card",
-      locals: { submission: submission }
-    )
-
-    # Broadcast to the desktop view (table row)
-    Turbo::StreamsChannel.broadcast_replace_to(
-      "grading_task_#{submission.grading_task_id}",
-      target: "#{dom_id(submission)}_table_row",
-      partial: "student_submissions/table_row",
-      locals: { submission: submission }
-    )
-
-    # Also broadcast to the submission detail view (on the student submission page)
-    Turbo::StreamsChannel.broadcast_replace_to(
-      "student_submission_#{submission.id}",
-      target: "#{dom_id(submission)}_detail",
-      partial: "student_submissions/detail",
-      locals: { student_submission: submission }
-    )
-
-    # Also broadcast to the header status section of the submission detail view
-    Turbo::StreamsChannel.broadcast_replace_to(
-      "student_submission_#{submission.id}",
-      target: "header_status",
-      partial: "student_submissions/header_status",
-      locals: { student_submission: submission }
-    )
-
-    # Also update the grading task components since a submission status change
-    # affects the task's progress and counts
-    broadcast_task_components(
-      grading_task,
-      grading_task.student_submissions.order(created_at: :desc)
-    )
-  end
-
-  # Generate a DOM ID for a record (same as ApplicationController#dom_id)
-  # @param record [ActiveRecord::Base] the record to generate an ID for
-  # @return [String] the DOM ID
-  def self.dom_id(record)
-    ActionView::RecordIdentifier.dom_id(record)
+    # If there's a submission, use the SubmissionBroadcaster to update the task components
+    if submission
+      broadcaster = SubmissionBroadcaster.new(submission)
+      broadcaster.broadcast_update
+    end
   end
 end

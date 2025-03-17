@@ -214,74 +214,9 @@ class StudentSubmission < ApplicationRecord
   private
 
   # Broadcasts the creation of this submission to the appropriate Turbo Stream
+  # Delegates to SubmissionBroadcaster service
   # @return [void]
   def broadcast_creation
-    # Use a transaction to ensure atomicity
-    ActiveRecord::Base.transaction do
-      begin
-        # Reload to ensure we have the latest data
-        reload
-
-        # If this is the first submission, replace the empty state
-        # Use count directly from the database to avoid race conditions
-        if grading_task.student_submissions.count == 1
-          Turbo::StreamsChannel.broadcast_replace_to(
-            "grading_task_#{grading_task_id}",
-            target: "student_submissions",
-            partial: "student_submissions/submission_list",
-            locals: { submissions: grading_task.student_submissions.oldest_first, grading_task: grading_task }
-          )
-        else
-          # For subsequent submissions, always update the entire list
-          # This ensures all submissions are visible without a page refresh
-          Turbo::StreamsChannel.broadcast_replace_to(
-            "grading_task_#{grading_task_id}_submissions",
-            target: "student_submissions_list_#{grading_task_id}",
-            partial: "student_submissions/submission_list",
-            locals: {
-              submissions: grading_task.student_submissions.reload.oldest_first,
-              grading_task: grading_task
-            }
-          )
-        end
-
-        # Also broadcast to the submissions list container to ensure it's updated
-        Turbo::StreamsChannel.broadcast_replace_to(
-          "grading_task_#{grading_task_id}",
-          target: "submissions_list_container_#{grading_task_id}",
-          partial: "student_submissions/submissions_list_container",
-          locals: {
-            grading_task: grading_task.reload,
-            submissions: grading_task.student_submissions.reload.oldest_first
-          }
-        )
-
-        # Also update the grading task's progress section
-        Turbo::StreamsChannel.broadcast_update_to(
-          "grading_task_#{grading_task_id}",
-          target: "progress_section_#{ActionView::RecordIdentifier.dom_id(grading_task)}",
-          partial: "grading_tasks/progress_section",
-          locals: {
-            grading_task: grading_task.reload,
-            student_submissions: grading_task.student_submissions.reload.oldest_first
-          }
-        )
-
-        # Also broadcast to the entire grading task to ensure all components are updated
-        Turbo::StreamsChannel.broadcast_replace_to(
-          "grading_task_#{grading_task_id}",
-          target: ActionView::RecordIdentifier.dom_id(grading_task),
-          partial: "grading_tasks/grading_task",
-          locals: {
-            grading_task: grading_task.reload,
-            student_submissions: grading_task.student_submissions.reload.oldest_first
-          }
-        )
-      rescue => e
-        # Log any errors but don't crash
-        Rails.logger.error("Error broadcasting submission creation: #{e.message}")
-        Rails.logger.error(e.backtrace.join("\n"))
-      end
-    end
+    SubmissionBroadcaster.new(self).broadcast_creation
   end
 end

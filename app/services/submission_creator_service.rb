@@ -4,11 +4,9 @@
 class SubmissionCreatorService
   # @param grading_task [GradingTask] The grading task to associate with submissions
   # @param documents [Array<Hash>] Array of document information hashes
-  # @param enqueue_jobs [Boolean] Whether to enqueue processing jobs for each submission
-  def initialize(grading_task, documents, enqueue_jobs: true)
+  def initialize(grading_task, documents)
     @grading_task = grading_task
     @documents = documents
-    @enqueue_jobs = enqueue_jobs
   end
 
   # Creates student submissions for documents
@@ -29,11 +27,8 @@ class SubmissionCreatorService
 
       begin
         # Create the submission record
-        submission = create_submission(document)
+        create_submission(document)
         submission_count += 1
-
-        # Enqueue a job to process the submission if requested
-        enqueue_processing_job(submission)
       rescue => e
         Rails.logger.error("Failed to create submission for document #{document[:id]}: #{e.message}")
       end
@@ -55,14 +50,5 @@ class SubmissionCreatorService
       status: :pending,
       metadata: { doc_type: document[:mime_type] }
     )
-  end
-
-  # Enqueues a job to process the student submission
-  # @param submission [StudentSubmission] The submission to process
-  def enqueue_processing_job(submission)
-    return unless @enqueue_jobs
-
-    Rails.logger.info("Enqueuing processing job for submission #{submission.id}")
-    StudentSubmissionJob.perform_later(submission.id)
   end
 end

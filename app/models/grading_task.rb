@@ -76,7 +76,7 @@ class GradingTask < ApplicationRecord
 
     update!(status: :assignment_processed)
     # Broadcast status update
-    broadcast_status_update
+    broadcast_status_update(include_assignment_prompt: true)
     # Start the next step
     start_rubric_processing!
     true
@@ -98,7 +98,7 @@ class GradingTask < ApplicationRecord
 
     update!(status: :rubric_processed)
     # Broadcast status update
-    broadcast_status_update
+    broadcast_status_update(include_grading_rubric: true)
     # Start the next step
     start_submissions_processing!
     true
@@ -193,22 +193,19 @@ class GradingTask < ApplicationRecord
   end
 
   # Broadcast status update to the UI
-  def broadcast_status_update
+  def broadcast_status_update(include_assignment_prompt: false, include_grading_rubric: false)
     Rails.logger.debug("Broadcasting status update for grading task #{id}")
-    Rails.logger.debug("Current status: #{status}")
-    Rails.logger.debug("Status label: #{status_label}")
+    broadcaster = GradingTaskBroadcaster.new(self)
+    broadcaster.broadcast_grading_task_status_update
 
-    # Reload to ensure we have the latest data
-    reload
+    if include_assignment_prompt
+      Rails.logger.debug("Broadcasting assignment prompt update for grading task #{id}")
+      broadcaster.broadcast_grading_task_assignment_prompt_update
+    end
 
-    # Broadcast the status badge update
-    Turbo::StreamsChannel.broadcast_replace_to(
-      "grading_task_#{id}",
-      target: "#{ActionView::RecordIdentifier.dom_id(self)}_status_badge",
-      partial: "grading_tasks/task_status_badge",
-      locals: { grading_task: self }
-    )
-
-    Rails.logger.debug("Finished broadcasting status update for grading task #{id}")
+    if include_grading_rubric
+      Rails.logger.debug("Broadcasting grading rubric update for grading task #{id}")
+      broadcaster.broadcast_grading_task_grading_rubric_update
+    end
   end
 end

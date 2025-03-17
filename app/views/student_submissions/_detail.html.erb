@@ -14,7 +14,7 @@
     </div>
     <div class="flex items-center justify-between">
       <p class="text-gray-600">
-        <strong>Document ID:</strong> <%= student_submission.original_doc_id %>
+        <strong>Document ID:</strong> <%= turncate_doc_id(student_submission.original_doc_id) %>
       </p>
       
       <%= link_to "https://docs.google.com/document/d/#{student_submission.original_doc_id}/edit",

@@ -21,14 +21,6 @@ class FormatAssignmentPromptJob < ApplicationJob
       # Reload the grading task to ensure we have the latest data
       grading_task.reload
 
-      # Broadcast the update to the UI
-      Turbo::StreamsChannel.broadcast_replace_to(
-        "grading_task_#{grading_task.id}",
-        target: "assignment_prompt_container_#{grading_task.id}",
-        partial: "grading_tasks/assignment_prompt_container",
-        locals: { grading_task: grading_task }
-      )
-
       # Transition to the next state
       grading_task.complete_assignment_processing!
     rescue => e

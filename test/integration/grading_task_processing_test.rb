@@ -27,9 +27,9 @@ class GradingTaskProcessingTest < ActionDispatch::IntegrationTest
     GradingTaskAccessTokenService.any_instance.stubs(:fetch_token).returns("mock_token")
   end
 
-  test "processing a grading task creates and broadcasts submissions" do
+  test "creating student submissions broadcasts updates" do
     assert_broadcasts("grading_task_#{@grading_task.id}_submissions", 1) do
-      ProcessGradingTaskCommand.new(grading_task_id: @grading_task.id).execute
+      CreateStudentSubmissionsCommand.new(grading_task: @grading_task).execute
     end
 
     # Verify submissions were created
@@ -41,6 +41,18 @@ class GradingTaskProcessingTest < ActionDispatch::IntegrationTest
     assert_equal "doc2", submissions.last.original_doc_id
     assert_equal "pending", submissions.first.status
     assert_equal "pending", submissions.last.status
+  end
+
+  test "processing a grading task starts the workflow" do
+    # First create submissions
+    CreateStudentSubmissionsCommand.new(grading_task: @grading_task).execute
+
+    # Then process the grading task
+    ProcessGradingTaskCommand.new(grading_task_id: @grading_task.id).execute
+
+    # Verify the grading task status was updated
+    @grading_task.reload
+    assert_equal "assignment_processing", @grading_task.status
   end
 
   test "empty_state_is_replaced_when_first_submission_is_created" do

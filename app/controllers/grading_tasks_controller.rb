@@ -11,6 +11,7 @@ class GradingTasksController < ApplicationController
     @grading_task = Current.session.user.grading_tasks.build(grading_task_params)
 
     if @grading_task.save
+      CreateStudentSubmissionsCommand.new(grading_task: @grading_task).call
       redirect_to grading_task_path(@grading_task), notice: "Grading task was successfully created."
     else
       render :new, status: :unprocessable_entity
