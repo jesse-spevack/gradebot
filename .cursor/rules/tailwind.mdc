@@ -9,6 +9,7 @@ globs: app/views/**/*.html.erb, app/components/**/*.html.erb, app/assets/stylesh
 - Extract repeated patterns to components rather than creating custom classes
 - Use sensible defaults from the design system
 - Organize classes in a consistent order
+- Do not use inline styles and avoid custom CSS as much as possible
 
 ## Class Organization Order:
 1. Layout (display, position)

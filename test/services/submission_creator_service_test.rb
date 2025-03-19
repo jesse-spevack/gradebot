@@ -36,20 +36,12 @@ class SubmissionCreatorServiceTest < ActiveSupport::TestCase
     # Setup
     service = SubmissionCreatorService.new(@grading_task, @documents)
 
-    # Setup expectations for submission creation
-    @documents.each do |doc|
-      submission = mock("StudentSubmission")
-      submission.stubs(:id).returns(rand(1000))
+    # Mock the insert_all! method to return a result with count
+    mock_result = mock("BulkInsertResult")
+    mock_result.stubs(:count).returns(@documents.length)
 
-      StudentSubmission.expects(:create!).with(
-        grading_task: @grading_task,
-        original_doc_id: doc[:id],
-        status: :pending,
-        metadata: { doc_type: doc[:mime_type] }
-      ).returns(submission)
-
-      # No longer expect job enqueuing here - it's handled by the GradingTask state machine
-    end
+    # Expect bulk insertion to be called
+    StudentSubmission.expects(:insert_all!).returns(mock_result)
 
     # Exercise
     result = service.create_submissions
@@ -61,6 +53,9 @@ class SubmissionCreatorServiceTest < ActiveSupport::TestCase
   test "handles errors during submission creation" do
     # Setup
     service = SubmissionCreatorService.new(@grading_task, @documents)
+
+    # Expect bulk insertion to fail
+    StudentSubmission.expects(:insert_all!).raises(ActiveRecord::RecordNotUnique.new("Duplicate key error"))
 
     # First document creates successfully
     submission1 = mock("StudentSubmission")
@@ -82,7 +77,8 @@ class SubmissionCreatorServiceTest < ActiveSupport::TestCase
       metadata: { doc_type: @documents[1][:mime_type] }
     ).raises(ActiveRecord::RecordInvalid.new(StudentSubmission.new))
 
-    # Mock logger to capture error
+    # Mock logger to capture errors
+    Rails.logger.expects(:error).with(includes("Failed to bulk create submissions"))
     Rails.logger.expects(:error).with(includes("Failed to create submission"))
 
     # Exercise
@@ -102,24 +98,17 @@ class SubmissionCreatorServiceTest < ActiveSupport::TestCase
 
     service = SubmissionCreatorService.new(@grading_task, mixed_documents)
 
-    # Only expect 2 submissions to be created (for the documents)
-    document_count = 0
-    mixed_documents.each do |doc|
-      if doc[:mime_type].include?("document") || doc[:mime_type].include?("spreadsheet")
-        submission = mock("StudentSubmission")
-        submission.stubs(:id).returns(rand(1000))
-
-        StudentSubmission.expects(:create!).with(
-          grading_task: @grading_task,
-          original_doc_id: doc[:id],
-          status: :pending,
-          metadata: { doc_type: doc[:mime_type] }
-        ).returns(submission)
-
-        # No longer expect job enqueuing here
-        document_count += 1
-      end
+    # Only the documents should be included in the bulk insertion (2 out of 3)
+    valid_docs = mixed_documents.select do |doc|
+      doc[:mime_type].include?("document") || doc[:mime_type].include?("spreadsheet")
     end
+
+    # Mock the insert_all! method to return a result with count
+    mock_result = mock("BulkInsertResult")
+    mock_result.stubs(:count).returns(valid_docs.length)
+
+    # Expect bulk insertion to be called
+    StudentSubmission.expects(:insert_all!).returns(mock_result)
 
     # Exercise
     result = service.create_submissions

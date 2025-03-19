@@ -17,26 +17,6 @@ class SubmissionBroadcaster
     load_data
   end
 
-  # Broadcast the creation of a submission
-  # Handles both first submission and subsequent submission cases
-  # @return [void]
-  def broadcast_creation
-    # Use a transaction to ensure atomicity
-    ActiveRecord::Base.transaction do
-      begin
-        if first_submission?
-          broadcast_first_submission
-        else
-          broadcast_subsequent_submission
-        end
-      rescue => e
-        # Log any errors but don't crash
-        Rails.logger.error("Error broadcasting submission creation: #{e.message}")
-        Rails.logger.error(e.backtrace.join("\n"))
-      end
-    end
-  end
-
   # Broadcast an update to an existing submission
   # @return [void]
   def broadcast_update

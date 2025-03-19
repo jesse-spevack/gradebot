@@ -1,0 +1,30 @@
+GradeBot is an AI-powered assignment grading tool that automates feedback for student work in Google Docs. The app streamlines the grading process for educators by analyzing student submissions against assignment
+prompts and grading rubrics.
+
+Purpose
+
+- Automates grading of student assignments stored in Google Drive
+- Provides structured feedback with strengths and improvement opportunities
+- Tracks grading progress in real-time
+- Maintains organization of submissions and grades
+
+Tech Stack
+
+- Backend: Ruby on Rails 8 with SQLite database
+- Frontend: Hotwire (Turbo/Stimulus), Tailwind CSS
+- Authentication: Google OAuth2
+- External Services:
+  - Google Drive API for document access
+  - Large Language Models (LLM) for grading
+- Background Processing: Solid Queue
+- Deployment: Docker/Kamal
+- Monitoring: Custom admin dashboards for LLM costs and job status
+
+Architecture Features
+
+- Command pattern for business logic
+- Service objects for core functionality
+- Status management system for task state transitions
+- Optimistic locking to prevent race conditions
+- Event-based broadcasting for real-time updates
+- Feature flag system for controlled rollout

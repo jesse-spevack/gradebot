@@ -20,6 +20,12 @@ Favor simplicity over complexity in test cases.
 When a test fails, we should first ask, does the failure point to a legitimate issue or is the test
 not testing a valid case or feature we care about. If it is the latter, we should either update or remove the test.
 
+Prefer lengthy tests that are easy to read than DRY tests.
+
+Avoid excessive mocking and stubbing. Do not ever stub things like Time or Kernel.
+
+We use minitest.
+
 Example:
 ```ruby
 require 'test_helper'
