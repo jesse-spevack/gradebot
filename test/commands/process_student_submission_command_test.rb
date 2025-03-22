@@ -20,22 +20,23 @@ class ProcessStudentSubmissionCommandTest < ActiveJob::TestCase
     assert_nil(student_submission.first_attempted_at)
     assert_equal(0, student_submission.attempt_count)
 
-    get_google_drive_client_for_student_submission = mock
-    google_drive_client = mock
+    google_drive_client_command = mock("GoogleDriveClientCommand")
+    google_drive_client = mock("GoogleDriveClient")
 
     GetGoogleDriveClientForStudentSubmission.stubs(:new)
       .with(
         student_submission: student_submission
-      ).returns(get_google_drive_client_for_student_submission)
+      ).returns(google_drive_client_command)
 
-    get_google_drive_client_for_student_submission.stubs(:call).returns(google_drive_client)
+    google_drive_client_command.stubs(:call).returns(google_drive_client_command)
+    google_drive_client_command.stubs(:result).returns(google_drive_client)
 
     test_document_content = "Test document content"
     document_content_fetcher = mock
 
     DocumentContentFetcherService.stubs(:new)
       .with(
-        google_doc_id: student_submission.original_doc_id,
+        document_id: student_submission.original_doc_id,
         google_drive_client: google_drive_client
       ).returns(document_content_fetcher)
     document_content_fetcher.stubs(:fetch).returns(test_document_content)
