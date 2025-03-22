@@ -39,7 +39,7 @@ class ProcessGradingTaskCommand < BaseCommand
       return nil
     end
 
-    Rails.logger.info("Processing grading task #{grading_task_id} for folder: #{grading_task.folder_name}")
+    Rails.logger.info("Processing grading task #{grading_task_id} for folder: #{grading_task.display_name}")
     grading_task
   end
 

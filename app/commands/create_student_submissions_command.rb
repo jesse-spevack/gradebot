@@ -2,16 +2,17 @@
 
 # Command to create student submissions for a grading task
 #
-# This command takes a grading task, fetches documents from the associated
-# Google Drive folder, and creates student submissions for each document.
-# It encapsulates the document fetching and submission creation logic.
+# This command takes a grading task and document selections,
+# and creates student submissions for each document selection.
+# It encapsulates the submission creation logic.
 class CreateStudentSubmissionsCommand < BaseCommand
-  # Make grading_task explicitly available in the class
-  attr_reader :grading_task
+  # Make grading_task and document_selections explicitly available in the class
+  attr_reader :grading_task, :document_selections
 
   # Initialize the command
   # @param grading_task [GradingTask] The grading task to create submissions for
-  def initialize(grading_task:)
+  # @param document_selections [Array<DocumentSelection>] The document selections to create submissions from
+  def initialize(grading_task:, document_selections:)
     super
   end
 
@@ -26,14 +27,16 @@ class CreateStudentSubmissionsCommand < BaseCommand
       end
 
       # Log the operation
-      Rails.logger.info("Creating student submissions for grading task #{grading_task.id} (#{grading_task.folder_name})")
+      Rails.logger.info("Creating student submissions for grading task #{grading_task.id}")
 
-      # Fetch documents from Google Drive
-      documents = fetch_documents
-      return nil unless documents
+      # Validate document selections
+      if document_selections.blank?
+        Rails.logger.warn("No document selections provided for grading task #{grading_task.id}")
+        return 0
+      end
 
       # Create student submissions
-      submission_count = create_submissions(documents)
+      submission_count = create_submissions
 
       # Return the number of submissions created
       # Note: Even if submission_count is 0, we consider this a success
@@ -46,43 +49,22 @@ class CreateStudentSubmissionsCommand < BaseCommand
   end
 
   private
-
-  # Fetch documents from the grading task's folder
-  # @return [Array<Hash>, nil] Array of documents or nil if failed
-  def fetch_documents
-    # Get access token for the user
-    token_service = GradingTaskAccessTokenService.new(grading_task)
-    access_token = token_service.fetch_token
-
-    # Fetch documents from the folder
-    document_fetcher = FolderDocumentFetcherService.new(access_token, grading_task.folder_id)
-    document_fetcher.fetch
-  rescue StandardError => e
-    handle_error(e.message)
-    nil
-  end
-
-  # Create submissions for the documents
-  # @param documents [Array<Hash>] Array of document information hashes
+  # Create submissions for the document selections
   # @return [Integer] The number of submissions created
-  def create_submissions(documents)
-    # Create a submission creator service
-    submission_creator = SubmissionCreatorService.new(grading_task, documents)
+  def create_submissions
+    submission_count = 0
 
-    # Create the submissions
-    submission_count = submission_creator.create_submissions
-
-    # Log the result
-    if submission_count == 0
-      Rails.logger.warn("No submissions created from documents for grading task #{grading_task.id}")
-    else
-      Rails.logger.info("Created #{submission_count} submissions for grading task #{grading_task.id}")
+    student_submission_attributes = document_selections.map do |document_selection|
+      {
+        grading_task_id: grading_task.id,
+        original_doc_id: document_selection.document_id,
+        status: "pending"
+      }
     end
 
+    StudentSubmission.insert_all(student_submission_attributes)
+
     submission_count
-  rescue StandardError => e
-    handle_error(e.message)
-    nil
   end
 
   # Handle and log an error

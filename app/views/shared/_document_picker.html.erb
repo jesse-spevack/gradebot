@@ -1,0 +1,24 @@
+<div data-controller="doc-picker" data-doc-picker-hidden-class="hidden" data-doc-picker-error-class="text-red-600">
+  <h2 class="text-lg font-semibold text-gray-900 mb-1">Student Submissions</h2>
+  <p data-doc-picker-target="instructions" class="text-sm text-gray-600 mb-4">Select the Google Documents containing student work.</p>
+  <div data-doc-picker-target="documentCount" 
+        class="mb-4 text-lg font-medium text-gray-900 hidden">
+    <div class="flex items-center gap-2">
+      <%= render "shared/icons/circle_check", class: "w-5 h-5 text-green-600" %>
+      <span data-doc-picker-target="documentCountText"></span> pieces of student work selected.
+    </div>
+  </div>
+  <button type="button" 
+          data-doc-picker-target="button"
+          data-action="doc-picker#showPicker"
+          class="inline-flex items-center gap-2 px-6 py-3 text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm">
+    <%= render "shared/icons/document_text" %>
+    Select student work
+  </button>
+
+  <div data-doc-picker-target="error"
+       class="hidden mt-2 text-sm font-medium text-red-600">
+  </div>
+
+  <%= form.hidden_field :document_data, data: { "doc-picker-target": "documentData" } %>
+</div>

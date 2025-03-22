@@ -9,8 +9,6 @@ class StatusManagementTest < ActionDispatch::IntegrationTest
       user: @user,
       assignment_prompt: "Write an essay on climate change",
       grading_rubric: "Content: 40%, Structure: 30%, Grammar: 30%",
-      folder_id: "test_folder_123",
-      folder_name: "Test Folder",
       status: "created"
     )
     # Clear existing submissions

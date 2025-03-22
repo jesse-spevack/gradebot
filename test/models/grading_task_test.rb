@@ -11,13 +11,27 @@ class GradingTaskTest < ActiveSupport::TestCase
       user: @user,
       assignment_prompt: "Write an essay on climate change",
       grading_rubric: "Content: 40%, Structure: 30%, Grammar: 30%",
-      folder_id: "test_folder_123",
-      folder_name: "Test Folder",
       status: "created"
     )
 
     # Clear existing submissions
     StudentSubmission.where(grading_task: @grading_task).delete_all
+  end
+
+  test "display_name returns truncated assignment prompt when longer than 120 characters" do
+    # Setup
+    short_prompt = "This is a short assignment prompt"
+    long_prompt = "This is a very long assignment prompt that exceeds the 120 character limit. It contains a lot of detailed information about what students should do for this particular assignment and how they should approach it. This text should definitely be truncated."
+
+    # Create test grading tasks
+    short_task = GradingTask.new(user: @user, assignment_prompt: short_prompt, grading_rubric: "Test rubric")
+    long_task = GradingTask.new(user: @user, assignment_prompt: long_prompt, grading_rubric: "Test rubric")
+
+    # Exercise & Verify
+    assert_equal short_prompt, short_task.display_name
+    assert_equal long_prompt.truncate(60), long_task.display_name
+    assert_equal 60, long_task.display_name.length
+    assert long_task.display_name.end_with?("..."), "Expected truncated text to end with '...'"
   end
 
   test "calculates_progress_percentage" do
@@ -72,8 +86,6 @@ class GradingTaskTest < ActiveSupport::TestCase
       user: @user,
       assignment_prompt: "Test assignment",
       grading_rubric: "Test rubric",
-      folder_id: "folder_123",
-      folder_name: "Test Folder",
       status: "rubric_processed"  # Set to a state that allows submissions processing
     )
 
@@ -137,8 +149,6 @@ class GradingTaskTest < ActiveSupport::TestCase
       user: @user,
       assignment_prompt: "Another assignment",
       grading_rubric: "Basic rubric",
-      folder_id: "folder_456",
-      folder_name: "Another Folder",
       status: "created"
     )
 

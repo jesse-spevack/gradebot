@@ -11,8 +11,24 @@ class GradingTasksController < ApplicationController
     @grading_task = Current.session.user.grading_tasks.build(grading_task_params)
 
     if @grading_task.save
-      CreateStudentSubmissionsCommand.new(grading_task: @grading_task).call
-      redirect_to grading_task_path(@grading_task), notice: "Grading task was successfully created."
+      create_document_selection_command = CreateDocumentSelectionCommand.new(
+        document_data: document_data_params,
+        grading_task: @grading_task
+      )
+
+      create_document_selection_command.call
+
+      render :new, status: :unprocessable_entity if create_document_selection_command.failure?
+
+      document_selections = create_document_selection_command.result
+      create_student_submission_command = CreateStudentSubmissionsCommand.new(
+        grading_task: @grading_task,
+        document_selections: document_selections
+      )
+
+      create_student_submission_command.call
+
+      redirect_to grading_task_path(@grading_task), notice: "Grading task was successfully created with #{document_selections.length} pieces of student work."
     else
       render :new, status: :unprocessable_entity
     end
@@ -54,6 +70,11 @@ class GradingTasksController < ApplicationController
   private
 
   def grading_task_params
-    params.require(:grading_task).permit(:assignment_prompt, :grading_rubric, :folder_id, :folder_name)
+    params.expect(grading_task: [ :assignment_prompt, :grading_rubric ])
+  end
+
+  def document_data_params
+    document_data_params = params.expect(grading_task: [ :document_data ])
+    JSON.parse(document_data_params[:document_data])
   end
 end

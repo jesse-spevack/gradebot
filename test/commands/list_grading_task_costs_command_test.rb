@@ -13,8 +13,6 @@ class ListGradingTaskCostsCommandTest < ActiveSupport::TestCase
       user: @user,
       assignment_prompt: "Old assignment",
       grading_rubric: "Old rubric",
-      folder_id: "folder_old",
-      folder_name: "Old Folder",
       created_at: 30.days.ago
     )
 
@@ -22,8 +20,6 @@ class ListGradingTaskCostsCommandTest < ActiveSupport::TestCase
       user: @user,
       assignment_prompt: "Middle assignment",
       grading_rubric: "Middle rubric",
-      folder_id: "folder_middle",
-      folder_name: "Middle Folder",
       created_at: 15.days.ago
     )
 
@@ -31,8 +27,6 @@ class ListGradingTaskCostsCommandTest < ActiveSupport::TestCase
       user: @user,
       assignment_prompt: "Recent assignment",
       grading_rubric: "Recent rubric",
-      folder_id: "folder_recent",
-      folder_name: "Recent Folder",
       created_at: 5.days.ago
     )
 

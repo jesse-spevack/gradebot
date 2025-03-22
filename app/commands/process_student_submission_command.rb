@@ -1,51 +1,39 @@
 # frozen_string_literal: true
 
 # Command to process a student submission using LLM
-#
-# This command takes a student submission ID, retrieves the submission,
-# and processes it to generate feedback using the LLM framework.
 class ProcessStudentSubmissionCommand < BaseCommand
-  # Make student_submission_id explicitly available in the class
-  attr_reader :student_submission_id
+  attr_reader :student_submission
 
-  def initialize(student_submission_id:)
+  def initialize(student_submission:)
     super
   end
 
-  # Execute the command logic
-  # Orchestrates the process of fetching document content and grading a submission
-  #
-  # @return [StudentSubmission] The processed student submission
   def execute
-    submission = find_submission
-    return nil unless submission
+    return nil unless student_submission
 
     begin
-      # Record first attempt time if not set
-      if submission.first_attempted_at.nil?
-        submission.update(first_attempted_at: Time.current)
+      if student_submission.first_attempted_at.nil?
+        student_submission.update(first_attempted_at: Time.current)
       end
 
-      # Increment attempt counter
-      submission.increment!(:attempt_count)
+      student_submission.increment!(:attempt_count)
 
-      # Transition to processing state
-      return nil unless transition_to_processing(submission)
+      return nil unless transition_to_processing
 
-      # Fetch document content
-      document_content = fetch_document_content(submission)
+      document_content = fetch_document_content
       return nil unless document_content
 
-      # Grade the submission
-      grading_result = grade_submission(submission, document_content)
-      return nil unless grading_result
+      grading_response = grade_submission(document_content: document_content)
+      return nil unless grading_response
 
-      # Update the submission with the grading results
-      update_submission_with_results(submission, grading_result, document_content)
+      update_submission_with_results(
+        grading_response: grading_response,
+        document_content: document_content
+      )
 
-      # Return the processed submission
-      submission
+      student_submission.reload
     rescue StandardError => e
+      puts "Error processing submission #{student_submission.id}: #{e.message}"
       handle_error(e)
       nil
     end
@@ -53,22 +41,10 @@ class ProcessStudentSubmissionCommand < BaseCommand
 
   private
 
-  # Find the student submission by ID
-  # @return [StudentSubmission, nil] The student submission or nil if not found
-  def find_submission
-    submission = StudentSubmission.find_by(id: student_submission_id)
-    unless submission
-      @errors << "Student submission not found with ID: #{student_submission_id}"
-      return nil
-    end
-    submission
-  end
-
   # Transition the submission to the processing state
-  # @param submission [StudentSubmission] The submission to transition
   # @return [Boolean] True if the transition was successful, false otherwise
-  def transition_to_processing(submission)
-    updater = SubmissionStatusUpdater.new(submission)
+  def transition_to_processing
+    updater = SubmissionStatusUpdater.new(student_submission)
     unless updater.transition_to(:processing)
       @errors << "Could not transition submission to processing state"
       return false
@@ -76,17 +52,18 @@ class ProcessStudentSubmissionCommand < BaseCommand
     true
   end
 
-  # Fetch document content for the submission
-  # @param submission [StudentSubmission] The submission to fetch content for
-  # @return [String, nil] The document content or nil if fetching failed
-  def fetch_document_content(submission)
-    DocumentFetcherService.new(submission).fetch
+  def fetch_document_content
+    get_google_drive_client_command = GetGoogleDriveClientForStudentSubmission.new(student_submission: student_submission).call
+    DocumentContentFetcherService.new(
+      document_id: student_submission.original_doc_id,
+      google_drive_client: get_google_drive_client_command.result
+    ).fetch
   rescue TokenService::TokenError => e
-    Rails.logger.error("Token error for user #{submission.grading_task.user.id}: #{e.message}")
+    Rails.logger.error("Token error for user #{student_submission.grading_task.user.id}: #{e.message}")
     @errors << "Failed to get access token: #{e.message}"
 
     # Transition to failed state
-    SubmissionStatusUpdater.new(submission).transition_to(
+    SubmissionStatusUpdater.new(student_submission).transition_to(
       :failed,
       { feedback: "Failed to access Google Drive: #{e.message}" }
     )
@@ -97,7 +74,7 @@ class ProcessStudentSubmissionCommand < BaseCommand
     @errors << "Failed to fetch document content: #{e.message}"
 
     # Transition to failed state - Use the original error message format for test compatibility
-    SubmissionStatusUpdater.new(submission).transition_to(
+    SubmissionStatusUpdater.new(student_submission).transition_to(
       :failed,
       { feedback: "Failed to read document content: #{e.message}" }
     )
@@ -106,12 +83,11 @@ class ProcessStudentSubmissionCommand < BaseCommand
   end
 
   # Grade the submission using the LLM service
-  # @param submission [StudentSubmission] The submission to grade
   # @param document_content [String] The content of the document to grade
   # @return [GradingResponse, nil] The grading result or nil if grading failed
-  def grade_submission(submission, document_content)
+  def grade_submission(document_content:)
     orchestrator = GradingOrchestrator.new(
-      submission: submission,
+      student_submission: student_submission,
       document_content: document_content
     )
 
@@ -122,7 +98,7 @@ class ProcessStudentSubmissionCommand < BaseCommand
     @errors << "Service temporarily unavailable: #{e.message}"
 
     # Transition to pending state
-    SubmissionStatusUpdater.new(submission).transition_to(
+    SubmissionStatusUpdater.new(student_submission).transition_to(
       :pending,
       {
         feedback: "Grading service temporarily unavailable. Your submission will be automatically retried later."
@@ -132,7 +108,7 @@ class ProcessStudentSubmissionCommand < BaseCommand
     # Schedule a retry after the circuit breaker timeout
     # Add 30 seconds buffer to ensure circuit has time to transition to half-open
     retry_after = LLM::CircuitBreaker::TIMEOUT_SECONDS + 30
-    StudentSubmissionJob.set(wait: retry_after.seconds).perform_later(submission.id)
+    StudentSubmissionJob.set(wait: retry_after.seconds).perform_later(student_submission.id)
 
     nil
   rescue LLM::Errors::AnthropicOverloadError => e
@@ -141,7 +117,7 @@ class ProcessStudentSubmissionCommand < BaseCommand
     @errors << "API temporarily unavailable: #{e.message}"
 
     # Transition to pending state with retry information
-    SubmissionStatusUpdater.new(submission).transition_to(
+    SubmissionStatusUpdater.new(student_submission).transition_to(
       :pending,
       {
         feedback: "Grading service is busy. Your submission will be automatically retried soon."
@@ -150,7 +126,7 @@ class ProcessStudentSubmissionCommand < BaseCommand
 
     # Schedule a retry after the recommended retry time
     retry_after = e.respond_to?(:retry_after) ? e.retry_after : 60
-    StudentSubmissionJob.set(wait: retry_after.seconds).perform_later(submission.id)
+    StudentSubmissionJob.set(wait: retry_after.seconds).perform_later(student_submission.id)
 
     nil
   rescue => e
@@ -159,7 +135,7 @@ class ProcessStudentSubmissionCommand < BaseCommand
     @errors << "Error during grading: #{e.message}"
 
     # Transition to failed state
-    SubmissionStatusUpdater.new(submission).transition_to(
+    SubmissionStatusUpdater.new(student_submission).transition_to(
       :failed,
       { feedback: "Failed to complete grading: #{e.message.truncate(150)}" }
     )
@@ -168,32 +144,25 @@ class ProcessStudentSubmissionCommand < BaseCommand
   end
 
   # Update the submission with the grading results
-  # @param submission [StudentSubmission] The submission to update
   # @param result [GradingResponse] The grading result
   # @param document_content [String] The content of the document that was graded
   # @return [Boolean] True if the update was successful, false otherwise
-  def update_submission_with_results(submission, result, document_content)
+  def update_submission_with_results(grading_response:, document_content:)
     # Format the grading results for storage
-    formatter = GradeFormatterService.new(result, document_content, submission)
+    formatter = GradeFormatterService.new(grading_response, document_content, student_submission)
     attributes = formatter.format_for_storage
 
     # Transition to completed state
-    SubmissionStatusUpdater.new(submission).transition_to(:completed, attributes)
+    SubmissionStatusUpdater.new(student_submission).transition_to(:completed, attributes)
   end
 
   # Handle any errors that occur during processing
   # @param error [StandardError] The error that occurred
   def handle_error(error)
-    Rails.logger.error("Error processing submission #{student_submission_id}: #{error.message}")
+    Rails.logger.error("Error processing submission #{student_submission.id}: #{error.message}")
     Rails.logger.error(error.backtrace.first(10).join("\n"))
     @errors << error.message
-
-    # Find the submission
-    submission = find_submission
-    return unless submission
-
-    # Transition to failed state
-    SubmissionStatusUpdater.new(submission).transition_to(
+    SubmissionStatusUpdater.new(student_submission).transition_to(
       :failed,
       { feedback: "Processing failed: #{error.message.truncate(150)}" }
     )

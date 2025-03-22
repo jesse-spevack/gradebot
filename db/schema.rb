@@ -10,7 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_16_163230) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_22_030849) do
+  create_table "document_selections", force: :cascade do |t|
+    t.integer "grading_task_id", null: false
+    t.string "document_id", null: false
+    t.string "name"
+    t.string "url"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["grading_task_id"], name: "index_document_selections_on_grading_task_id"
+  end
+
   create_table "email_signups", force: :cascade do |t|
     t.string "email"
     t.datetime "created_at", null: false
@@ -45,8 +55,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_16_163230) do
   create_table "grading_tasks", force: :cascade do |t|
     t.integer "user_id", null: false
     t.text "assignment_prompt"
-    t.string "folder_id"
-    t.string "folder_name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "grading_rubric"
@@ -116,6 +124,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_16_163230) do
     t.json "metadata"
     t.datetime "first_attempted_at"
     t.integer "attempt_count", default: 0
+    t.integer "document_selection_id"
+    t.index ["document_selection_id"], name: "index_student_submissions_on_document_selection_id"
     t.index ["first_attempted_at"], name: "index_student_submissions_on_first_attempted_at"
     t.index ["grading_task_id", "status"], name: "index_submissions_on_grading_task_id_and_status"
     t.index ["grading_task_id"], name: "index_student_submissions_on_grading_task_id"
@@ -146,11 +156,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_16_163230) do
     t.index ["google_uid"], name: "index_users_on_google_uid", unique: true
   end
 
+  add_foreign_key "document_selections", "grading_tasks"
   add_foreign_key "feature_flag_audit_logs", "feature_flags"
   add_foreign_key "feature_flag_audit_logs", "users"
   add_foreign_key "grading_tasks", "users"
   add_foreign_key "llm_cost_logs", "users"
   add_foreign_key "sessions", "users"
+  add_foreign_key "student_submissions", "document_selections"
   add_foreign_key "student_submissions", "grading_tasks"
   add_foreign_key "user_tokens", "users"
 end

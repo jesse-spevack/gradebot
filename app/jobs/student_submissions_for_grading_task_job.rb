@@ -46,7 +46,7 @@ class StudentSubmissionsForGradingTaskJob < ApplicationJob
   def process_all_submissions(submissions)
     submissions.each do |submission|
       begin
-        command = ProcessStudentSubmissionCommand.new(student_submission_id: submission.id).call
+        command = ProcessStudentSubmissionCommand.new(student_submission: submission).call
 
         if command.failure?
           Rails.logger.error("Failed to process student submission #{submission.id}: #{command.errors.join(', ')}")

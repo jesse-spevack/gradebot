@@ -10,6 +10,7 @@ class GradingTask < ApplicationRecord
 
   # Associations
   belongs_to :user
+  has_many :document_selections, dependent: :destroy
   has_many :student_submissions, dependent: :destroy
 
   # Enums
@@ -28,14 +29,16 @@ class GradingTask < ApplicationRecord
   # Validations
   validates :assignment_prompt, presence: true, length: { minimum: 10, maximum: 2000 }
   validates :grading_rubric, presence: true, length: { minimum: 10, maximum: 3000 }
-  validates :folder_id, presence: true
-  validates :folder_name, presence: true
   validate :validate_status_transition, if: :status_changed?
 
   # Callbacks
   after_create :enqueue_processing_job
 
   # Instance methods
+
+  def display_name
+    assignment_prompt.truncate(60)
+  end
 
   # Calculate the progress percentage based on completed and failed submissions
   # @return [Integer] Percentage of submissions that are completed or failed

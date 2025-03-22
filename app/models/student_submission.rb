@@ -34,6 +34,8 @@ class StudentSubmission < ApplicationRecord
 
   # Associations
   belongs_to :grading_task
+  belongs_to :document_selection, optional: true
+
 
   # Validations
   validates :original_doc_id, presence: true

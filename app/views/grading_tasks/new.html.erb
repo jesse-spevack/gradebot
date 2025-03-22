@@ -78,12 +78,7 @@
 
           <!-- Folder Selection Section -->
           <section class="py-6">
-            <h2 class="text-lg font-semibold text-gray-900 mb-1">Student Submissions</h2>
-            <p class="text-sm text-gray-600 mb-4">Select the Google Drive folder containing all student assignments to grade.</p>
-
-            <%= f.hidden_field :folder_id %>
-            <%= f.hidden_field :folder_name %>
-            <%= render 'shared/folder_picker' %>
+            <%= render 'shared/document_picker', form: f %>
           </section>
         </div>
 

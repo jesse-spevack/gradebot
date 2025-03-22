@@ -63,9 +63,4 @@ class GoogleDriveServiceTest < ActiveSupport::TestCase
     service = GoogleDriveService.new("valid_token")
     assert_instance_of GoogleDriveService, service
   end
-
-  test "validate_folder_access returns true" do
-    service = GoogleDriveService.new("valid_token")
-    assert service.validate_folder_access("folder_id")
-  end
 end

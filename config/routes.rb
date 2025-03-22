@@ -14,7 +14,6 @@ Rails.application.routes.draw do
   resources :google_drive, only: [] do
     collection do
       get :credentials
-      get :folder_contents
     end
   end
 

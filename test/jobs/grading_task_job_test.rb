@@ -9,8 +9,7 @@ class GradingTaskJobTest < ActiveJob::TestCase
       user: @user,
       assignment_prompt: "Write a 500 word essay about climate change.",
       grading_rubric: "Content: 40%, Structure: 30%, Grammar: 30%",
-      folder_id: "abc123folder",
-      folder_name: "Climate Change Essays"
+      status: "created"
     }
   end
 

@@ -5,7 +5,6 @@ class ProcessGradingTaskCommandTest < ActiveJob::TestCase
   setup do
     @user = users(:teacher)
     @grading_task = grading_tasks(:one)
-    @folder_id = @grading_task.folder_id
 
     # Clear existing submissions for the grading task
     StudentSubmission.where(grading_task: @grading_task).delete_all
@@ -33,7 +32,7 @@ class ProcessGradingTaskCommandTest < ActiveJob::TestCase
     mock_grading_task.stubs(:start_assignment_processing!).raises(StandardError.new("Failed to start processing"))
     mock_grading_task.stubs(:fail!).returns(true)
     mock_grading_task.stubs(:id).returns(@grading_task.id)
-    mock_grading_task.stubs(:folder_name).returns("Test Folder")
+    mock_grading_task.stubs(:display_name).returns("Test Folder")
 
     GradingTask.stubs(:find_by).with(id: @grading_task.id).returns(mock_grading_task)
 
@@ -65,8 +64,6 @@ class ProcessGradingTaskCommandTest < ActiveJob::TestCase
       user: @user,
       assignment_prompt: "Test assignment",
       grading_rubric: "Test rubric",
-      folder_id: "folder_123",
-      folder_name: "Test Folder",
       status: "created"
     )
 
