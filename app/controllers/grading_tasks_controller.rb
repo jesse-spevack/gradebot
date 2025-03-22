@@ -11,12 +11,10 @@ class GradingTasksController < ApplicationController
     @grading_task = Current.session.user.grading_tasks.build(grading_task_params)
 
     if @grading_task.save
-      create_document_selection_command = CreateDocumentSelectionCommand.new(
+      create_document_selection_command = CreateDocumentSelectionCommand.call(
         document_data: document_data_params,
         grading_task: @grading_task
       )
-
-      create_document_selection_command.call
 
       render :new, status: :unprocessable_entity if create_document_selection_command.failure?
 

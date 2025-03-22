@@ -47,7 +47,7 @@ class ProcessGradingTaskCommandTest < ActiveJob::TestCase
 
   test "returns nil when grading task is not found" do
     # Setup
-    GradingTask.delete_all
+    GradingTask.destroy_all
 
     # Exercise
     command = ProcessGradingTaskCommand.new(grading_task_id: 12345)

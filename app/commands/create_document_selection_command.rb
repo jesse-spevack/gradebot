@@ -1,12 +1,4 @@
-class CreateDocumentSelectionCommand < BaseCommand
-  attr_reader :grading_task, :document_data
-
-  def initialize(grading_task:, document_data:)
-    super
-  end
-
-  private
-
+class CreateDocumentSelectionCommand < CommandBase
   def execute
     return [] if document_data.blank?
 
@@ -21,12 +13,10 @@ class CreateDocumentSelectionCommand < BaseCommand
 
     begin
       DocumentSelection.insert_all(document_selection_attributes)
-      data = DocumentSelection.where(grading_task: grading_task)
+      DocumentSelection.where(grading_task: grading_task)
     rescue StandardError => e
       handle_error(e.message)
-      return []
+      []
     end
-
-    data
   end
 end

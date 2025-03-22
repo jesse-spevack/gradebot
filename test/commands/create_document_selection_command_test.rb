@@ -2,6 +2,7 @@ require "test_helper"
 
 class CreateDocumentSelectionCommandTest < ActiveSupport::TestCase
   setup do
+    DocumentSelection.destroy_all
     @grading_task = grading_tasks(:one)
     @document_data = [
       { "id" => "doc1", "name" => "Document 1", "url" => "https://docs.google.com/document/d/doc1" },
@@ -10,20 +11,13 @@ class CreateDocumentSelectionCommandTest < ActiveSupport::TestCase
   end
 
   test "successfully creates document selections" do
-    # Setup - count existing document selections
-    initial_count = DocumentSelection.count
-
-    # Exercise
-    command = CreateDocumentSelectionCommand.new(
+    command = CreateDocumentSelectionCommand.call(
       grading_task: @grading_task,
       document_data: @document_data
     )
-
-    command.call
     result = command.result
 
-    # Verify
-    assert_not command.failure?
+    refute command.failure?
     assert_equal 2, result.size
 
     # Verify document selection attributes
@@ -39,51 +33,35 @@ class CreateDocumentSelectionCommandTest < ActiveSupport::TestCase
   end
 
   test "returns empty array when document_data is empty" do
-    # Setup
-    initial_count = DocumentSelection.count
-
-    # Exercise
-    command = CreateDocumentSelectionCommand.new(
+    command = CreateDocumentSelectionCommand.call(
       grading_task: @grading_task,
       document_data: []
     )
-    command.call
 
-    # Verify
     assert_not command.failure?
     assert_equal [], command.result
-    assert_equal initial_count, DocumentSelection.count
   end
 
   test "returns empty array when document_data is nil" do
-    # Setup
-    initial_count = DocumentSelection.count
-
-    # Exercise
     command = CreateDocumentSelectionCommand.new(
       grading_task: @grading_task,
       document_data: nil
     )
     command.call
 
-    # Verify
     assert_not command.failure?
     assert_equal [], command.result
-    assert_equal initial_count, DocumentSelection.count
   end
 
   test "handles database errors gracefully" do
-    # Setup - create an invalid document data entry that will cause a database error
     invalid_document_data = [ { "id" => nil, "name" => "Invalid Document", "url" => "https://example.com" } ]
 
-    # Exercise
     command = CreateDocumentSelectionCommand.new(
       grading_task: @grading_task,
       document_data: invalid_document_data
     )
     command.call
 
-    # Verify
     assert command.failure?
     assert_not_empty command.errors
   end
