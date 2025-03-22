@@ -128,10 +128,10 @@ export default class extends Controller {
       // Create a picker with navigation and multi-select enabled
       const picker = new google.picker.PickerBuilder()
         .addView(docsView)
-        .enableFeature(google.picker.Feature.NAV_HIDDEN, false) // Show navigation
         .enableFeature(google.picker.Feature.MINE_ONLY) // Only show user's files
         .enableFeature(google.picker.Feature.MULTISELECT_ENABLED, true) // Explicitly enable multiple selection
         .setSelectableMimeTypes('application/vnd.google-apps.document') // Only docs are selectable (can still navigate folders)
+        .setAppId(credentials.app_id)
         .setOAuthToken(credentials.oauth_token)
         .setDeveloperKey(credentials.picker_token)
         .setTitle('Select multiple student documents')

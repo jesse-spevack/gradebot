@@ -1,6 +1,8 @@
 # TODO
 
 ## Refactor
+
+
 - [ ] Improve Command interface
 - [ ] Root out dead code 
 - [ ] Audit all files for readability
@@ -87,6 +89,7 @@
 
 
 # DONE
+- [x] Create simple drive picker flow to test auth
 - [x] Implement sequential queue plan
 - [x] Add admin page with toolbar on the left for all the things I need -> flags, cost reports etc 
 - [x] Review how to track actual costs of requests 

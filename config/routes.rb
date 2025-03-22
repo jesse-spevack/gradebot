@@ -14,6 +14,8 @@ Rails.application.routes.draw do
   resources :google_drive, only: [] do
     collection do
       get :credentials
+      get :google_drive_auth_test
+      post :google_drive_auth_test
     end
   end
 
