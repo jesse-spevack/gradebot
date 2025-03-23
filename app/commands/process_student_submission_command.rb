@@ -53,10 +53,13 @@ class ProcessStudentSubmissionCommand < BaseCommand
   end
 
   def fetch_document_content
-    get_google_drive_client_command = GetGoogleDriveClientForStudentSubmission.new(student_submission: student_submission).call
+    google_drive_client = GetGoogleDriveClientForStudentSubmissionCommand.call(
+      student_submission: student_submission
+    ).result
+
     DocumentContentFetcherService.new(
       document_id: student_submission.original_doc_id,
-      google_drive_client: get_google_drive_client_command.result
+      google_drive_client: google_drive_client
     ).fetch
   rescue TokenService::TokenError => e
     Rails.logger.error("Token error for user #{student_submission.grading_task.user.id}: #{e.message}")

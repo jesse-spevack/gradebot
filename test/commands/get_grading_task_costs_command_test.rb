@@ -1,14 +1,12 @@
 require "test_helper"
 
-class ListGradingTaskCostsCommandTest < ActiveSupport::TestCase
+class GetGradingTaskCostsCommandTest < ActiveSupport::TestCase
   setup do
     @user = users(:teacher)
 
-    # Clear existing grading tasks and cost logs
     GradingTask.destroy_all
     LLMCostLog.destroy_all
 
-    # Create grading tasks with different dates
     @old_task = GradingTask.create!(
       user: @user,
       assignment_prompt: "Old assignment",
@@ -30,7 +28,6 @@ class ListGradingTaskCostsCommandTest < ActiveSupport::TestCase
       created_at: 5.days.ago
     )
 
-    # Create cost logs for each task
     LLMCostLog.create!(
       trackable: @old_task,
       llm_model_name: "claude-3-opus",
@@ -55,7 +52,6 @@ class ListGradingTaskCostsCommandTest < ActiveSupport::TestCase
       created_at: 4.days.ago
     )
 
-    # Create a submission for the middle task with its own cost
     @submission = StudentSubmission.create!(
       grading_task: @middle_task,
       original_doc_id: "test_doc_123",
@@ -73,55 +69,50 @@ class ListGradingTaskCostsCommandTest < ActiveSupport::TestCase
   end
 
   test "returns empty array when no grading tasks exist in date range" do
-    command = ListGradingTaskCostsCommand.new(
+    command = GetGradingTaskCostsCommand.call(
       start_date: 100.days.ago,
       end_date: 50.days.ago
     )
-    result = command.call
 
-    assert result.success?
-    assert_empty result.result
+    assert command.success?
+    assert_empty command.result
   end
 
   test "returns grading tasks with costs in specified date range" do
-    command = ListGradingTaskCostsCommand.new(
+    command = GetGradingTaskCostsCommand.call(
       start_date: 20.days.ago,
       end_date: 1.day.ago
     )
-    result = command.call
 
-    assert result.success?
-    assert_equal 2, result.result.length
+    assert command.success?
+    assert_equal 2, command.result.length
 
     # Tasks should be ordered from most recent to oldest
-    assert_equal @recent_task, result.result[0].grading_task
-    assert_equal 0.10, result.result[0].cost
+    assert_equal @recent_task, command.result[0].grading_task
+    assert_equal 0.10, command.result[0].cost
 
-    assert_equal @middle_task, result.result[1].grading_task
-    assert_equal 0.25, result.result[1].cost # 0.20 + 0.05 from submission
+    assert_equal @middle_task, command.result[1].grading_task
+    assert_equal 0.25, command.result[1].cost # 0.20 + 0.05 from submission
   end
 
   test "returns all grading tasks when no date range specified" do
-    command = ListGradingTaskCostsCommand.new
-    result = command.call
-
-    assert result.success?
-    assert_equal 3, result.result.length
+    command = GetGradingTaskCostsCommand.call
+    assert command.success?
+    assert_equal 3, command.result.length
 
     # Tasks should be ordered from most recent to oldest
-    assert_equal @recent_task, result.result[0].grading_task
-    assert_equal @middle_task, result.result[1].grading_task
-    assert_equal @old_task, result.result[2].grading_task
+    assert_equal @recent_task, command.result[0].grading_task
+    assert_equal @middle_task, command.result[1].grading_task
+    assert_equal @old_task, command.result[2].grading_task
   end
 
   test "handles invalid date range" do
-    command = ListGradingTaskCostsCommand.new(
+    command = GetGradingTaskCostsCommand.call(
       start_date: 1.day.ago,
       end_date: 10.days.ago
     )
-    result = command.call
 
-    assert result.failure?
-    assert_match /invalid date range/i, result.errors.first
+    assert command.failure?
+    assert_match /invalid date range/i, command.errors.first
   end
 end

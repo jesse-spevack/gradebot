@@ -1,32 +1,103 @@
+<%
+  # Use the date_form from controller or initialize a new one if not available
+  # This ensures the partial works both when called from a controller with date_form 
+  # and when called directly from other views
+  form_object = local_assigns[:date_form] || date_form || DateRangeForm.new(params)
+  
+  # Initialize presenter with form object
+  presenter = DateRangePresenter.new(form_object)
+%>
+
 <div class="mb-6">
-  <%= form_with url: url, method: :get do |f| %>
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-      <div>
-        <%= f.label :start_date, "Start Date", class: "block text-sm font-medium text-gray-700 mb-1" %>
-        <%= f.date_field :start_date, value: start_date&.strftime("%Y-%m-%d"), class: "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md px-3 py-2" %>
+  <%= form_with url: url, method: :get, data: presenter.form_data_attributes do |f| %>
+    
+    <!-- Hidden fields for form submission with minimal view logic -->
+    <%= f.hidden_field :start_date, 
+                      value: presenter.formatted_start_date, 
+                      data: { 
+                        date_range_toggle_target: "startDateField", 
+                        date_range_target: "startDate" 
+                      } %>
+    <%= f.hidden_field :end_date, 
+                      value: presenter.formatted_end_date, 
+                      data: { 
+                        date_range_toggle_target: "endDateField", 
+                        date_range_target: "endDate" 
+                      } %>
+    <%= f.hidden_field :date_range, 
+                      value: form_object.date_range, 
+                      data: { 
+                        date_range_toggle_target: "rangePresetField", 
+                        date_range_target: "rangePreset" 
+                      } %>
+    
+    <!-- Filter Type Selector -->
+    <div class="border-b border-gray-200 pb-4 mb-4">
+      <p class="text-sm font-medium text-gray-700 mb-2">Filter by</p>
+      <div class="flex space-x-6">
+        <div class="flex items-center">
+          <%= f.radio_button :filter_type, "specific_dates", 
+                          id: "filter_type_specific_dates", 
+                          **presenter.specific_dates_radio_attributes %>
+          <%= f.label :filter_type_specific_dates, "Specific Dates", class: "ml-2 text-sm font-medium text-gray-700" %>
+        </div>
+        
+        <div class="flex items-center">
+          <%= f.radio_button :filter_type, "range_preset", 
+                          id: "filter_type_range_preset", 
+                          **presenter.range_preset_radio_attributes %>
+          <%= f.label :filter_type_range_preset, "Quick Range", class: "ml-2 text-sm font-medium text-gray-700" %>
+        </div>
       </div>
-      
-      <div>
-        <%= f.label :end_date, "End Date", class: "block text-sm font-medium text-gray-700 mb-1" %>
-        <%= f.date_field :end_date, value: end_date&.strftime("%Y-%m-%d"), class: "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md px-3 py-2" %>
+    </div>
+    
+    <!-- Specific Dates Section -->
+    <div data-date-range-toggle-target="specificDatesSection"
+         class="<%= presenter.specific_dates_section_hidden? ? 'hidden' : '' %>">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+        <div>
+          <%= f.label :visible_start_date, "Start Date", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.date_field :visible_start_date, 
+                        value: presenter.formatted_start_date, 
+                        class: "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md px-3 py-2",
+                        data: { 
+                          action: "change->date-range#updateField",
+                          field_type: "startDate" 
+                        } %>
+        </div>
+        
+        <div>
+          <%= f.label :visible_end_date, "End Date", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.date_field :visible_end_date, 
+                        value: presenter.formatted_end_date, 
+                        class: "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md px-3 py-2",
+                        data: { 
+                          action: "change->date-range#updateField",
+                          field_type: "endDate"
+                        } %>
+        </div>
+        
+        <div>
+          <%= f.submit "Apply", class: "w-full inline-flex items-center justify-center px-5 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+        </div>
       </div>
-      
-      <div>
-        <%= f.label :date_range, "Quick Select", class: "block text-sm font-medium text-gray-700 mb-1" %>
-        <%= f.select :date_range, 
-                    options_for_select([
-                      ["Last 7 days", 7],
-                      ["Last 30 days", 30],
-                      ["Last 90 days", 90],
-                      ["Last 365 days", 365]
-                    ], selected: params[:date_range] || 7),
-                    { include_blank: "Custom Range" },
-                    { class: "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md px-3 py-2" } %>
-      </div>
-      
-      <div>
-        <%= f.submit "Apply", class: "w-full inline-flex items-center justify-center px-5 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+    </div>
+    
+    <!-- Range Preset Section -->
+    <div data-date-range-toggle-target="rangePresetSection"
+         class="<%= presenter.range_preset_section_hidden? ? 'hidden' : '' %>">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+        <div>
+          <%= f.label :visible_date_range, "Select Range", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.select :visible_date_range, 
+            options_for_select(presenter.date_range_options, selected: presenter.default_range),
+            { include_blank: "Custom Range" }, 
+            { 
+              class: "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md px-3 py-2",
+              data: { action: "change->date-range#calculateDatesFromRange" } 
+            } %>
+        </div>
       </div>
     </div>
   <% end %>
-</div> 
+</div>

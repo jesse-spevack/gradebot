@@ -67,14 +67,14 @@ class GoogleDriveController < ApplicationController
 
         begin
           # Get Google Drive client for current user
-          get_google_drive_client_command = GetGoogleDriveClientForStudentSubmission.new(
+          google_drive_client = GetGoogleDriveClientForStudentSubmissionCommand.call(
             student_submission: OpenStruct.new(grading_task: OpenStruct.new(user: Current.user))
-          ).call
+          ).result
 
           # Fetch document content
           document_content = DocumentContentFetcherService.new(
             document_id: doc_id,
-            google_drive_client: get_google_drive_client_command.result
+            google_drive_client: google_drive_client
           ).fetch
 
           # Log the document content

@@ -1,13 +1,6 @@
 # frozen_string_literal: true
 
-# TODO up next to refactor
-class GetGoogleDriveClientForStudentSubmission < BaseCommand
-  attr_reader :student_submission
-
-  def initialize(student_submission:)
-    super
-  end
-
+class GetGoogleDriveClientForStudentSubmissionCommand < CommandBase
   def execute
     grading_task = student_submission.grading_task
     user = grading_task.user

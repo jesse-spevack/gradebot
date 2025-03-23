@@ -23,12 +23,11 @@ class ProcessStudentSubmissionCommandTest < ActiveJob::TestCase
     google_drive_client_command = mock("GoogleDriveClientCommand")
     google_drive_client = mock("GoogleDriveClient")
 
-    GetGoogleDriveClientForStudentSubmission.stubs(:new)
+    GetGoogleDriveClientForStudentSubmissionCommand.stubs(:call)
       .with(
         student_submission: student_submission
       ).returns(google_drive_client_command)
 
-    google_drive_client_command.stubs(:call).returns(google_drive_client_command)
     google_drive_client_command.stubs(:result).returns(google_drive_client)
 
     test_document_content = "Test document content"
