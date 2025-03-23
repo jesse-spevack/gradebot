@@ -10,11 +10,16 @@
 <% 
   # Handle both title and text params for backward compatibility
   header_text = local_assigns[:title] || local_assigns[:text]
+  hide_border = local_assigns[:hide_border]
 %>
 
 <% if header_text.present? && local_assigns[:border].nil? %>
   <!-- Card-style header with border -->
-  <div class="px-4 sm:px-6 py-4 border-b border-gray-200">
+  <% if hide_border %>
+    <div class="px-4 sm:px-6 py-4">
+  <% else %>
+    <div class="px-4 sm:px-6 py-4 border-b border-gray-200">
+  <% end %>
     <div class="flex items-center">
       <% if local_assigns[:icon].present? %>
         <% icon_class = local_assigns[:icon_class] || "h-5 w-5 text-blue-600 mr-2" %>

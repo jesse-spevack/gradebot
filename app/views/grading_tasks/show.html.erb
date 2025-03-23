@@ -1,15 +1,16 @@
 <% content_for :header do %>
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-    <div class="flex items-center space-x-4">
-      <%= link_to grading_tasks_path, class: "text-gray-600 hover:text-gray-900 transition-colors duration-150" do %>
-        <%= render "shared/icons/back", class: "h-5 w-5" %>
-      <% end %>
-      <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-blue-950"><%= truncate(@grading_task.assignment_prompt, length: 120) %></h1>
+    <div class="flex flex-col space-y-1">
+      <div class="flex items-center space-x-4">
+        <%= link_to grading_tasks_path, class: "text-gray-600 hover:text-gray-900 transition-colors duration-150" do %>
+          <%= render "shared/icons/back", class: "h-5 w-5" %>
+        <% end %>
+        <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-blue-950">Grading Task</h1>
+      </div>
+      <p class="text-gray-600 ml-9"><%= truncate(@grading_task.assignment_prompt, length: 120) %></p>
     </div>
 
     <div class="flex space-x-4">
-      <%= link_to "Refresh Progress", request.path, class: "px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-900 border border-blue-600 rounded-lg transition-colors duration-150" %>
-
       <%= button_to grading_task_path(@grading_task),
           method: :delete,
           class: "px-4 py-2 text-sm font-medium text-red-600 hover:text-red-900 transition-colors duration-150",

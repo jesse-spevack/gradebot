@@ -9,9 +9,10 @@
 
 <% container_classes ||= "" %>
 <% grid_classes ||= "grid grid-cols-1 md:grid-cols-3 gap-8" %>
+<% hide_border ||= false %>
 
 <section class="<%= container_classes %>">
-  <%= render "shared/section_header", text: title %>
+  <%= render "shared/section_header", text: title, hide_border: hide_border %>
   
   <div class="<%= grid_classes %>">
     <%= yield %>

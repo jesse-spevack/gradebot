@@ -4,31 +4,31 @@
 
     <!-- All subsequent sections will have consistent max-width and margin-top -->
     <div class="mx-auto max-w-5xl">
-      <%= render "shared/feature_section", title: "Why Teachers Choose GradeBot", container_classes: "mt-32" do %>
-        <%= render "shared/feature_card",
-                   title: "Grade 30 Essays in Under an Hour",
-                   description: "Upload your Google Doc assignments, rubric, and let GradeBot handle the rest. Focus on teaching, not grading." %>
+      <%= render "shared/feature_section", title: "Why Teachers Choose GradeBot", container_classes: "mt-32", hide_border: true do %>
+          <%= render "shared/feature_card",
+                    title: "Grade 30 Essays in Just Minutes",
+                    description: "Upload your Google Doc assignments, rubric, and let GradeBot handle the rest. Focus on teaching, not grading." %>
 
-        <%= render "shared/feature_card",
-                   title: "Consistent, Thoughtful Feedback",
-                   description: "Every student receives detailed, personalized feedback based on your rubric. No more rushing through the last few papers." %>
+          <%= render "shared/feature_card",
+                    title: "Consistent, Thoughtful Feedback",
+                    description: "Every student receives detailed, personalized feedback based on your rubric. No more rushing through the last few papers." %>
 
-        <%= render "shared/feature_card",
-                   title: "Simple Setup, Powerful Results",
-                   description: "Works directly with Google Docs. No new systems to learn, no complicated setup. Just select your folder and start grading." %>
+          <%= render "shared/feature_card",
+                    title: "Simple Setup, Powerful Results",
+                    description: "Works directly with Google Docs. No new systems to learn, no complicated setup. Just select your folder and start grading." %>
       <% end %>
 
       <%= render "shared/section", title: "How it Works", id: "how-it-works", container_classes: "mt-32" do %>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
           <%= render "shared/step_card",
                      step_number: 1,
-                     title: "Upload Your Assignments",
-                     description: "Connect your Google Drive and select the folder with student assignments." %>
+                     title: "Define Your Assignment",
+                     description: "Paste in your assignment prompt and grading rubric." %>
 
           <%= render "shared/step_card",
                      step_number: 2,
-                     title: "Define Your Rubric",
-                     description: "Set up your grading criteria or use one of our templates to get started quickly." %>
+                     title: "Select Your Student Work",
+                     description: "Select the Google documents with student assignments." %>
 
           <%= render "shared/step_card",
                      step_number: 3,
