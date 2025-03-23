@@ -20,7 +20,7 @@ class StudentSubmission::BroadcasterTest < ActiveSupport::TestCase
     # Test that it also broadcasts to the submission detail page
     assert_broadcasts("student_submission_#{@student_submission.id}", 2) do
       # The broadcast should update the detail view and header status
-      broadcaster = StudentSubmission::Broadcaster.new(@submission)
+      broadcaster = StudentSubmission::Broadcaster.new(@student_submission)
       broadcaster.broadcast_update
     end
   end
