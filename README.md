@@ -69,7 +69,4 @@ GradeBot uses a dedicated status management system to handle the state transitio
 3. **Database Performance**
    - Queries are optimized with an index on `student_submissions(grading_task_id, status)`.
 
-4. **Command Pattern Integration**
-   - Commands like `ProcessGradingTaskCommand` and `ProcessStudentSubmissionCommand` explicitly call the `StatusManager` for status transitions.
-
 This architecture simplifies the status management code, prevents data inconsistencies, and provides clear boundaries between different components.

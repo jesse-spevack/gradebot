@@ -2,14 +2,14 @@
 
 require "test_helper"
 
-class GradingServiceTest < ActiveSupport::TestCase
+class Grading::GradingServiceTest < ActiveSupport::TestCase
   setup do
     # Setup for feature flag testing
     @user = users(:admin)
     @feature_flag_service = FeatureFlagService.new
 
     # Ensure the LLM feature flag exists
-    flag = FeatureFlag.find_or_create_by(key: "llm_enabled") do |f|
+    FeatureFlag.find_or_create_by(key: "llm_enabled") do |f|
       f.name = "LLM Enabled"
       f.enabled = false
     end
@@ -31,7 +31,7 @@ class GradingServiceTest < ActiveSupport::TestCase
   end
 
   test "exists as a service class" do
-    assert_kind_of Class, GradingService
+    assert_kind_of Class, Grading::GradingService
   end
 
   test "initializes with default configuration" do
@@ -39,24 +39,24 @@ class GradingServiceTest < ActiveSupport::TestCase
     test_config = { provider: :test, model: "test-model", temperature: 0.5 }
     stub_task_config(:grade_assignment, test_config)
 
-    service = GradingService.new
+    service = Grading::GradingService.new
 
     # Should use the default config for grade_assignment
-    assert_kind_of GradingService, service
+    assert_kind_of Grading::GradingService, service
   end
 
   test "initializes with custom configuration" do
     custom_config = { provider: :openai, model: "gpt-4", temperature: 0.5 }
-    service = GradingService.new(custom_config)
+    service = Grading::GradingService.new(custom_config)
 
-    assert_kind_of GradingService, service
+    assert_kind_of Grading::GradingService, service
   end
 
   test "returns error message when LLM is disabled" do
     # Ensure LLM is disabled via our helper
     stub_llm_enabled(false)
 
-    service = GradingService.new
+    service = Grading::GradingService.new
     result = service.grade_submission(@document_content, @assignment_prompt, @grading_rubric)
 
     assert_equal "LLM grading is not enabled. Please contact an administrator.", result.error
@@ -93,7 +93,7 @@ class GradingServiceTest < ActiveSupport::TestCase
       overall_grade: "B",
       rubric_scores: { "Content" => 30, "Structure" => 25, "Grammar" => 28 }
     )
-    ResponseParser.stubs(:parse).returns(mock_result)
+    Grading::ResponseParser.stubs(:parse).returns(mock_result)
 
     # Expect the generate method to be called with an LLMRequest containing the test prompt
     mock_client.expects(:generate).with do |request|
@@ -104,7 +104,7 @@ class GradingServiceTest < ActiveSupport::TestCase
     LLM::ClientFactory.stubs(:create).returns(mock_client)
 
     # Test the service
-    service = GradingService.new
+    service = Grading::GradingService.new
     result = service.grade_submission(@document_content, @assignment_prompt, @grading_rubric)
 
     # Verify the response
@@ -136,7 +136,7 @@ class GradingServiceTest < ActiveSupport::TestCase
     PromptTemplate.stubs(:render).with(:grading, anything).returns(test_prompt)
 
     # Make ResponseParser raise a parsing error
-    ResponseParser.stubs(:parse).raises(ParsingError.new("Invalid JSON format"))
+    Grading::ResponseParser.stubs(:parse).raises(ParsingError.new("Invalid JSON format"))
 
     # Expect the generate method to be called with an LLMRequest containing the test prompt
     mock_client.expects(:generate).with do |request|
@@ -144,7 +144,7 @@ class GradingServiceTest < ActiveSupport::TestCase
     end.returns(mock_response)
 
     # Test the service
-    service = GradingService.new
+    service = Grading::GradingService.new
     result = service.grade_submission(@document_content, @assignment_prompt, @grading_rubric)
 
     # Verify the response contains the error
@@ -165,11 +165,8 @@ class GradingServiceTest < ActiveSupport::TestCase
     # Stub Rails logger to avoid formatting issues in tests
     Rails.logger.stubs(:error)
 
-    # Stub the GradingLogger to allow any calls
-    GradingLogger.stubs(:log_grading_error)
-
     # Test the service
-    service = GradingService.new
+    service = Grading::GradingService.new
     result = service.grade_submission(@document_content, @assignment_prompt, @grading_rubric)
 
     # Verify the response contains error information
@@ -179,7 +176,7 @@ class GradingServiceTest < ActiveSupport::TestCase
   test "uses ContentCleaner to clean document content" do
     # Test with document containing tabs and unusual characters
     dirty_content = "Line 1\tWith tab\nLine 2\r\nWith different newline\u0000Null char"
-    clean_content = ContentCleaner.clean(dirty_content)
+    clean_content = Grading::ContentCleaner.clean(dirty_content)
 
     # Verify content was cleaned
     refute_includes clean_content, "\t"
@@ -221,7 +218,7 @@ class GradingServiceTest < ActiveSupport::TestCase
       overall_grade: "B",
       rubric_scores: { "Content" => 30, "Structure" => 25, "Grammar" => 28 }
     )
-    ResponseParser.stubs(:parse).returns(mock_result)
+    Grading::ResponseParser.stubs(:parse).returns(mock_result)
 
     # Expect the generate method to be called with an LLMRequest containing the user and trackable
     mock_client.expects(:generate).with do |request|
@@ -232,7 +229,7 @@ class GradingServiceTest < ActiveSupport::TestCase
     end.returns(mock_response)
 
     # Test the service with user and trackable parameters
-    service = GradingService.new
+    service = Grading::GradingService.new
     result = service.grade_submission(
       @document_content,
       @assignment_prompt,

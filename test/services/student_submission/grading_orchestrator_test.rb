@@ -1,12 +1,12 @@
 require "test_helper"
 
-class GradingOrchestratorTest < ActiveSupport::TestCase
+class Grading::GradingOrchestratorTest < ActiveSupport::TestCase
   test "orchestrates the grading process of a student submission" do
     student_submission = student_submissions(:pending_submission)
     document_content = "This is a test document"
     grading_task = student_submission.grading_task
     grading_service = mock
-    GradingService.stubs(:new).returns(grading_service)
+    Grading::GradingService.stubs(:new).returns(grading_service)
 
     grading_service.expects(:grade_submission).with(
       document_content,
@@ -24,7 +24,7 @@ class GradingOrchestratorTest < ActiveSupport::TestCase
       )
     )
 
-    orchestrator = GradingOrchestrator.new(
+    orchestrator = Grading::GradingOrchestrator.new(
       student_submission: student_submission,
       document_content: document_content
     )

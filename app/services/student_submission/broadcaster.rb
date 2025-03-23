@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# The SubmissionBroadcaster service is responsible for broadcasting updates about student submissions
+# The StudentSubmission::Broadcaster service is responsible for broadcasting updates about student submissions
 # to various UI components using Turbo Streams. It encapsulates all broadcasting logic in one place
 # and organizes broadcasts by UI component.
 #
@@ -9,11 +9,11 @@
 # 2. Update broadcasts - when an existing submission is updated
 #
 # It also handles special cases like the first submission for a grading task.
-class SubmissionBroadcaster
+class StudentSubmission::Broadcaster
   # Initialize with a student submission
   # @param submission [StudentSubmission] The submission to broadcast
-  def initialize(submission)
-    @submission = submission
+  def initialize(student_submission)
+    @student_submission = student_submission
     load_data
   end
 
@@ -47,13 +47,13 @@ class SubmissionBroadcaster
   # @return [void]
   def load_data
     # Only reload if the submission has been persisted
-    @submission.reload if @submission.persisted?
+    @student_submission.reload if @student_submission.persisted?
 
-    @grading_task = @submission.grading_task
+    @grading_task = @student_submission.grading_task
     # Only reload the grading task if it has been persisted
     @grading_task.reload if @grading_task.persisted?
 
-    @submissions = @grading_task.student_submissions.oldest_first
+    @student_submissions = @grading_task.student_submissions.oldest_first
   end
 
   # Check if this is the first submission for the grading task
@@ -155,9 +155,9 @@ class SubmissionBroadcaster
   def broadcast_submission_card
     broadcast_replace_to(
       grading_task_channel,
-      dom_id(@submission),
+      dom_id(@student_submission),
       "student_submissions/submission_card",
-      { submission: @submission }
+      { student_submission: @student_submission }
     )
   end
 
@@ -166,9 +166,9 @@ class SubmissionBroadcaster
   def broadcast_submission_table_row
     broadcast_replace_to(
       grading_task_channel,
-      "#{dom_id(@submission)}_table_row",
+      "#{dom_id(@student_submission)}_table_row",
       "student_submissions/table_row",
-      { submission: @submission }
+      { student_submission: @student_submission }
     )
   end
 
@@ -177,9 +177,9 @@ class SubmissionBroadcaster
   def broadcast_submission_detail
     broadcast_replace_to(
       submission_channel,
-      "#{dom_id(@submission)}_detail",
+      "#{dom_id(@student_submission)}_detail",
       "student_submissions/detail",
-      { student_submission: @submission }
+      { student_submission: @student_submission }
     )
   end
 
@@ -190,7 +190,7 @@ class SubmissionBroadcaster
       submission_channel,
       "header_status",
       "student_submissions/header_status",
-      { student_submission: @submission }
+      { student_submission: @student_submission }
     )
   end
 
@@ -218,7 +218,7 @@ class SubmissionBroadcaster
       grading_task_channel,
       "#{dom_id(@grading_task)}_submission_counts",
       "grading_tasks/submission_counts",
-      { student_submissions: @submissions }
+      { student_submissions: @student_submissions }
     )
 
     # 4. Send a full update for the progress section
@@ -271,7 +271,7 @@ class SubmissionBroadcaster
   # Channel for submission broadcasts
   # @return [String] The channel name
   def submission_channel
-    "student_submission_#{@submission.id}"
+    "student_submission_#{@student_submission.id}"
   end
 
   # ID for the submissions list container
@@ -296,7 +296,7 @@ class SubmissionBroadcaster
   # @return [Hash] The locals
   def submission_list_locals
     {
-      submissions: @submissions,
+      student_submissions: @student_submissions,
       grading_task: @grading_task
     }
   end
@@ -306,7 +306,7 @@ class SubmissionBroadcaster
   def progress_section_locals
     {
       grading_task: @grading_task,
-      student_submissions: @submissions
+      student_submissions: @student_submissions
     }
   end
 
@@ -315,7 +315,7 @@ class SubmissionBroadcaster
   def grading_task_locals
     {
       grading_task: @grading_task,
-      student_submissions: @submissions
+      student_submissions: @student_submissions
     }
   end
 end

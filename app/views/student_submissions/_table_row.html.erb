@@ -1,15 +1,15 @@
 <%#
-  Display a single student submission as a table row (for desktop view)
+  Display a single student student_submission as a table row (for desktop view)
   
   Parameters:
-  - submission: The student submission object to display
+  - student_submission: The student student_submission object to display
 %>
 
-<tr id="<%= dom_id(submission) %>_table_row" data-submission-id="<%= submission.id %>" onclick="window.location='<%= student_submission_path(submission) %>'" class="hover:bg-gray-50 transition-colors duration-150 cursor-pointer">
+<tr id="<%= dom_id(student_submission) %>_table_row" data-student_submission-id="<%= student_submission.id %>" onclick="window.location='<%= student_submission_path(student_submission) %>'" class="hover:bg-gray-50 transition-colors duration-150 cursor-pointer">
   <td class="whitespace-nowrap py-4 pl-6 pr-3">
     <div class="flex items-center">
       <% 
-        icon_classes = case submission.status
+        icon_classes = case student_submission.status
           when 'pending' then 'text-yellow-600 bg-yellow-50'
           when 'processing' then 'text-blue-600 bg-blue-50'
           when 'completed' then 'text-green-600 bg-green-50'
@@ -17,7 +17,7 @@
         end
       %>
       <div class="p-1.5 rounded-md mr-3 <%= icon_classes %>">
-        <% case submission.status %>
+        <% case student_submission.status %>
         <% when 'pending' %>
           <%= render "shared/icons/clock", class: "h-5 w-5" %>
         <% when 'processing' %>
@@ -28,12 +28,12 @@
           <%= render "shared/icons/x_mark", class: "h-5 w-5" rescue nil %>
         <% end %>
       </div>
-      <span class="font-medium text-gray-900 text-sm"><%= submission.original_doc_id.truncate(30) %></span>
+      <span class="font-medium text-gray-900 text-sm"><%= student_submission.original_doc_id.truncate(30) %></span>
     </div>
   </td>
   <td class="px-3 py-4">
     <% 
-      status_classes = case submission.status
+      status_classes = case student_submission.status
         when 'pending' then 'bg-yellow-100 text-yellow-800'
         when 'processing' then 'bg-blue-100 text-blue-800'
         when 'completed' then 'bg-green-100 text-green-800'
@@ -41,13 +41,13 @@
       end
     %>
     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= status_classes %>">
-      <%= submission.status.capitalize %>
+      <%= student_submission.status.capitalize %>
     </span>
   </td>
   <td class="whitespace-nowrap px-3 py-4">
     <div class="flex items-center text-sm text-gray-500">
       <%= render "shared/icons/clock", class: "h-4 w-4 mr-1.5 text-gray-400" %>
-      <%= time_ago_in_words(submission.created_at) %> ago
+      <%= time_ago_in_words(student_submission.created_at) %> ago
     </div>
   </td>
   <td class="relative whitespace-nowrap py-4 pl-3 pr-6 text-right text-sm">

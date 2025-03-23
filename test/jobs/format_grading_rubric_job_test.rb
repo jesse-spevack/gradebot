@@ -16,7 +16,7 @@ class FormatGradingRubricJobTest < ActiveJob::TestCase
     mock_formatter.expect :format, @grading_task, [ @grading_task ]
 
     # Stub the formatter class
-    GradingRubricFormatterService.stub :new, mock_formatter do
+    GradingTask::GradingRubricFormatterService.stub :new, mock_formatter do
       # Stub the broadcast to avoid actual broadcasts
       Turbo::StreamsChannel.stub :broadcast_replace_to, nil do
         # Perform the job
@@ -32,7 +32,7 @@ class FormatGradingRubricJobTest < ActiveJob::TestCase
     error = StandardError.new("Test error")
 
     # Mock the formatter service to raise an error
-    GradingRubricFormatterService.stub :new, -> { raise error } do
+    GradingTask::GradingRubricFormatterService.stub :new, -> { raise error } do
       # Stub Rails logger to verify it's called
       Rails.logger.stub :error, nil do
         # Perform the job - should not raise an error
@@ -63,7 +63,7 @@ class FormatGradingRubricJobTest < ActiveJob::TestCase
     end
 
     # Stub the formatter class
-    GradingRubricFormatterService.stub :new, mock_formatter do
+    GradingTask::GradingRubricFormatterService.stub :new, mock_formatter do
       # Stub the broadcast to avoid actual broadcasts
       Turbo::StreamsChannel.stub :broadcast_replace_to, nil do
         # Perform the job - should not raise an error

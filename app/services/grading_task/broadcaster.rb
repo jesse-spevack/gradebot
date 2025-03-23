@@ -1,4 +1,4 @@
-class GradingTaskBroadcaster
+class GradingTask::Broadcaster
   attr_reader :grading_task
 
   def initialize(grading_task)

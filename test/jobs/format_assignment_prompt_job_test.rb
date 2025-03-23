@@ -24,7 +24,7 @@ class FormatAssignmentPromptJobTest < ActiveJob::TestCase
     mock_formatter.expect :format, @grading_task, [ @grading_task ]
 
     # Stub the formatter class
-    AssignmentPromptFormatterService.stub :new, mock_formatter do
+    GradingTask::AssignmentPromptFormatterService.stub :new, mock_formatter do
       # Perform the job
       FormatAssignmentPromptJob.perform_now(@grading_task.id)
     end
@@ -44,7 +44,7 @@ class FormatAssignmentPromptJobTest < ActiveJob::TestCase
     # Mock the formatter
     formatter = mock
     formatter.stubs(:format).returns(@grading_task)
-    AssignmentPromptFormatterService.stubs(:new).returns(formatter)
+    GradingTask::AssignmentPromptFormatterService.stubs(:new).returns(formatter)
 
     # Perform the job
     FormatAssignmentPromptJob.perform_now(@grading_task.id)
@@ -63,7 +63,7 @@ class FormatAssignmentPromptJobTest < ActiveJob::TestCase
     error = StandardError.new("Test error")
 
     # Mock the formatter service to raise an error
-    AssignmentPromptFormatterService.stub :new, -> { raise error } do
+    GradingTask::AssignmentPromptFormatterService.stub :new, -> { raise error } do
       # Stub Rails logger to verify it's called
       Rails.logger.stub :error, nil do
         # Perform the job - should not raise an error
@@ -95,7 +95,7 @@ class FormatAssignmentPromptJobTest < ActiveJob::TestCase
     # This should not be called
 
     # Stub the formatter class
-    AssignmentPromptFormatterService.stub :new, mock_formatter do
+    GradingTask::AssignmentPromptFormatterService.stub :new, mock_formatter do
       # Perform the job
       FormatAssignmentPromptJob.perform_now(@grading_task.id)
     end

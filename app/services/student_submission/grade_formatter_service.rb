@@ -1,25 +1,25 @@
 # frozen_string_literal: true
 
 # Service to format grading results for storage
-class GradeFormatterService
-  # @param grading_result [GradingResponse] The grading result to format
+class StudentSubmission::GradeFormatterService
+  # @param grading_response [GradingResponse] The grading result to format
   # @param document_content [String] The content of the document that was graded
-  # @param submission [StudentSubmission] The submission that was graded
-  def initialize(grading_result, document_content, submission)
-    @result = grading_result
+  # @param student_submission [StudentSubmission] The submission that was graded
+  def initialize(grading_response:, document_content:, student_submission:)
+    @grading_response = grading_response
     @document_content = document_content
-    @submission = submission
+    @student_submission = student_submission
   end
 
   # Formats the grading result for storage in the database
   # @return [Hash] A hash of attributes for updating the submission
   def format_for_storage
     {
-      feedback: @result.feedback,
-      strengths: format_array_attribute(@result.strengths),
-      opportunities: format_array_attribute(@result.opportunities),
-      overall_grade: @result.overall_grade,
-      rubric_scores: @result.rubric_scores.to_json,
+      feedback: @grading_response.feedback,
+      strengths: format_array_attribute(@grading_response.strengths),
+      opportunities: format_array_attribute(@grading_response.opportunities),
+      overall_grade: @grading_response.overall_grade,
+      rubric_scores: @grading_response.rubric_scores.to_json,
       metadata: build_metadata
     }
   end
@@ -43,14 +43,14 @@ class GradeFormatterService
   # Builds metadata for the submission
   # @return [Hash] The metadata
   def build_metadata
-    existing_metadata = @submission.metadata || {}
+    existing_metadata = @student_submission.metadata || {}
 
     {
-      doc_title: @submission.document_title || "Untitled Document",
-      processing_time: (Time.current - @submission.updated_at).round(1),
+      doc_title: @student_submission.document_title || "Untitled Document",
+      processing_time: (Time.current - @student_submission.updated_at).round(1),
       word_count: @document_content.split(/\s+/).size,
-      summary: @result.summary,
-      question: @result.question
+      summary: @grading_response.summary,
+      question: @grading_response.question
     }.merge(existing_metadata)
   end
 end

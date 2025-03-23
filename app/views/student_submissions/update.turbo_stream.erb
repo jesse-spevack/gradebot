@@ -7,12 +7,12 @@
 
 <%# Update the table row specifically %>
 <%= turbo_stream.replace "#{dom_id(@student_submission)}_table_row" do %>
-  <%= render "student_submissions/table_row", submission: @student_submission %>
+  <%= render "student_submissions/table_row", student_submission: @student_submission %>
 <% end %>
 
 <%# Update the card specifically %>
 <%= turbo_stream.replace "#{dom_id(@student_submission)}_card" do %>
-  <%= render "student_submissions/submission_card", submission: @student_submission %>
+  <%= render "student_submissions/submission_card", student_submission: @student_submission %>
 <% end %>
 
 <%# Update detail view if being viewed %>

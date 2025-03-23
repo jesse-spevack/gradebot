@@ -15,7 +15,7 @@ class FormatAssignmentPromptJob < ApplicationJob
     return unless grading_task.assignment_processing?
 
     begin
-      formatter = AssignmentPromptFormatterService.new
+      formatter = GradingTask::AssignmentPromptFormatterService.new
       formatter.format(grading_task)
 
       # Reload the grading task to ensure we have the latest data

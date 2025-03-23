@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require_relative "../errors/api_overload_error"
+require_relative "../../errors/api_overload_error"
 
 # Parses LLM responses into structured data
-class ResponseParser
+class Grading::ResponseParser
   def self.parse(response)
     return GradingResponse.new(error: "No response to parse") if response.blank?
 

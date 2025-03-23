@@ -2,7 +2,7 @@
 
 require "test_helper"
 
-class ResponseParserTest < ActiveSupport::TestCase
+class Grading::ResponseParserTest < ActiveSupport::TestCase
   setup do
     @valid_json_response = '{
       "feedback": "This is feedback",
@@ -24,7 +24,7 @@ class ResponseParserTest < ActiveSupport::TestCase
   end
 
   test "parses valid JSON response" do
-    result = ResponseParser.parse(@valid_json_response)
+    result = Grading::ResponseParser.parse(@valid_json_response)
     assert result.success?
     assert_equal "This is feedback", result.feedback
     assert_equal [ "Strength 1", "Strength 2" ], result.strengths
@@ -34,14 +34,14 @@ class ResponseParserTest < ActiveSupport::TestCase
   end
 
   test "parses summary and question fields from JSON response" do
-    result = ResponseParser.parse(@valid_json_with_summary_question)
+    result = Grading::ResponseParser.parse(@valid_json_with_summary_question)
     assert result.success?
     assert_equal "This is a summary", result.summary
     assert_equal "This is a question", result.question
   end
 
   test "returns error for blank response" do
-    result = ResponseParser.parse("")
+    result = Grading::ResponseParser.parse("")
     assert_not result.success?
     assert_equal "No response to parse", result.error
   end
@@ -57,9 +57,9 @@ class ResponseParserTest < ActiveSupport::TestCase
       )
     )
 
-    ResponseParser.stubs(:strategies).returns([ mock_strategy ])
+    Grading::ResponseParser.stubs(:strategies).returns([ mock_strategy ])
 
-    result = ResponseParser.parse(invalid_json)
+    result = Grading::ResponseParser.parse(invalid_json)
     assert result.success?
     assert_equal "test feedback", result.feedback
   end
@@ -69,10 +69,10 @@ class ResponseParserTest < ActiveSupport::TestCase
     mock_strategy = mock("TestStrategy")
     mock_strategy.expects(:parse).raises(StandardError.new("test error"))
 
-    ResponseParser.stubs(:strategies).returns([ mock_strategy ])
+    Grading::ResponseParser.stubs(:strategies).returns([ mock_strategy ])
 
     assert_raises StandardError do
-      ResponseParser.parse(invalid_json)
+      Grading::ResponseParser.parse(invalid_json)
     end
   end
 end

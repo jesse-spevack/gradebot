@@ -5,7 +5,7 @@
 # This service handles the interaction with LLM models to generate
 # feedback and grades for student submissions based on assignment prompts
 # and grading rubrics.
-class GradingService
+class Grading::GradingService
   attr_reader :config
 
   # Initialize a new grading service
@@ -26,7 +26,7 @@ class GradingService
   def grade_submission(document_content, assignment_prompt, grading_rubric, submission = nil, user = nil)
     return GradingResponse.error("LLM grading is not enabled. Please contact an administrator.") unless LLM::Configuration.enabled?
 
-    content = ContentCleaner.clean(document_content)
+    content = Grading::ContentCleaner.clean(document_content)
     prompt = PromptBuilder.build(:grading, {
       document_content: content,
       assignment_prompt: assignment_prompt,
@@ -62,7 +62,7 @@ class GradingService
 
     Rails.logger.info("LLM response: #{response}")
     Rails.logger.info("LLM response content: #{response[:content]}")
-    result = ResponseParser.parse(response[:content])
+    result = Grading::ResponseParser.parse(response[:content])
 
     GradingResponse.new(
       feedback: result.feedback,

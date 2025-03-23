@@ -72,12 +72,8 @@ class Strategies::JsonStrategyTest < ActiveSupport::TestCase
       "scores" => { "test" => 5 }
     })
 
-    # Mock the logging to avoid errors during test
-    GradingLogger.stubs(:capture_parsing_attempt).returns({})
-    GradingLogger.stubs(:log_parsing_success)
-
     # Test the parsing
-    result = ResponseParser.parse(@valid_json)
+    result = Grading::ResponseParser.parse(@valid_json)
     assert_equal "Test feedback", result.feedback
     assert_equal [ "Test strength" ], result.strengths
     assert_equal [ "Test opportunity" ], result.opportunities

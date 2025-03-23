@@ -1,13 +1,13 @@
 require "test_helper"
 
-class AssignmentPromptFormatterServiceTest < ActiveSupport::TestCase
+class GradingTask::AssignmentPromptFormatterServiceTest < ActiveSupport::TestCase
   def setup
     @grading_task = mock("GradingTask")
     @grading_task.stubs(:id).returns(123)
     @grading_task.stubs(:assignment_prompt).returns("Write an essay about climate change")
     @grading_task.stubs(:user).returns(users(:teacher))
 
-    @service = AssignmentPromptFormatterService.new
+    @service = GradingTask::AssignmentPromptFormatterService.new
   end
 
   test "formats assignment prompt using LLM" do
@@ -54,7 +54,7 @@ class AssignmentPromptFormatterServiceTest < ActiveSupport::TestCase
     grading_task = mock("GradingTask")
 
     # Mock the service with a real instance but stub the private method
-    service = AssignmentPromptFormatterService.new
+    service = GradingTask::AssignmentPromptFormatterService.new
 
     # Set up the sequence of events for the update_with_retry method
     update_sequence = sequence("update_sequence")

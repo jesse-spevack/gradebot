@@ -204,8 +204,7 @@ class StatusManager
   # Broadcast an update to a student submission
   # @param submission [StudentSubmission] the submission to broadcast
   def self.broadcast_student_submission_update(submission)
-    # Delegate to the SubmissionBroadcaster service
-    SubmissionBroadcaster.new(submission).broadcast_update
+    StudentSubmission::Broadcaster.new(submission).broadcast_update
   end
 
   private
@@ -216,9 +215,8 @@ class StatusManager
     # Find the most recent submission for this grading task
     submission = grading_task.student_submissions.order(updated_at: :desc).first
 
-    # If there's a submission, use the SubmissionBroadcaster to update the task components
     if submission
-      broadcaster = SubmissionBroadcaster.new(submission)
+      broadcaster = StudentSubmission::Broadcaster.new(submission)
       broadcaster.broadcast_update
     end
   end

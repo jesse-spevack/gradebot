@@ -198,7 +198,7 @@ class GradingTask < ApplicationRecord
   # Broadcast status update to the UI
   def broadcast_status_update(include_assignment_prompt: false, include_grading_rubric: false)
     Rails.logger.debug("Broadcasting status update for grading task #{id}")
-    broadcaster = GradingTaskBroadcaster.new(self)
+    broadcaster = GradingTask::Broadcaster.new(self)
     broadcaster.broadcast_grading_task_status_update
 
     if include_assignment_prompt

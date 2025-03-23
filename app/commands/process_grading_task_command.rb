@@ -1,25 +1,13 @@
 # frozen_string_literal: true
 
-# Command to process a grading task by fetching documents and creating submissions
-#
-# This command takes a grading task ID, fetches documents from the associated
-# Google Drive folder, and creates student submissions for each document.
-class ProcessGradingTaskCommand < BaseCommand
-  attr_reader :grading_task_id
-
-  def initialize(grading_task_id:)
-    super
-  end
-
+class ProcessGradingTaskCommand < CommandBase
   def execute
     grading_task = find_grading_task
     return nil unless grading_task
 
     begin
-      # Start the workflow
       grading_task.start_assignment_processing!
 
-      # Return the grading task as the result
       grading_task
     rescue StandardError => e
       handle_error(e.message)
@@ -30,8 +18,6 @@ class ProcessGradingTaskCommand < BaseCommand
 
   private
 
-  # Find the grading task by ID
-  # @return [GradingTask, nil] The grading task or nil if not found
   def find_grading_task
     grading_task = GradingTask.find_by(id: grading_task_id)
     unless grading_task
@@ -43,10 +29,8 @@ class ProcessGradingTaskCommand < BaseCommand
     grading_task
   end
 
-  # Handle and log an error
-  # @param message [String] The error message
   def handle_error(message)
-    Rails.logger.error(message)
+    Rails.logger.error("Error processing grading task #{grading_task_id}: #{message}")
     @errors << message
   end
 end

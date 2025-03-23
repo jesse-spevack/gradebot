@@ -1,4 +1,4 @@
-class AssignmentPromptFormatterService
+class GradingTask::AssignmentPromptFormatterService
   def initialize
     @config = LLM::Configuration.model_for(:format_assignment)
   end

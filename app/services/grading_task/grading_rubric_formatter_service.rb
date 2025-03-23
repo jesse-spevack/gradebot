@@ -1,4 +1,4 @@
-class GradingRubricFormatterService
+class GradingTask::GradingRubricFormatterService
   def initialize
     @config = LLM::Configuration.model_for(:format_rubric)
   end

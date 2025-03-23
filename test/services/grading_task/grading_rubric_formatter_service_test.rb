@@ -1,9 +1,9 @@
 require "test_helper"
 
-class GradingRubricFormatterServiceTest < ActiveSupport::TestCase
+class GradingTask::GradingRubricFormatterServiceTest < ActiveSupport::TestCase
   def setup
     @grading_task = grading_tasks(:one)
-    @service = GradingRubricFormatterService.new
+    @service = GradingTask::GradingRubricFormatterService.new
   end
 
   test "formats grading rubric using LLM" do
@@ -98,7 +98,7 @@ class GradingRubricFormatterServiceTest < ActiveSupport::TestCase
     grading_task = @grading_task.dup
 
     # Create a service instance
-    service = GradingRubricFormatterService.new
+    service = GradingTask::GradingRubricFormatterService.new
 
     # Stub the update! method to fail once then succeed
     update_called = 0

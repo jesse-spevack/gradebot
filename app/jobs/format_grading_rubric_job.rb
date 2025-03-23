@@ -3,7 +3,7 @@
 # Job to format the grading rubric asynchronously
 #
 # This job is triggered when a new GradingTask is created and it formats
-# the grading rubric using the GradingRubricFormatterService.
+# the grading rubric using the GradingTask::GradingRubricFormatterService.
 class FormatGradingRubricJob < ApplicationJob
   queue_as :formatting
 
@@ -15,7 +15,7 @@ class FormatGradingRubricJob < ApplicationJob
     return unless grading_task.rubric_processing?
 
     begin
-      formatter = GradingRubricFormatterService.new
+      formatter = GradingTask::GradingRubricFormatterService.new
       formatter.format(grading_task)
 
       # Reload the grading task to ensure we have the latest data

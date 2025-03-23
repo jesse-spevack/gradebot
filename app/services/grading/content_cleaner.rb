@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Handles cleaning and sanitizing content for LLM prompts
-class ContentCleaner
+class Grading::ContentCleaner
   MAX_LENGTH = 15_000
 
   def self.clean(content)

@@ -35,7 +35,7 @@
         <div id="student_submissions">
           <% if student_submissions.any? %>
             <div id="student_submissions_list_<%= grading_task.id %>">
-              <%= render 'student_submissions/submission_list', submissions: student_submissions, grading_task: grading_task %>
+              <%= render 'student_submissions/submission_list', student_submissions: student_submissions, grading_task: grading_task %>
             </div>
           <% else %>
             <div id="empty_submissions_<%= grading_task.id %>" class="text-center py-8">

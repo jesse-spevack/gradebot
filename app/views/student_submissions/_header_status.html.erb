@@ -18,13 +18,4 @@
   <span class="inline-flex items-center px-2.5 py-1 rounded-full text-sm font-medium <%= status_classes %>">
     <%= student_submission.status.capitalize %>
   </span>
-
-  <% if student_submission.failed? %>
-    <%= button_to retry_student_submission_path(student_submission), 
-                  method: :post, 
-                  class: "inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-sm transition-colors duration-150" do %>
-      <%= render "shared/icons/refresh", class: "h-4 w-4 mr-1.5" rescue nil %>
-      Retry
-    <% end %>
-  <% end %>
 </div> 

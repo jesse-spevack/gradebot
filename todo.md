@@ -86,6 +86,8 @@
 - [ ] Add a summary of all student submissions to the grading task page
 - [ ] Review feature flag views
 - [ ] Review llm pricing views
+- [ ] Add a StudentSubmissionError model and view  
+  - [ ] Add student submission error handling
 
 
 # DONE

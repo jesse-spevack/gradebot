@@ -12,27 +12,21 @@ class StudentSubmissionsForGradingTaskJob < ApplicationJob
   # @param grading_task_id [Integer] The ID of the grading task
   def perform(grading_task_id)
     grading_task = GradingTask.find_by(id: grading_task_id)
-    return unless grading_task
-
-    # Ensure we're in the correct state
-    return unless grading_task.submissions_processing?
+    return unless grading_task&.submissions_processing?
 
     begin
-      # Get all student submissions for this grading task
-      submissions = StudentSubmission.where(grading_task_id: grading_task_id)
+      student_submissions = StudentSubmission.where(grading_task_id: grading_task_id)
 
-      if submissions.empty?
+      if student_submissions.empty?
         Rails.logger.warn("No student submissions found for grading task ID: #{grading_task_id}")
         grading_task.complete_processing!
         return
       end
 
-      Rails.logger.info("Processing #{submissions.count} student submissions for grading task ID: #{grading_task_id}")
+      Rails.logger.info("Processing #{student_submissions.count} student submissions for grading task ID: #{grading_task_id}")
 
-      # Process each submission
-      process_all_submissions(submissions)
+      process_all_student_submissions(student_submissions)
 
-      # Mark the grading task as completed
       grading_task.complete_processing!
     rescue => e
       Rails.logger.error("StudentSubmissionsForGradingTaskJob failed: #{e.message}")
@@ -43,24 +37,9 @@ class StudentSubmissionsForGradingTaskJob < ApplicationJob
 
   private
 
-  def process_all_submissions(submissions)
-    submissions.each do |submission|
-      begin
-        command = ProcessStudentSubmissionCommand.new(student_submission: submission).call
-
-        if command.failure?
-          Rails.logger.error("Failed to process student submission #{submission.id}: #{command.errors.join(', ')}")
-        end
-      rescue => e
-        Rails.logger.error("Error processing student submission #{submission.id}: #{e.message}")
-
-        # Update the submission status to failed
-        StatusManager.transition_submission(
-          submission,
-          :failed,
-          feedback: "Failed to complete grading: #{e.message}"
-        )
-      end
+  def process_all_student_submissions(student_submissions)
+    student_submissions.each do |student_submission|
+      StudentSubmission::Processor.process(student_submission: student_submission)
     end
   end
 end

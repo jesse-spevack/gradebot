@@ -15,8 +15,8 @@ class ProcessGradingTaskCommandTest < ActiveJob::TestCase
     # Expect formatting jobs to be enqueued
     assert_enqueued_with(job: FormatAssignmentPromptJob, args: [ @grading_task.id ]) do
       # Exercise
-      command = ProcessGradingTaskCommand.new(grading_task_id: @grading_task.id)
-      result = command.execute
+      command = ProcessGradingTaskCommand.call(grading_task_id: @grading_task.id)
+      result = command.result
 
       # Verify
       assert_equal @grading_task, result
@@ -37,8 +37,8 @@ class ProcessGradingTaskCommandTest < ActiveJob::TestCase
     GradingTask.stubs(:find_by).with(id: @grading_task.id).returns(mock_grading_task)
 
     # Exercise
-    command = ProcessGradingTaskCommand.new(grading_task_id: @grading_task.id)
-    result = command.execute
+    command = ProcessGradingTaskCommand.call(grading_task_id: @grading_task.id)
+    result = command.result
 
     # Verify
     assert_nil result
@@ -50,8 +50,8 @@ class ProcessGradingTaskCommandTest < ActiveJob::TestCase
     GradingTask.destroy_all
 
     # Exercise
-    command = ProcessGradingTaskCommand.new(grading_task_id: 12345)
-    result = command.execute
+    command = ProcessGradingTaskCommand.call(grading_task_id: 12345)
+    result = command.result
 
     # Verify
     assert_nil result
@@ -69,7 +69,7 @@ class ProcessGradingTaskCommandTest < ActiveJob::TestCase
 
     # Execute
     assert_enqueued_with(job: FormatAssignmentPromptJob, args: [ grading_task.id ]) do
-      ProcessGradingTaskCommand.new(grading_task_id: grading_task.id).execute
+      ProcessGradingTaskCommand.call(grading_task_id: grading_task.id)
     end
 
     # Verify the grading task state
