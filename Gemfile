@@ -49,6 +49,7 @@ gem "omniauth-rails_csrf_protection"
 
 # Google APIs
 gem "google-apis-drive_v3"
+gem "google-apis-docs_v1"
 
 # Charts and Graphs
 gem "chartkick"

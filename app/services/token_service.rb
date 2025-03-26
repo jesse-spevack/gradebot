@@ -97,6 +97,16 @@ class TokenService
     service
   end
 
+  # Create a Google Docs API client with the user's credentials
+  #
+  # @return [Google::Apis::DocsV1::DocsService] a configured Google Docs client
+  # @raise [NoValidTokenError] if no valid token can be found or refreshed
+  def create_google_docs_client
+    service = Google::Apis::DocsV1::DocsService.new
+    service.authorization = access_token
+    service
+  end
+
   private
 
   # Simulate a token refresh for testing

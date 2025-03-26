@@ -88,6 +88,24 @@ class TokenServiceTest < ActiveSupport::TestCase
     assert_equal "client_access_token", client.authorization
   end
 
+  test "should create a Google docs client with valid token" do
+    # Create a valid token
+    UserToken.create!(
+      user: @user,
+      access_token: "client_access_token",
+      refresh_token: "client_refresh_token",
+      expires_at: 1.hour.from_now,
+      scopes: "drive.file"
+    )
+
+    # The service should create a client with this token
+    client = @service.create_google_docs_client
+
+    # Verify client was created with the token
+    assert_equal "client_access_token", client.authorization
+  end
+
+
   test "should handle token refresh failure" do
     # Create an expired token
     token = UserToken.create!(
