@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_22_030849) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_26_030328) do
   create_table "document_selections", force: :cascade do |t|
     t.integer "grading_task_id", null: false
     t.string "document_id", null: false
@@ -19,13 +19,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_22_030849) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["grading_task_id"], name: "index_document_selections_on_grading_task_id"
-  end
-
-  create_table "email_signups", force: :cascade do |t|
-    t.string "email"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["email"], name: "index_email_signups_on_email", unique: true
   end
 
   create_table "feature_flag_audit_logs", force: :cascade do |t|
