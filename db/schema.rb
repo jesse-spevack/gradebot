@@ -10,7 +10,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_26_030328) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_27_031927) do
+  create_table "document_actions", force: :cascade do |t|
+    t.integer "student_submission_id", null: false
+    t.integer "action_type", default: 0, null: false
+    t.integer "status", default: 0, null: false
+    t.text "error_message"
+    t.datetime "completed_at"
+    t.datetime "failed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["status"], name: "index_document_actions_on_status"
+    t.index ["student_submission_id", "action_type"], name: "idx_on_student_submission_id_action_type_fb34529644"
+    t.index ["student_submission_id"], name: "index_document_actions_on_student_submission_id"
+  end
+
   create_table "document_selections", force: :cascade do |t|
     t.integer "grading_task_id", null: false
     t.string "document_id", null: false
@@ -149,6 +163,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_26_030328) do
     t.index ["google_uid"], name: "index_users_on_google_uid", unique: true
   end
 
+  add_foreign_key "document_actions", "student_submissions"
   add_foreign_key "document_selections", "grading_tasks"
   add_foreign_key "feature_flag_audit_logs", "feature_flags"
   add_foreign_key "feature_flag_audit_logs", "users"
