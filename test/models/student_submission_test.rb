@@ -198,6 +198,71 @@ class StudentSubmissionTest < ActiveSupport::TestCase
     assert_equal "Good overall work", strengths.first
   end
 
+  test "last_post_feedback_action returns the most recent post_feedback document action" do
+    # Setup
+    submission = student_submissions(:completed_submission)
+
+    # First create an older document action
+    first_action = DocumentAction.create!(
+      student_submission: submission,
+      action_type: :post_feedback,
+      status: :completed,
+      created_at: 2.days.ago
+    )
+
+    # Then create a newer document action
+    second_action = DocumentAction.create!(
+      student_submission: submission,
+      action_type: :post_feedback,
+      status: :pending,
+      created_at: 1.day.ago
+    )
+
+    # Exercise
+    result = submission.last_post_feedback_action
+
+    # Verify
+    assert_equal second_action, result
+    assert_not_equal first_action, result
+  end
+
+  test "last_post_feedback_action returns nil when no post_feedback actions exist" do
+    # Setup
+    submission = student_submissions(:pending_submission)
+    assert_empty submission.document_actions.post_feedback
+
+    # Exercise & Verify
+    assert_nil submission.last_post_feedback_action
+  end
+
+  test "feedback_posted? returns true when completed post_feedback actions exist" do
+    # Setup
+    submission = student_submissions(:completed_submission)
+    DocumentAction.create!(
+      student_submission: submission,
+      action_type: :post_feedback,
+      status: :completed
+    )
+
+    # Exercise & Verify
+    assert submission.feedback_posted?
+  end
+
+  test "feedback_posted? returns false when no completed post_feedback actions exist" do
+    # Setup
+    submission = student_submissions(:pending_submission)
+
+    # Create a pending post_feedback action (not completed)
+    DocumentAction.create!(
+      student_submission: submission,
+      action_type: :post_feedback,
+      status: :pending
+    )
+
+    # Exercise & Verify
+    assert_not submission.feedback_posted?
+  end
+
   test "display_strengths handles missing data" do
     submission = student_submissions(:pending_submission)
     strengths = submission.display_strengths

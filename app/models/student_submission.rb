@@ -1,30 +1,9 @@
 # frozen_string_literal: true
 
-# The StudentSubmission model represents a student's document that is being processed by the system
-# for grading. It tracks the document through various states from submission to completion.
-#
-# == Status Flow
-# A submission follows this standard flow:
-#   pending -> processing -> completed
-#
-# If processing fails, it can go to the failed state:
-#   pending -> processing -> failed
-#   pending -> failed (for direct failures)
-#
-# Once a submission is in completed or failed state, it cannot transition to other states.
-# Exception: Failed submissions can be retried using the retry! method which resets them to pending.
-#
-# == Attributes
-#   * grading_task - The grading task this submission belongs to
-#   * original_doc_id - Google Doc ID of the original submission document
-#   * status - Current status of the submission (pending, processing, completed, failed)
-#   * feedback - Textual feedback for the student
-#   * graded_doc_id - Google Doc ID of the graded document (when completed)
 class StudentSubmission < ApplicationRecord
   # Use optimistic locking
   # This model has a lock_version column for this purpose
 
-  # Constants - kept for reference but actual transition logic moved to StatusManager
   ALLOWED_TRANSITIONS = {
     pending: [ :processing, :failed ],
     processing: [ :completed, :failed ],
@@ -32,18 +11,12 @@ class StudentSubmission < ApplicationRecord
     failed: []
   }.freeze
 
-  # Associations
   belongs_to :grading_task
   belongs_to :document_selection, optional: true
+  has_many :document_actions
 
-
-  # Validations
   validates :original_doc_id, presence: true
 
-  # Status transitions are now validated by StatusManager service
-  # Status updates should go through StatusManager.transition_submission
-
-  # Enums
   enum :status, {
     pending: 0,
     processing: 1,
@@ -51,7 +24,6 @@ class StudentSubmission < ApplicationRecord
     failed: 3
   }
 
-  # Scopes
   scope :pending, -> { where(status: :pending) }
   scope :processing, -> { where(status: :processing) }
   scope :completed, -> { where(status: :completed) }
@@ -63,8 +35,6 @@ class StudentSubmission < ApplicationRecord
   scope :needs_processing, -> { pending.oldest_first }
   scope :created_after, ->(date) { where("created_at >= ?", date) }
   scope :created_before, ->(date) { where("created_at <= ?", date) }
-
-  # Methods for accessing structured grading data
 
   # Returns the document title if available
   # @return [String] Document title or a default value
@@ -143,6 +113,14 @@ class StudentSubmission < ApplicationRecord
     else
       {}
     end
+  end
+
+  def last_post_feedback_action
+    document_actions.post_feedback.most_recent.first
+  end
+
+  def feedback_posted?
+    document_actions.completed_post_feedback.exists?
   end
 
   # Returns true if this submission can transition to the given status

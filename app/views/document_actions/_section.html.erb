@@ -1,0 +1,29 @@
+<!-- app/views/document_actions/_section.html.erb -->
+<div id="document_action_section_<%= document_action.student_submission_id %>">
+  <% if document_action.student_submission.completed? %>
+    <% latest_action = document_action.student_submission.document_actions.post_feedback.order(created_at: :desc).first %>
+    
+    <% if latest_action&.completed? %>
+      <div class="flex items-center text-sm text-gray-600">
+        <%= render "shared/icons/check_circle", class: "h-5 w-5 text-green-600 mr-2" %>
+        Feedback posted to Google Doc <%= time_ago_in_words(latest_action.completed_at) %> ago
+      </div>
+    <% elsif latest_action&.processing? || latest_action&.created? %>
+      <div class="flex items-center text-sm text-gray-600">
+        <%= render "shared/spinner", size: "h-5 w-5", color: "text-blue-600" %>
+        <span class="ml-2">Posting feedback to Google Doc...</span>
+      </div>
+    <% elsif latest_action&.failed? %>
+      <div class="flex items-center text-sm text-red-600 mb-2">
+        <%= render "shared/icons/x_circle", class: "h-5 w-5 text-red-600 mr-2" %>
+        Failed to post feedback: <%= latest_action.error_message || "Unknown error" %>
+      </div>
+    <% else %>
+      <%= form_with model: DocumentAction.new, url: student_submission_document_actions_path(document_action.student_submission) do |f| %>
+        <%= f.hidden_field :action_type, value: "post_feedback" %>
+        <%= f.submit "Post Feedback to Google Doc", 
+                    class: "px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors duration-150" %>
+      <% end %>
+    <% end %>
+  <% end %>
+</div>
