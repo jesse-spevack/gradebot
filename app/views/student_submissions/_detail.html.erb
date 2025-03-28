@@ -12,45 +12,39 @@
       <%= render "shared/icons/document", class: "h-5 w-5 text-blue-600 mr-2" %>
       <h3 class="text-lg font-medium text-gray-900">Document</h3>
     </div>
-    <div class="flex items-center justify-between">
+    <div>
       <p class="text-gray-600">
-        <strong>Document ID:</strong> <%= turncate_doc_id(student_submission.original_doc_id) %>
+        <strong>Document ID:</strong>
+        <%= link_to turncate_doc_id(student_submission.original_doc_id), "https://docs.google.com/document/d/#{student_submission.original_doc_id}/edit",
+            target: "_blank",
+            class: "text-blue-600 hover:text-blue-800 underline" %>
+        <%= render "shared/icons/external_link", class: "inline-block ml-1 h-3 w-3 text-blue-600" rescue nil %>
       </p>
-      
-      <%= link_to "https://docs.google.com/document/d/#{student_submission.original_doc_id}/edit",
-         target: "_blank",
-         class: "inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-sm transition-colors duration-150" do %>
-        <span>Open Original Document</span>
-        <%= render "shared/icons/external_link", class: "ml-1.5 h-4 w-4" rescue nil %>
-      <% end %>
     </div>
   </div>
 
   <% if student_submission.completed? && student_submission.graded_doc_id.present? %>
     <!-- Graded Document section -->
-    <div class="pt-2">
+    <div>
       <div class="flex items-center mb-4">
         <%= render "shared/icons/check_circle", class: "h-5 w-5 text-green-600 mr-2" %>
         <h3 class="text-lg font-medium text-gray-900">Graded Document</h3>
       </div>
-      <div class="flex items-center justify-between">
+      <div>
         <p class="text-gray-600">
-          <strong>Graded Document ID:</strong> <%= student_submission.graded_doc_id %>
+          <strong>Graded Document ID:</strong>
+          <%= link_to student_submission.graded_doc_id, "https://docs.google.com/document/d/#{student_submission.graded_doc_id}/edit", 
+              target: "_blank",
+              class: "text-blue-600 hover:text-blue-800 underline" %>
+          <%= render "shared/icons/external_link", class: "inline-block ml-1 h-3 w-3 text-blue-600" rescue nil %>
         </p>
-        
-        <%= link_to "https://docs.google.com/document/d/#{student_submission.graded_doc_id}/edit", 
-           target: "_blank",
-           class: "inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md shadow-sm transition-colors duration-150" do %>
-          <span>Open Graded Document</span>
-          <%= render "shared/icons/external_link", class: "ml-1.5 h-4 w-4" rescue nil %>
-        <% end %>
       </div>
     </div>
   <% end %>
 
   <% if student_submission.completed? %>
     <!-- Grading Results section -->
-    <div class="pt-2">
+    <div>
       <div class="flex items-center mb-4">
         <h3 class="text-lg font-medium text-gray-900">Grading Results</h3>
       </div>

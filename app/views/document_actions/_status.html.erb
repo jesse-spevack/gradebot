@@ -1,0 +1,21 @@
+<!-- app/views/document_actions/_status.html.erb -->
+<div id="document_action_status_<%= document_action.id %>">
+  <% case document_action.status %>
+  <% when 'created' %>
+    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+      Pending
+    </span>
+  <% when 'processing' %>
+    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+      Processing
+    </span>
+  <% when 'completed' %>
+    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+      Completed
+    </span>
+  <% when 'failed' %>
+    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+      Failed
+    </span>
+  <% end %>
+</div>

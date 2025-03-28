@@ -17,7 +17,12 @@
 <% end %>
 
 <% content_for :content do %>
-  <%= turbo_stream_from "student_submission_#{@student_submission.id}" %>
+  <div>
+    <%= turbo_stream_from "student_submission_#{@student_submission.id}" %>
+    <% if @student_submission.last_post_feedback_action %>
+      <%= turbo_stream_from "document_action_#{@student_submission.last_post_feedback_action&.id}" %>
+    <% end %>
+  </div>
 
   <div id="<%= dom_id(@student_submission) %>_detail">
     <%= render "student_submissions/detail", student_submission: @student_submission %>

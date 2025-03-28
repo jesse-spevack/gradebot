@@ -41,5 +41,7 @@ Rails.application.routes.draw do
   get "/terms", to: "pages#terms", as: :terms
 
   resources :grading_tasks, only: [ :new, :create, :index, :show, :destroy ]
-  resources :student_submissions, only: [ :show, :update ]
+  resources :student_submissions, only: [ :show, :update ] do
+    resources :document_actions, only: [ :create ]
+  end
 end

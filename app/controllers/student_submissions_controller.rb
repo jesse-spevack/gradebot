@@ -1,5 +1,5 @@
 class StudentSubmissionsController < ApplicationController
-  before_action :set_student_submission, only: [ :show, :retry ]
+  before_action :set_student_submission, only: [ :show ]
 
   def show
     @grading_task = @student_submission.grading_task
