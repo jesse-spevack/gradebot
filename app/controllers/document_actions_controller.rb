@@ -1,4 +1,4 @@
-class DocumentActionController < ApplicationController
+class DocumentActionsController < ApplicationController
   before_action :set_student_submission
   before_action :verify_access_rights
 

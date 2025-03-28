@@ -3,13 +3,30 @@
 <div class="space-y-8">
   <%# Feedback %>
   <div>
-    <div class="flex items-center mb-3">
+    <div class="flex items-center mb-4">
       <%= render "shared/icons/comment", class: "h-5 w-5 text-blue-600 mr-2" %>
       <h4 class="text-base font-medium text-gray-900">Feedback</h4>
     </div>
     <% if student_submission.show_feedback? %>
       <div class="prose max-w-none bg-gray-50 p-4 rounded-md">
         <%= student_submission.feedback %>
+      </div>
+      <div class="pt-2">
+        <div class="flex items-center">
+          <% if student_submission.document_actions.post_feedback.exists? %>
+            <% latest_action = student_submission.document_actions.post_feedback.order(created_at: :desc).first %>
+            <%= render "document_actions/section", document_action: latest_action %>
+          <% else %>
+            <div id="document_action_section_<%= student_submission.id %>">
+              <%= form_with model: DocumentAction.new, url: student_submission_document_actions_path(student_submission) do |f| %>
+                <%= f.hidden_field :action_type, value: "post_feedback" %>
+                <button type="submit" class="inline-flex items-center justify-center mt-2 px-3 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-sm transition-colors duration-150">
+                  <span>Send Feedback</span>
+                </button>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
       </div>
     <% else %>
       <p class="text-gray-500 italic">No feedback available yet.</p>
@@ -33,7 +50,7 @@
   <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
     <%# Strengths %>
     <div>
-      <div class="flex items-center mb-3">
+      <div class="flex items-center mb-4">
         <%= render "shared/icons/check", class: "h-5 w-5 text-green-600 mr-2" %>
         <h4 class="text-base font-medium text-gray-900">Strengths</h4>
       </div>
@@ -50,7 +67,7 @@
 
     <%# Opportunities %>
     <div>
-      <div class="flex items-center mb-3">
+      <div class="flex items-center mb-4">
         <%= render "shared/icons/target", class: "h-5 w-5 text-blue-600 mr-2" %>
         <h4 class="text-base font-medium text-gray-900">Areas for Improvement</h4>
       </div>
@@ -68,7 +85,7 @@
 
   <%# Criteria Scores Table %>
   <div>
-    <div class="flex items-center mb-3">
+    <div class="flex items-center mb-4">
       <%= render "shared/icons/clipboard_list", class: "h-5 w-5 text-blue-600 mr-2" %>
       <h4 class="text-base font-medium text-gray-900">Rubric Scores</h4>
     </div>
@@ -112,7 +129,7 @@
     <%# Teacher's Summary %>
     <% if student_submission.show_teacher_summary? %>
       <div class="mb-6">
-        <div class="flex items-center mb-3">
+        <div class="flex items-center mb-4">
           <%= render "shared/icons/clipboard", class: "h-5 w-5 text-blue-600 mr-2" %>
           <h5 class="text-sm font-medium text-gray-900">Summary</h5>
           <span class="ml-2 text-xs text-gray-500 italic">Overview of the student's submission</span>
@@ -126,7 +143,7 @@
     <%# Teacher's Question %>
     <% if student_submission.show_teacher_question? %>
       <div>
-        <div class="flex items-center mb-3">
+        <div class="flex items-center mb-4">
           <%= render "shared/icons/question_mark", class: "h-5 w-5 text-blue-600 mr-2" %>
           <h5 class="text-sm font-medium text-gray-900">Question</h5>
           <span class="ml-2 text-xs text-gray-500 italic">Prompt for the student</span>

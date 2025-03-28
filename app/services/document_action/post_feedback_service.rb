@@ -23,6 +23,6 @@ class DocumentAction::PostFeedbackService
   private
 
   def google_docs_client
-    GetGoogleDocsClientForStudentSubmission.call(student_submission: student_submission).result
+    GetGoogleDocsClientForStudentSubmissionCommand.call(student_submission: student_submission).result
   end
 end

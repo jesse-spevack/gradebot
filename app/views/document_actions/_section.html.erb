@@ -5,16 +5,16 @@
     
     <% if latest_action&.completed? %>
       <div class="flex items-center text-sm text-gray-600">
-        <%= render "shared/icons/check_circle", class: "h-5 w-5 text-green-600 mr-2" %>
+        <%= render "shared/icons/check", class: "h-5 w-5 text-green-600 mr-2" %>
         Feedback posted to Google Doc <%= time_ago_in_words(latest_action.completed_at) %> ago
       </div>
-    <% elsif latest_action&.processing? || latest_action&.created? %>
+    <% elsif latest_action&.processing? || latest_action&.pending? %>
       <div class="flex items-center text-sm text-gray-600">
         <%= render "shared/spinner", size: "h-5 w-5", color: "text-blue-600" %>
         <span class="ml-2">Posting feedback to Google Doc...</span>
       </div>
     <% elsif latest_action&.failed? %>
-      <div class="flex items-center text-sm text-red-600 mb-2">
+      <div class="flex items-center text-sm text-red-600">
         <%= render "shared/icons/x_circle", class: "h-5 w-5 text-red-600 mr-2" %>
         Failed to post feedback: <%= latest_action.error_message || "Unknown error" %>
       </div>

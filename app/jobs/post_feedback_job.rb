@@ -11,6 +11,8 @@ class PostFeedbackJob < ApplicationJob
 
     begin
       DocumentAction::PostFeedbackService.post(document_action)
+
+      document_action.complete!
     rescue => e
       Rails.logger.error("Error processing document action #{document_action_id}: #{e.message}")
       Rails.logger.error(e.backtrace.join("\n"))
