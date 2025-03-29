@@ -1,4 +1,6 @@
 class User < ApplicationRecord
+  has_prefix_id :user
+
   has_many :sessions
   has_many :grading_tasks
   has_many :user_tokens, dependent: :destroy

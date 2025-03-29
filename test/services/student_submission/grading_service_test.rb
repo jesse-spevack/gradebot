@@ -85,7 +85,6 @@ class Grading::GradingServiceTest < ActiveSupport::TestCase
     test_prompt = "Test prompt with document, assignment, and rubric"
     PromptTemplate.stubs(:render).with(:grading, anything).returns(test_prompt)
 
-    # Stub ResponseParser to return a GradingResult
     mock_result = GradingResponse.new(
       feedback: "Feedback: Good essay but lacks depth.",
       strengths: [ "Good introduction", "Clear thesis statement" ],
@@ -210,7 +209,6 @@ class Grading::GradingServiceTest < ActiveSupport::TestCase
     test_prompt = "Test prompt with document, assignment, and rubric"
     PromptTemplate.stubs(:render).with(:grading, anything).returns(test_prompt)
 
-    # Stub ResponseParser to return a GradingResult
     mock_result = GradingResponse.new(
       feedback: "Feedback: Good essay but lacks depth.",
       strengths: [ "Good introduction", "Clear thesis statement" ],

@@ -1,4 +1,5 @@
 class GradingTask < ApplicationRecord
+  has_prefix_id :gt
   # Use optimistic locking
   # This model has a lock_version column for this purpose
 

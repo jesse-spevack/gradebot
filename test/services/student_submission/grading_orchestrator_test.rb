@@ -15,12 +15,12 @@ class Grading::GradingOrchestratorTest < ActiveSupport::TestCase
       student_submission,
       grading_task.user
     ).returns(
-      GradingResult.new(
+      GradingResponse.new(
         feedback: "Test feedback",
         strengths: [ "Test strength 1", "Test strength 2" ],
         opportunities: [ "Test opportunity 1", "Test opportunity 2" ],
         overall_grade: "A",
-        scores: { "Content" => 90, "Organization" => 80, "Language" => 70 }
+        rubric_scores: { "Content" => 90, "Organization" => 80, "Language" => 70 }
       )
     )
 

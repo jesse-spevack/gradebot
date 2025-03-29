@@ -6,6 +6,7 @@
 # on behalf of a user. It includes methods to check if tokens have
 # expired and need refreshing.
 class UserToken < ApplicationRecord
+  has_prefix_id :utok
   # Associations
   belongs_to :user
 

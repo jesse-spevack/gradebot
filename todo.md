@@ -1,7 +1,7 @@
 # TODO
-- [ ] add ability to post feedback to student assignment - in progress
 
 ## Product
+- [ ] Add timeline / blog 
 - [ ] Add ability to edit feedback
 - [ ] Intelligent grading task naming
 - [ ] Add validation llm task to check assignment
@@ -89,6 +89,7 @@
 # DONE
 
 
+- [x] add ability to post feedback to student assignment - in progress
 - [x] Improve Command interface
 - [x] Root out dead code 
 - [x] Audit all files for readability

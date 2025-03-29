@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
-# Represents a feature flag that can be toggled on/off to control feature availability
+# Add ability to edit feedback Represents a feature flag that can be toggled on/off to control feature availability
 class FeatureFlag < ApplicationRecord
+  has_prefix_id :ff
+
   # Associations
   has_many :audit_logs, class_name: "FeatureFlagAuditLog", dependent: :destroy
 

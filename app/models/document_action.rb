@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class DocumentAction < ApplicationRecord
+  has_prefix_id :da
+
   belongs_to :student_submission
 
   enum :action_type, {

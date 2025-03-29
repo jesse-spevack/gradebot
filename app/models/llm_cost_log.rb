@@ -1,4 +1,5 @@
 class LLMCostLog < ApplicationRecord
+  has_prefix_id :lcl
   # Associations
   belongs_to :user, optional: true
   belongs_to :trackable, polymorphic: true, optional: true
