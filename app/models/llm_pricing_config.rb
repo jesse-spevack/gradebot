@@ -1,4 +1,5 @@
 class LLMPricingConfig < ApplicationRecord
+  has_prefix_id :lpc
   # Validations
   validates :llm_model_name, presence: true, uniqueness: true
   validates :prompt_rate, :completion_rate, presence: true,
