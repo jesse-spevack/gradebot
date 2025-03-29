@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class StudentSubmission < ApplicationRecord
+  has_prefix_id :ss
   # Use optimistic locking
   # This model has a lock_version column for this purpose
 

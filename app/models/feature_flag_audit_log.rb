@@ -2,6 +2,8 @@
 
 # Tracks changes to feature flags, including who made the change and what was changed
 class FeatureFlagAuditLog < ApplicationRecord
+  has_prefix_id :ffal
+
   # Associations
   belongs_to :feature_flag
   belongs_to :user

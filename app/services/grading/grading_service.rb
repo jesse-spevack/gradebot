@@ -62,17 +62,7 @@ class Grading::GradingService
 
     Rails.logger.info("LLM response: #{response}")
     Rails.logger.info("LLM response content: #{response[:content]}")
-    result = Grading::ResponseParser.parse(response[:content])
-
-    GradingResponse.new(
-      feedback: result.feedback,
-      strengths: result.strengths,
-      opportunities: result.opportunities,
-      overall_grade: result.overall_grade,
-      rubric_scores: result.rubric_scores,
-      summary: result.summary,
-      question: result.question
-    )
+    Grading::ResponseParser.parse(response[:content])
   rescue ParsingError => e
     Rails.logger.error("Failed to parse LLM response: #{e.message}")
     Rails.logger.error("Error backtrace: #{e.backtrace&.first(10)&.join("\n")}")
