@@ -1,0 +1,32 @@
+<%#
+  Renders a generic table structure for index pages.
+
+  Parameters:
+  - headers: Array of strings for table header columns.
+  - items: Collection of objects to display in rows.
+  - row_partial_path: String path to the partial used for rendering each row.
+  - row_locals: Hash of additional local variables to pass to the row partial (optional).
+%>
+
+<% row_locals ||= {} %>
+
+<!-- Desktop View (Table Layout) -->
+<div class="hidden sm:block overflow-x-auto">
+  <table class="min-w-full divide-y divide-gray-200">
+    <thead>
+      <tr class="bg-gray-50">
+        <% headers.each do |header| %>
+          <th scope="col" class="py-4 px-3 text-left text-sm font-semibold text-gray-900 first:pl-6"><%= header %></th>
+        <% end %>
+        <th scope="col" class="relative py-4 pl-3 pr-6 text-right">
+          <span class="sr-only">Actions</span>
+        </th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-200">
+      <% items.each do |item| %>
+        <%= render partial: row_partial_path, locals: { item: item }.merge(row_locals) %>
+      <% end %>
+    </tbody>
+  </table>
+</div>

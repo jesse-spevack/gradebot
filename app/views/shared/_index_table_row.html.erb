@@ -1,0 +1,113 @@
+<%#
+  Renders a generic table row for index pages.
+
+  Parameters:
+  - item: The object representing the row.
+  - columns: An array of hashes defining the columns to display.
+    Each hash should have:
+      - :attribute (Symbol or String): The method to call on the item.
+      - :header (String, optional): The header text if different from attribute.
+      - :type (Symbol, optional): :text (default), :icon_text, :time_ago, :status_badge, :date.
+      - :truncate (Integer, optional): Length to truncate text.
+      - :icon (String, optional): Icon name for :icon_text type.
+      - :link_to (Boolean/Symbol/Proc, optional): If true, link the whole row. If a Symbol/Proc, use it to generate the path.
+      - :class (String, optional): Additional CSS classes for the <td>.
+  - actions: An array of hashes defining actions (links/buttons) for the last column.
+    Each hash should have:
+      - :path (String/Proc): The URL path.
+      - :text (String): The link text.
+      - :method (Symbol, optional): HTTP method (e.g., :delete).
+      - :confirm (String, optional): Confirmation message for destructive actions.
+      - :class (String, optional): CSS classes for the action link.
+%>
+
+<% 
+  row_path = nil
+  if local_assigns.key?(:link_to) && link_to
+    row_path = case link_to
+               when true
+                 url_for(item) rescue nil
+               when Symbol, String
+                 send(link_to, item) rescue nil
+               when Proc
+                 link_to.call(item) rescue nil
+               end
+  end
+
+  row_classes = "hover:bg-gray-50 transition-colors duration-150"
+  row_classes += " cursor-pointer" if row_path
+%> 
+
+<tr 
+  <% if row_path %> 
+    onclick="window.location='<%= row_path %>'"
+  <% end %>
+  class="<%= row_classes %>"
+  id="<%= dom_id(item) rescue nil %>" 
+  data-turbo-stream
+>
+  <% columns.each do |col| %>
+    <% 
+      value = item.send(col[:attribute]) rescue "N/A"
+      col_type = col[:type] || :text
+      td_classes = "px-3 py-4 text-sm"
+      td_classes += " whitespace-nowrap" unless col[:truncate]
+      td_classes += " #{col[:class]}" if col[:class]
+    %>
+    <td class="<%= td_classes %> first:pl-6">
+      <% case col_type %>
+      <% when :icon_text %>
+        <div class="flex items-center">
+          <% if col[:icon] %>
+            <%# Simple background for icon for now %>
+            <div class="p-1.5 bg-gray-100 rounded-md mr-3">
+              <%= render "shared/icons/#{col[:icon]}", class: "h-5 w-5 text-blue-600" rescue "?" %>
+            </div>
+          <% end %>
+          <span class="font-medium text-gray-900"><%= value %></span>
+        </div>
+      <% when :time_ago %>
+        <div class="flex items-center text-gray-500">
+          <%= render "shared/icons/clock", class: "h-4 w-4 mr-1.5 text-gray-400" %>
+          <%= time_ago_in_words(value) %> ago
+        </div>
+      <% when :status_badge %>
+        <%# Assuming a status_badge helper or simple rendering %>
+        <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-<%= value %>-100 text-<%= value %>-800 capitalize">
+          <%= value.to_s.humanize %>
+        </span>
+      <% when :date %>
+        <%# Format date if present, otherwise show placeholder %>
+        <span class="text-gray-500"><%= value ? value.strftime("%Y-%m-%d") : '-' %></span>
+      <% else %>
+        <%# Default text handling %>
+        <% display_value = col[:truncate] ? truncate(value.to_s, length: col[:truncate]) : value %>
+        <span class="text-gray-600"><%= display_value %></span>
+      <% end %>
+    </td>
+  <% end %>
+
+  <%# Actions Column %>
+  <td class="relative whitespace-nowrap py-4 pl-3 pr-6 text-right text-sm">
+    <% if local_assigns.key?(:actions) && actions.any? %>
+      <div class="flex items-center justify-end space-x-3">
+        <% actions.each do |action| %>
+          <% 
+            action_path = action[:path].is_a?(Proc) ? action[:path].call(item) : action[:path]
+            action_classes = "font-medium text-blue-600 hover:text-blue-900"
+            action_classes += " #{action[:class]}" if action[:class]
+            data_attrs = {}
+            data_attrs[:turbo_method] = action[:method] if action[:method]
+            data_attrs[:turbo_confirm] = action[:confirm] if action[:confirm]
+          %> 
+          <%= link_to action[:text], action_path, class: action_classes, data: data_attrs %>
+        <% end %>
+      </div>
+    <% elsif row_path %>
+      <%# Default chevron if row is clickable and no specific actions %>
+      <div class="flex items-center justify-end">
+        <%= render "shared/icons/chevron_right", class: "h-5 w-5 text-gray-400" rescue nil %>
+      </div>
+    <% end %>
+  </td>
+</tr>

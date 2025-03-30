@@ -1,0 +1,98 @@
+<%#
+  Renders a generic card for index items, suitable for mobile views.
+
+  Parameters:
+  - item: The object representing the card.
+  - columns: An array of hashes defining the data points to display.
+    Each hash should have:
+      - :attribute (Symbol or String): The method to call on the item.
+      - :header (String, optional): Label for the data point (used if no icon).
+      - :type (Symbol, optional): :text (default), :icon_text, :time_ago, :status_badge, :date.
+      - :truncate (Integer, optional): Length to truncate text.
+      - :icon (String, optional): Icon name for :icon_text type or label.
+      - :class (String, optional): Additional CSS classes for the data point value.
+  - link_to (Boolean/Symbol/Proc, optional): If true, link the whole card. If a Symbol/Proc, use it to generate the path.
+%>
+
+<% 
+  card_path = nil
+  if local_assigns.key?(:link_to) && link_to
+    card_path = case link_to
+               when true
+                 url_for(item) rescue nil
+               when Symbol, String
+                 send(link_to, item) rescue nil
+               when Proc
+                 link_to.call(item) rescue nil
+               end
+  end
+  
+  card_base_classes = "block p-4 border-b border-gray-200 last:border-b-0"
+  card_hover_classes = card_path ? " hover:bg-gray-50 transition-colors duration-150 cursor-pointer" : ""
+  tag_type = card_path ? :a : :div
+  html_options = { class: card_base_classes + card_hover_classes }
+  html_options[:href] = card_path if card_path
+  
+  # Calculate dom_id safely
+  item_dom_id = dom_id(item) rescue nil 
+%> 
+
+<%= tag.send(tag_type, **html_options, id: item_dom_id, data: { turbo_stream: true }) do %>
+  <div class="flex items-center justify-between mb-2">
+    <% 
+      # Attempt to find the primary display column (usually :icon_text or the first one)
+      primary_col = columns.find { |col| col[:type] == :icon_text } || columns.first
+      primary_value = item.send(primary_col[:attribute]) rescue "N/A"
+      primary_icon = primary_col[:icon]
+      primary_class = "font-medium text-gray-900 text-base #{primary_col[:class]}"
+    %> 
+    <div class="flex items-center min-w-0">
+      <% if primary_icon %>
+        <div class="p-1.5 bg-gray-100 rounded-md mr-3 flex-shrink-0">
+          <%= render "shared/icons/#{primary_icon}", class: "h-5 w-5 text-gray-600" rescue "?" %>
+        </div>
+      <% end %>
+      <span class="truncate <%= primary_class %>"><%= primary_value %></span>
+    </div>
+    <% if card_path %>
+      <%= render "shared/icons/chevron_right", class: "h-5 w-5 text-gray-400 ml-2 flex-shrink-0" rescue nil %>
+    <% end %>
+  </div>
+
+  <div class="space-y-1 ml-10"> <%# Indent secondary info %>
+    <% columns.each do |col| %>
+      <% next if col == primary_col %> <%# Skip the one we already displayed %>
+      <% 
+        value = item.send(col[:attribute]) rescue "N/A"
+        col_type = col[:type] || :text
+        data_class = "text-sm #{col[:class] || 'text-gray-600'}"
+        label = col[:header] || col[:attribute].to_s.humanize
+        icon = col[:icon]
+      %> 
+      <div class="flex items-start">
+        <% if icon %>
+           <%= render "shared/icons/#{icon}", class: "h-4 w-4 mr-1.5 mt-0.5 text-gray-400 flex-shrink-0" rescue "?" %>
+        <% else %>
+           <span class="text-sm font-medium text-gray-500 w-20 flex-shrink-0 mr-1.5"><%= label %>:</span>
+        <% end %>
+        
+        <div class="min-w-0 flex-1">
+          <% case col_type %>
+          <% when :time_ago %>
+            <span class="<%= data_class %>"><%= time_ago_in_words(value) %> ago</span>
+          <% when :status_badge %>
+            <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-<%= value %>-100 text-<%= value %>-800 capitalize">
+              <%= value.to_s.humanize %>
+            </span>
+          <% when :date %>
+            <span class="<%= data_class %>"><%= value ? value.strftime("%Y-%m-%d") : '-' %></span>
+          <% else %>
+            <%# Default text handling %>
+            <% display_value = col[:truncate] ? truncate(value.to_s, length: col[:truncate]) : value %>
+            <span class="<%= data_class %>"><%= display_value %></span>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>

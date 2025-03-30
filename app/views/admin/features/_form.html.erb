@@ -1,0 +1,53 @@
+<%# app/views/admin/features/_form.html.erb %>
+<%= form_with(model: [:admin, feature], class: "space-y-8") do |form| %>
+  <% if feature.errors.any? %>
+    <div id="error_explanation" class="bg-red-50 text-red-700 p-4 rounded-md border border-red-200">
+      <h2 class="text-lg font-semibold mb-2"><%= pluralize(feature.errors.count, "error") %> prohibited this feature from being saved:</h2>
+      <ul class="list-disc list-inside">
+        <% feature.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="divide-y divide-gray-200">
+    <div class="py-4">
+      <%= form.label :title, class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <div class="relative">
+        <%= form.text_field :title, class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-base p-4" %>
+        <div class="absolute inset-0 pointer-events-none border border-gray-300 rounded-lg"></div>
+      </div>
+    </div>
+
+    <div class="py-4">
+      <%= form.label :description, class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <div class="relative">
+        <%= form.text_area :description, rows: 4, class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-base p-4", style: "resize: vertical; min-height: 120px;" %>
+        <div class="absolute inset-0 pointer-events-none border border-gray-300 rounded-lg"></div>
+      </div>
+    </div>
+
+    <div class="py-4">
+      <%= form.label :release_date, class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= form.date_field :release_date, class: "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md px-3 py-2" %>
+    </div>
+
+    <div class="py-4">
+      <%= form.label :image, class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= form.file_field :image, class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" %>
+      <%# Display current image if editing and image exists %>
+      <% if feature.persisted? && feature.image.attached? %>
+        <div class="mt-4">
+          <p class="text-sm text-gray-600 mb-2">Current image:</p>
+          <%= image_tag url_for(feature.image), class: "h-32 w-auto rounded-md" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="flex justify-end items-center gap-4 pt-6">
+    <%= link_to 'Cancel', admin_features_path, class: "text-sm font-medium text-gray-700 hover:text-gray-900" %>
+    <%= form.submit class: "inline-flex items-center px-6 py-3 text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500", data: { disable_with: (feature.persisted? ? 'Updating...' : 'Creating...') } %>
+  </div>
+<% end %>
