@@ -36,8 +36,7 @@
 /app/assets/builds/*
 !/app/assets/builds/.keep
 
-<<<<<<< HEAD
 /config/credentials/development.key
-=======
 /config/credentials/*.key
->>>>>>> 4112af6 (update git ignore)
+
+/config/credentials/production.key
