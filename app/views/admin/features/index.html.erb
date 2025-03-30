@@ -1,0 +1,27 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Features</h1>
+    <%= link_to "New Feature", new_admin_feature_path, class: "inline-flex items-center justify-center gap-x-2 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700" %>
+  </div>
+
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <% 
+      headers = ["Title", "Release Date", "Created At"]
+      columns = [
+        { attribute: :title, type: :icon_text, icon: 'star', class: "font-medium text-gray-900" },
+        { attribute: :release_date, type: :date, class: "text-gray-500" }, # Add :date type handling if needed or format here
+        { attribute: :created_at, type: :time_ago, class: "text-gray-500" }
+      ]
+      actions = [
+        { path: ->(item) { edit_admin_feature_path(item) }, text: "Edit" },
+        { path: ->(item) { admin_feature_path(item) }, text: "Destroy", method: :delete, confirm: "Are you sure?", class: "text-red-600 hover:text-red-900" }
+      ]
+    %>
+    <%= render partial: "shared/index_table", locals: { 
+            headers: headers, 
+            items: @features, 
+            row_partial_path: "shared/index_table_row",
+            row_locals: { columns: columns, actions: actions, link_to: ->(item) { admin_feature_path(item) } } 
+          } %>
+  </div>
+</div>

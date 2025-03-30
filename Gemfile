@@ -50,6 +50,7 @@ gem "omniauth-rails_csrf_protection"
 # Google APIs
 gem "google-apis-drive_v3"
 gem "google-apis-docs_v1"
+gem "google-cloud-storage", require: false
 
 # Charts and Graphs
 gem "chartkick"

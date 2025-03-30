@@ -28,14 +28,14 @@
       </div>
 
       <!-- Right side - Auth buttons -->
-      <div class="flex-1 flex justify-end">
+      <div class="flex-1 flex justify-end items-center">
+        <%# Features link %>
+        <%= link_to "What's New", features_path, class: "text-sm font-medium text-gray-600 hover:text-gray-900 mr-4" %>
+
+        <%# Auth buttons %>
         <% if authenticated? %>
           <div class="flex items-center">
-            <% profile_picture_url = Current.user&.profile_picture_url || "https://ui-avatars.com/api/?name=#{CGI.escape(Current.user&.name || 'User')}&background=0D8ABC&color=fff" %>
-            <div class="flex items-center mr-2 bg-gray-50 border border-gray-200 px-2 py-1 rounded-full">
-              <img src="<%= profile_picture_url %>" alt="<%= Current.user&.name || 'User' %>" class="size-7 rounded-full mr-2 object-cover border border-gray-200">
-              <span class="hidden md:block text-sm text-gray-700 mr-1"><%= Current.user&.name %></span>
-            </div>
+            
             <%= render "shared/sign_out_button", classes: "ml-1", use_icon: true %>
           </div>
         <% else %>

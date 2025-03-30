@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  get "features/index"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -21,6 +22,7 @@ Rails.application.routes.draw do
 
   # Admin routes
   namespace :admin do
+    resources :features
     resources :feature_flags
 
     # Reports namespace
@@ -44,4 +46,5 @@ Rails.application.routes.draw do
   resources :student_submissions, only: [ :show, :update ] do
     resources :document_actions, only: [ :create ]
   end
+  resources :features, only: [ :index ]
 end

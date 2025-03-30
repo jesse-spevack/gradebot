@@ -2,7 +2,10 @@
 
 ## Product
 - [ ] Add timeline / blog 
+  - [x] set up active storage
+  - [ ] set up feature timeline 
 - [ ] Add ability to edit feedback
+- [ ] Add a summary of all student submissions to the grading task page
 - [ ] Intelligent grading task naming
 - [ ] Add validation llm task to check assignment
     ```
@@ -78,8 +81,6 @@
     - [ ] Update the student submission object to include validated_at 
 
 ### Backlog
-- [ ] Show document name instead of document id 
-- [ ] Add a summary of all student submissions to the grading task page
 - [ ] Review feature flag views
 - [ ] Review llm pricing views
 - [ ] Add a StudentSubmissionError model and view  
