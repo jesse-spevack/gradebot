@@ -1,10 +1,10 @@
 # TODO
 
 ## Product
-- [ ] Add timeline / blog 
-  - [x] set up active storage
-  - [ ] set up feature timeline 
 - [ ] Add ability to edit feedback
+  - [ ] Add new assignment prompt model
+  - [ ] Create feedback editing feature
+  - [ ] remove old assignment prompt attribute
 - [ ] Add a summary of all student submissions to the grading task page
 - [ ] Intelligent grading task naming
 - [ ] Add validation llm task to check assignment
@@ -89,6 +89,9 @@
 
 # DONE
 
+- [x] Add timeline / blog 
+  - [x] set up active storage
+  - [x] set up feature timeline 
 
 - [x] add ability to post feedback to student assignment - in progress
 - [x] Improve Command interface
