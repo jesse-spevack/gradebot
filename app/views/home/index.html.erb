@@ -1,128 +1,424 @@
-<div class="min-h-screen bg-gradient-to-b from-blue-50/30 via-white to-blue-50/30">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <%= render "shared/hero_section" %>
+<body class="bg-gray-50">
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-b from-blue-50 via-white to-blue-50 py-16 sm:py-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <!-- Badge -->
+                <div class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 mb-6">
+                    <span class="flex-none w-2 h-2 rounded-full bg-green-500 mr-2"></span>
+                    New: AI-Powered Feedback Assistant
+                </div>
+                
+                <!-- Main Heading -->
+                <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl mb-6">
+                    <div class="mx-auto w-3/4 max-w-3xl">
+                      <%= image_tag 'gradebot-logo.png', alt: 'GradeBot Logo', class: 'mx-auto' %>
+                    </div>
+                </h1>
+                
+                <!-- Subheading -->
+                <h2 class="max-w-2xl mx-auto text-2xl text-gray-500 mb-10">
+                  <span class="block text-blue-600 mb-2">Focus on planning and insights</span>
+                  Transform 
+                  <span class="text-blue-600 font-semibold">hours of grading</span> 
+                  into
+                  <span class="bg-blue-600 text-white px-2 py-1 font-semibold rounded-md mx-1">minutes</span>
+                  of strategic review.
+                </h2>
+                
+                <!-- CTA Buttons -->
+                 <div class="max-w-md mx-auto space-y-6">
+                <!-- Sign in with Google -->
+                <div class="flex flex-col items-center">
+                  <p class="text-lg font-semibold text-indigo-900 mb-5">Get started with your Google account</p>
+                  <%= render "shared/google_sign_in_button" %>
+                </div>
 
-    <!-- All subsequent sections will have consistent max-width and margin-top -->
-    <div class="mx-auto max-w-5xl">
-      <%= render "shared/feature_section", title: "Why Teachers Choose GradeBot", container_classes: "mt-32", hide_border: true do %>
-          <%= render "shared/feature_card",
-                    title: "Grade 30 Essays in Just Minutes",
-                    description: "Upload your Google Doc assignments, rubric, and let GradeBot handle the rest. Focus on teaching, not grading." %>
+                <div class="pt-6">
+                  <%= render "shared/cta_link", href: "#how-it-works", text: "Watch How It Works", classes: "text-indigo-600 font-bold hover:text-indigo-800 text-lg hover:underline underline-offset-4" %>
+                </div>
 
-          <%= render "shared/feature_card",
-                    title: "Consistent, Thoughtful Feedback",
-                    description: "Every student receives detailed, personalized feedback based on your rubric. No more rushing through the last few papers." %>
-
-          <%= render "shared/feature_card",
-                    title: "Simple Setup, Powerful Results",
-                    description: "Works directly with Google Docs. No new systems to learn, no complicated setup. Just select your folder and start grading." %>
-      <% end %>
-
-      <%= render "shared/section", title: "How it Works", id: "how-it-works", container_classes: "mt-32" do %>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <%= render "shared/step_card",
-                     step_number: 1,
-                     title: "Define Your Assignment",
-                     description: "Paste in your assignment prompt and grading rubric." %>
-
-          <%= render "shared/step_card",
-                     step_number: 2,
-                     title: "Select Your Student Work",
-                     description: "Select the Google documents with student assignments." %>
-
-          <%= render "shared/step_card",
-                     step_number: 3,
-                     title: "Review and Finalize",
-                     description: "GradeBot does the heavy lifting. You review, make any adjustments, and send feedback." %>
+                <!-- Stats Card -->
+                <% if false %>
+                  <div class="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-6 border border-gray-200">
+                      <div class="flex flex-col sm:flex-row items-center justify-center gap-8">
+                          <!-- Stats -->
+                          <div class="flex items-center gap-8">
+                              <div>
+                                  <div class="text-2xl font-bold text-blue-600">3,000+</div>
+                                  <div class="text-sm text-gray-500">Active Teachers</div>
+                              </div>
+                              <div class="h-8 w-px bg-gray-200"></div>
+                              <div>
+                                  <div class="text-2xl font-bold text-blue-600">200+</div>
+                                  <div class="text-sm text-gray-500">Partner Schools</div>
+                              </div>
+                          </div>
+                          
+                          <!-- Trust badges -->
+                          <div class="flex items-center gap-3 text-sm text-gray-500">
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-blue-500">
+                                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                              </svg>
+                              <span>FERPA Compliant</span>
+                              <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+                              <span>COPPA Certified</span>
+                          </div>
+                      </div>
+                  </div>
+                <% end%>
+            </div>
         </div>
+    </section>
 
-        <div class="mt-12 text-center">
-          <%= render "shared/primary_button", text: "Get Started Now" %>
+    <!-- Features Section -->
+    <section id="features" class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Section Header -->
+            <div class="mb-12 text-center">
+                <h2 class="text-3xl font-bold text-gray-900">Why Teachers Choose GradeBot</h2>
+                <p class="mt-4 text-lg text-gray-500 max-w-3xl mx-auto">Our AI-powered solution is designed specifically for educators who want to provide better feedback in less time.</p>
+            </div>
+            
+            <!-- Feature Cards -->
+            <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
+                <!-- Feature 1 -->
+                <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6 transition-all hover:-translate-y-0.5 hover:shadow-lg text-center">
+                    <div class="bg-blue-50 p-3 rounded-full inline-flex mb-4 text-blue-600 mx-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Grade 30 Essays in Just Minutes</h3>
+                    <p class="text-gray-500">Upload your Google Doc assignments, rubric, and let GradeBot handle the rest. Focus on teaching, not grading.</p>
+                </div>
+                
+                <!-- Feature 2 -->
+                <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6 transition-all hover:-translate-y-0.5 hover:shadow-lg text-center">
+                    <div class="bg-blue-50 p-3 rounded-full inline-flex mb-4 text-blue-600 mx-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Consistent, Thoughtful Feedback</h3>
+                    <p class="text-gray-500">Every student receives detailed, personalized feedback based on your rubric. No more rushing through the last few papers.</p>
+                </div>
+                
+                <!-- Feature 3 -->
+                <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6 transition-all hover:-translate-y-0.5 hover:shadow-lg text-center">
+                    <div class="bg-blue-50 p-3 rounded-full inline-flex mb-4 text-blue-600 mx-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Simple Setup, Powerful Results</h3>
+                    <p class="text-gray-500">Works directly with Google Docs. No new systems to learn, no complicated setup. Just select your folder and start grading.</p>
+                </div>
+            </div>
         </div>
-      <% end %>
+    </section>
 
-      <%= render "shared/section", title: "Features", container_classes: "mt-32" do %>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <%= render "shared/feature_item",
-                     title: "Direct Google Drive Integration",
-                     description: "Works with your existing Google Docs. No need to upload files or learn a new system." %>
-
-          <%= render "shared/feature_item",
-                     title: "Personalized Feedback",
-                     description: "Each student receives detailed, specific feedback based on their work and your rubric." %>
-
-          <%= render "shared/feature_item",
-                     title: "Class-Wide Analytics",
-                     description: "Get insights into common issues across all papers to help focus your teaching." %>
-
-          <%= render "shared/feature_item",
-                     title: "Human-in-the-Loop",
-                     description: "You always have the final say. Review and adjust feedback before it goes to students." %>
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Section Header -->
+            <div class="mb-12 text-center">
+                <h2 class="text-3xl font-bold text-gray-900">How It Works</h2>
+                <p class="mt-4 text-lg text-gray-500 max-w-3xl mx-auto">GradeBot makes the grading process simple, fast, and effective.</p>
+            </div>
+            
+            <!-- Steps -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                <!-- Step 1 -->
+                <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6 text-center transition-all card-hover">
+                    <div class="inline-flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 text-blue-600 mb-4">
+                        <span class="text-xl font-semibold">1</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Define Your Assignment</h3>
+                    <p class="text-gray-500">Paste in your assignment prompt and grading rubric. Or use our AI to help you create a rubric.</p>
+                </div>
+                
+                <!-- Step 2 -->
+                <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6 text-center transition-all card-hover">
+                    <div class="inline-flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 text-blue-600 mb-4">
+                        <span class="text-xl font-semibold">2</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Select Student Work</h3>
+                    <p class="text-gray-500">Connect to Google Drive and select the documents with student assignments for grading.</p>
+                </div>
+                
+                <!-- Step 3 -->
+                <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6 text-center transition-all card-hover">
+                    <div class="inline-flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 text-blue-600 mb-4">
+                        <span class="text-xl font-semibold">3</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Review and Finalize</h3>
+                    <p class="text-gray-500">GradeBot does the heavy lifting. You review, make any adjustments, and send feedback to students.</p>
+                </div>
+            </div>
+            
+            <!-- Demo Request -->
+            <div class="text-center">
+                <a href="#lets-get-started" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all shadow-md">
+                    Get Started Now
+                </a>
+            </div>
         </div>
-      <% end %>
+    </section>
 
-      <section class="mt-32 px-4 py-16 bg-indigo-50 rounded-xl">
-        <%= render "shared/section_header", text: "Everything You Need, Nothing You Don't" %>
-        
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-12 gap-y-6 mt-12">
-          <%= render "shared/feature_check", text: "Direct Google Drive integration" %>
-          
-          <%= render "shared/feature_check", text: "Rubric-based grading" %>
-          
-          <%= render "shared/feature_check", text: "Personalized student feedback" %>
-          
-          <%= render "shared/feature_check", text: "Class performance insights" %>
-          
-          <%= render "shared/feature_check", text: "Comment directly in Google Docs" %>
-          
-          <%= render "shared/feature_check", text: "Email notifications when complete" %>
-          
-          <%= render "shared/feature_check", text: "Grade anywhere, anytime" %>
-          
-          <%= render "shared/feature_check", text: "Support when you need it" %>
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Section Header -->
+            <div class="mb-12 text-center">
+                <h2 class="text-3xl font-bold text-gray-900">What Teachers Are Saying</h2>
+                <p class="mt-4 text-lg text-gray-500 max-w-3xl mx-auto">Join educators who've transformed their grading process with GradeBot.</p>
+            </div>
+            
+            <!-- Testimonial Cards -->
+            <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
+                <!-- Testimonial 1 -->
+                <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6 transition-all card-hover">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                            <span class="text-blue-600 font-semibold">JD</span>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-900">Dr. Jane Davis</h4>
+                            <p class="text-sm text-gray-500">High School English Teacher</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600">"GradeBot has transformed how I approach grading. I can provide more detailed feedback to my students while spending less time on the mechanics of grading."</p>
+                </div>
+                
+                <!-- Testimonial 2 -->
+                <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6 transition-all card-hover">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                            <span class="text-blue-600 font-semibold">MT</span>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-900">Mark Thompson</h4>
+                            <p class="text-sm text-gray-500">University Professor</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600">"My students appreciate the consistent, thorough feedback they receive. I appreciate getting my weekends back. It's a win-win situation."</p>
+                </div>
+            </div>
         </div>
-      </section>
+    </section>
 
-      <%= render "shared/section", title: "What Teachers Are Saying", container_classes: "mt-32 px-4 py-16 bg-indigo-50 rounded-xl" do %>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <%= render "shared/testimonial",
-                     name: "Dr. Jane Davis",
-                     title: "High School English Teacher",
-                     quote: "GradeBot has transformed how I approach grading. I can provide more detailed feedback to my students while spending less time on the mechanics of grading." %>
-
-          <%= render "shared/testimonial",
-                     name: "Mark Thompson",
-                     title: "University Professor",
-                     quote: "My students appreciate the consistent, thorough feedback they receive. I appreciate getting my weekends back. It's a win-win situation." %>
+    <!-- FAQ Section -->
+    <section id="faq" class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Section Header -->
+            <div class="mb-12 text-center">
+                <h2 class="text-3xl font-bold text-gray-900">Frequently Asked Questions</h2>
+                <p class="mt-4 text-lg text-gray-500 max-w-3xl mx-auto">Get answers to common questions about GradeBot.</p>
+            </div>
+            
+            <!-- FAQ Cards -->
+            <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden divide-y divide-gray-200">
+                <!-- FAQ Item 1 -->
+                <div class="p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">How accurate is the grading?</h3>
+                    <p class="text-gray-600">GradeBot provides highly accurate feedback based on your rubric. You always have the final say and can adjust any feedback before it goes to students.</p>
+                </div>
+                
+                <!-- FAQ Item 2 -->
+                <div class="p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">How long does it take to grade assignments?</h3>
+                    <p class="text-gray-600">Most assignments are graded within minutes. A typical class set of 30 essays can be processed in under an hour, including your review time.</p>
+                </div>
+                
+                <!-- FAQ Item 3 -->
+                <div class="p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Is my students' data secure?</h3>
+                    <p class="text-gray-600">Absolutely. We use industry-standard encryption and never store student work longer than necessary. All processing happens in your secure account.</p>
+                </div>
+                
+                <!-- FAQ Item 4 -->
+                <div class="p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Can I customize the feedback style?</h3>
+                    <p class="text-gray-600">Yes! You can set the tone, detail level, and focus areas for feedback. GradeBot adapts to your teaching style and preferences.</p>
+                </div>
+            </div>
         </div>
-      <% end %>
+    </section>
 
-      <%= render "shared/section", title: "Frequently Asked Questions", container_classes: "mt-32" do %>
-        <div class="space-y-6">
-          <%= render "shared/faq_item",
-                     question: "How accurate is the grading?",
-                     answer: "GradeBot provides highly accurate feedback based on your rubric. You always have the final say and can adjust any feedback before it goes to students." %>
-
-          <%= render "shared/faq_item",
-                     question: "How long does it take to grade assignments?",
-                     answer: "Most assignments are graded within minutes. A typical class set of 30 essays can be processed in under an hour, including your review time." %>
-
-          <%= render "shared/faq_item",
-                     question: "Is my students' data secure?",
-                     answer: "Absolutely. We use industry-standard encryption and never store student work longer than necessary. All processing happens in your secure account." %>
-
-          <%= render "shared/faq_item",
-                     question: "Can I customize the feedback style?",
-                     answer: "Yes! You can set the tone, detail level, and focus areas for feedback. GradeBot adapts to your teaching style and preferences." %>
+    <!-- Pricing Section -->
+    <section id="pricing" class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Section Header -->
+            <div class="mb-12 text-center">
+                <h2 class="text-3xl font-bold text-gray-900">Pricing Plans</h2>
+                <p class="mt-4 text-lg text-gray-500 max-w-3xl mx-auto">Simple pricing for every educator and institution.</p>
+            </div>
+            
+            <!-- Pricing Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                <!-- Free Plan -->
+                <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6 transition-all card-hover">
+                    <div class="text-center mb-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Basic</h3>
+                        <div class="flex justify-center items-end">
+                            <span class="text-4xl font-bold text-gray-900">$0</span>
+                            <span class="text-gray-500 ml-1.5">/month</span>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-2">For individual educators</p>
+                    </div>
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span class="text-gray-600">Feedback on up to <span class="text-blue-600 font-bold">30</span> assignments per month</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span class="text-gray-600">Basic rubric templates</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span class="text-gray-600">Google Drive integration</span>
+                        </li>
+                    </ul>
+                    <button class="w-full py-2 px-4 border border-blue-600 rounded-md shadow-sm text-sm font-medium text-blue-600 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                        Get Started
+                    </button>
+                </div>
+                
+                <!-- Basic Plan -->
+                <div class="bg-white rounded-lg border border-blue-200 shadow-md p-6 transform scale-105 relative z-10">
+                    <div class="absolute top-0 inset-x-0 transform -translate-y-1/2 flex justify-center">
+                        <span class="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                            Most Popular
+                        </span>
+                    </div>
+                    <div class="text-center mb-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Pro</h3>
+                        <div class="flex justify-center items-end">
+                            <span class="text-4xl font-bold text-gray-900">$9.99</span>
+                            <span class="text-gray-500 ml-1.5">/month</span>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-2">For full-time educators</p>
+                    </div>
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span class="text-gray-600">Feedback for <span class="text-blue-600 font-bold">1,000</span> student writing pieces per month</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span class="text-gray-600">AI rubric builder</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span class="text-gray-600">Class-wide analytics</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span class="text-gray-600">Priority support</span>
+                        </li>
+                    </ul>
+                    <button class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                        Coming Soon
+                    </button>
+                </div>
+                
+                <!-- School Plan -->
+                <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6 transition-all card-hover">
+                    <div class="text-center mb-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">School</h3>
+                        <div class="flex justify-center items-end">
+                            <span class="text-4xl font-bold text-gray-900">$99.99</span>
+                            <span class="text-gray-500 ml-1.5">/month</span>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-2">For schools and departments</p>
+                    </div>
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span class="text-gray-600">Everything in Pro</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span class="text-gray-600">Up to 10 teacher accounts</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span class="text-gray-600">School-wide analytics</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span class="text-gray-600">Admin dashboard</span>
+                        </li>
+                    </ul>
+                    <button class="w-full py-2 px-4 border border-blue-600 rounded-md shadow-sm text-sm font-medium text-blue-600 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                        Contact Sales
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Additional Pricing Info -->
+            <div class="text-center">
+                <p class="text-gray-500 mb-4">All plans include a 14-day free trial. No credit card required to start.</p>
+                <a href="#" class="text-blue-600 hover:text-blue-800 font-medium">View full pricing details →</a>
+            </div>
         </div>
-      <% end %>
+    </section>
 
-      <%= render "shared/cta_section", 
-                 title: "Ready to Transform Your Grading Process?",
-                 description: "Join thousands of teachers who've reclaimed their evenings and weekends.",
-                 container_classes: "mt-32 py-16 bg-gradient-to-br from-indigo-600 to-blue-700 rounded-xl text-white text-center" %>
+    <!-- Final CTA Section -->
+    <section id="lets-get-started" class="py-16 bg-blue-600">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl font-bold text-white mb-6">Ready to Transform Your Grading Process?</h2>
+            <p class="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">Join thousands of teachers who've reclaimed their evenings and weekends.</p>
+            
+            <div class="flex flex-col items-center">
+              <%= render "shared/google_sign_in_button" %>
+              <p class="text-sm text-blue-200 mt-4">Quick and secure. No credit card required.</p>
+            </div>
+        </div>
+    </section>
 
-      <%= render "shared/footer" %>
-    </div>
-  </div>
-</div>
+    <!-- Footer -->
+    <footer class="bg-white py-12 border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <!-- Logo and Copyright -->
+                <div class="flex items-center mb-4 md:mb-0">
+                    <%= render "shared/logo_icon" %>
+                    <span class="text-gray-500">© 2025 GradeBot. All rights reserved.</span>
+                </div>
+                
+                <!-- Links -->
+                <div class="flex space-x-6">
+                    <%= link_to "Terms", terms_path, class: "text-gray-500 hover:text-blue-600 transition-colors" %>
+                    <%= link_to "Privacy", privacy_path, class: "text-gray-500 hover:text-blue-600 transition-colors" %>
+                    <%= link_to "AI Policy", '', class: "text-gray-500 hover:text-blue-600 transition-colors" %>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
