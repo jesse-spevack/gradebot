@@ -1,0 +1,75 @@
+<%# Navigation links partial - shared between mobile and desktop sidebars %>
+<% 
+  # Local parameters
+  mobile = local_assigns.fetch(:mobile, false)
+  z_index = mobile ? 1002 : 40
+%>
+
+<li class="relative">
+  <%= render 'shared/nav_link', 
+              path: grading_tasks_path, 
+              text: "My Grading Tasks", 
+              icon_path: 'm2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25', 
+              mobile: mobile,
+              z_index: z_index %>
+</li>
+<li class="relative">
+  <%= render 'shared/nav_link', 
+              path: features_path, 
+              text: "What's New", 
+              icon_path: 'M12 18v-5.25m0 0a6.01 6.01 0 0 0 1.5-.189m-1.5.189a6.01 6.01 0 0 1-1.5-.189m3.75 7.478a12.06 12.06 0 0 1-4.5 0m3.75 2.383a14.406 14.406 0 0 1-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 1 0-7.517 0c.85.493 1.509 1.333 1.509 2.316V18', 
+              mobile: mobile,
+              z_index: z_index %>
+</li>
+
+<% if Current.user&.admin? %>
+  <!-- Admin only links -->
+  <li class="mt-6 border-t border-gray-200 pt-6">
+    <div class="text-xs/6 font-semibold text-gray-400 mb-2">Admin</div>
+  </li>
+  <li class="relative">
+    <%= render 'shared/nav_link', 
+               path: admin_feature_flags_path, 
+               text: 'Feature Flags', 
+               icon_path: 'M3 3v1.5M3 21v-6m0 0 2.77-.693a9 9 0 0 1 6.208.682l.108.054a9 9 0 0 0 6.086.71l3.114-.732a48.524 48.524 0 0 0-.005-10.499l-3.11.732a9 9 0 0 1-6.085-.711l-.108-.054a9 9 0 0 0-6.208-.682L3 4.5M3 15V4.5',
+               mobile: mobile,
+               z_index: z_index %>
+  </li>
+  <li class="relative">
+    <%= render 'shared/nav_link', 
+               path: admin_features_path, 
+               text: 'Features', 
+               icon_path: 'M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z',
+               mobile: mobile,
+               z_index: z_index %>
+  </li>
+  <li class="relative">
+    <%= render 'shared/nav_link', 
+               path: admin_llm_pricing_configs_path, 
+               text: 'LLM Pricing', 
+               icon_path: 'M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z',
+               mobile: mobile,
+               z_index: z_index %>
+  </li>
+  
+  <!-- Reporting Section -->
+  <li class="mt-6 border-t border-gray-200 pt-6">
+    <div class="text-xs/6 font-semibold text-gray-400 mb-2">Reporting</div>
+  </li>
+  <li class="relative">
+    <%= render 'shared/nav_link', 
+               path: admin_reports_daily_path, 
+               text: 'Daily LLM Costs', 
+               icon_path: 'M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z',
+               mobile: mobile,
+               z_index: z_index %>
+  </li>
+  <li class="relative">
+    <%= render 'shared/nav_link', 
+               path: admin_reports_grading_tasks_path, 
+               text: 'Grading Task Costs', 
+               icon_path: 'M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z',
+               mobile: mobile,
+               z_index: z_index %>
+  </li>
+<% end %>

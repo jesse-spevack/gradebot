@@ -44,10 +44,17 @@
 
         <%# Auth buttons %>
         <% if authenticated? %>
-          <div class="flex items-center">
-            <%# Features link %>
-            <%= link_to "What's New", features_path, class: "text-sm font-medium text-gray-600 hover:text-gray-900 mr-4" %>
-            
+          
+           <div class="flex items-center space-x-6">
+              <!-- AI Status -->
+              <div class="hidden md:flex items-center">
+                  <span class="relative flex h-3 w-3 mr-2">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                  </span>
+                  <span class="text-sm text-gray-500">AI Assistant Ready</span>
+              </div>
+              
             <%= render "shared/sign_out_button", classes: "ml-1", use_icon: true %>
           </div>
         <% else %>
