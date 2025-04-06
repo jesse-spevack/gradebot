@@ -58,3 +58,7 @@ Example:
 1. `kamal deploy` fails on step #12
    - Run `kamal prune all` and then `kamal deploy --verbose` 
    
+## Competition 
+- [EssayGrader](https://www.essaygrader.ai/)
+- [BriskTeaching](https://www.briskteaching.com/)
+- [CogGrader](https://cograder.com/)
