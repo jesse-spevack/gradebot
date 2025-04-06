@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GradeBot - Create Grading Task</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Base transitions and animations */
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        /* Card and badge hover effects */
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .status-badge {
+            transition: all 0.2s ease;
+        }
+        .status-badge:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Toggle switch styling */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background-color: #3B82F6;
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(30px);
+        }
+        
+        /* Trix-like editor styles */
+        .trix-editor {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            min-height: 150px;
+            padding: 0.5rem;
+            width: 100%;
+            background-color: white;
+        }
+        
+        .trix-toolbar {
+            padding: 0.5rem;
+            border: 1px solid #e5e7eb;
+            border-bottom: none;
+            border-top-left-radius: 0.375rem;
+            border-top-right-radius: 0.375rem;
+            background-color: #f9fafb;
+            display: flex;
+            flex-wrap: wrap;
+        }
+        
+        .trix-button-group {
+            display: flex;
+            margin-right: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.25rem;
+            overflow: hidden;
+        }
+        
+        .trix-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2rem;
+            background: white;
+            border: none;
+            border-right: 1px solid #d1d5db;
+            cursor: pointer;
+        }
+        
+        .trix-button:last-child {
+            border-right: none;
+        }
+        
+        .trix-button:hover {
+            background-color: #f3f4f6;
+        }
+        
+        .student-work-selector {
+            border: 2px dashed #d1d5db;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        
+        .selected-files {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #f3f4f6;
+            border-radius: 0.5rem;
+            display: none;
+        }
+        
+        .show-selected {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="bg-white shadow-sm sticky top-0 z-10">
+            <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
+                <!-- Logo and Title -->
+                <div class="flex items-center">
+                    <svg class="h-8 w-8 text-blue-600 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                    </svg>
+                    <h1 class="text-2xl font-semibold text-gray-900">GradeBot Dashboard</h1>
+                </div>
+                
+                <!-- Controls and User Profile -->
+                <div class="flex items-center space-x-6">
+                    <!-- AI Status -->
+                    <div class="hidden md:flex items-center">
+                        <span class="relative flex h-3 w-3 mr-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                        </span>
+                        <span class="text-sm text-gray-500">AI Assistant Ready</span>
+                    </div>
+                    
+                    <!-- User Profile -->
+                    <div class="flex items-center space-x-3 border-l pl-4">
+                        <div class="text-right">
+                            <p class="text-sm font-medium text-gray-900">Ms. Thompson</p>
+                            <p class="text-xs text-gray-500">Grade 11 Science</p>
+                        </div>
+                        <img class="h-10 w-10 rounded-full ring-2 ring-blue-100" src="/api/placeholder/40/40" alt="User avatar">
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Page Header -->
+            <div class="mb-6">
+                <div class="flex items-center">
+                    <button class="mr-2 p-1 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <svg class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                    </button>
+                    <h2 class="text-xl font-semibold text-gray-900">Create New Grading Task</h2>
+                </div>
+                <p class="text-sm text-gray-500 mt-1">Configure your grading task details and grading criteria</p>
+            </div>
+            
+            <!-- Assignment Form -->
+            <form>
+                <!-- Basic Information Card -->
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6 transition-all">
+                    <div class="flex items-center mb-4">
+                        <svg class="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <h3 class="font-medium text-gray-900">Basic Information</h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="assignment-title" class="block text-sm font-medium text-gray-700 mb-1">Assignment Title</label>
+                            <input type="text" id="assignment-title" name="assignment-title" placeholder="e.g., Essay Analysis: Impact of Climate Change" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
+                        </div>
+                        
+                        <div>
+                            <label for="subject" class="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+                            <select id="subject" name="subject" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
+                                <option value="">Select a subject</option>
+                                <option value="science">Science</option>
+                                <option value="environmental-science">Environmental Science</option>
+                                <option value="english">English</option>
+                                <option value="history">History</option>
+                                <option value="math">Math</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="grade-level" class="block text-sm font-medium text-gray-700 mb-1">Grade Level</label>
+                            <select id="grade-level" name="grade-level" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
+                                <option value="">Select a grade level</option>
+                                <option value="9">Grade 9</option>
+                                <option value="10">Grade 10</option>
+                                <option value="11">Grade 11</option>
+                                <option value="12">Grade 12</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="due-date" class="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+                            <input type="date" id="due-date" name="due-date" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Assignment Prompt Card - MOVED UP IN ORDER -->
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6 transition-all card-hover">
+                    <div class="flex items-center mb-4">
+                        <svg class="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <h3 class="font-medium text-gray-900">Assignment Prompt</h3>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label for="word-count" class="block text-sm font-medium text-gray-700 mb-1">Expected Word Count</label>
+                            <input type="number" id="word-count" name="word-count" placeholder="e.g., 1000" class="w-full sm:w-1/3 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
+                        </div>
+                        
+                        <div>
+                            <label for="prompt-text" class="block text-sm font-medium text-gray-700 mb-1">Assignment Instructions</label>
+                            
+                            <!-- Trix-like Editor -->
+                            <div class="trix-toolbar">
+                                <div class="trix-button-group">
+                                    <button type="button" class="trix-button">
+                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                        </svg>
+                                    </button>
+                                    <button type="button" class="trix-button">
+                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="trix-button-group">
+                                    <button type="button" class="trix-button">
+                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                                        </svg>
+                                    </button>
+                                    <button type="button" class="trix-button">
+                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="trix-button-group">
+                                    <button type="button" class="trix-button">
+                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2-16H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V6l-6-4z" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="trix-editor" contenteditable="true" role="textbox" placeholder="Enter detailed instructions for students. Describe the assignment, its objectives, and any specific requirements."></div>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <input id="ai-enhance" name="ai-enhance" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="ai-enhance" class="ml-2 block text-sm text-gray-700">Use AI to enhance and clarify my prompt</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Rubric Builder Card -->
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6 transition-all card-hover">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center">
+                            <svg class="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                            <h3 class="font-medium text-gray-900">Rubric Builder</h3>
+                        </div>
+                        <button type="button" class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                            <svg class="mr-1 -ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                            Build one for me
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label for="paste-rubric" class="block text-sm font-medium text-gray-700 mb-1">Paste your rubric</label>
+                            <textarea id="paste-rubric" name="paste-rubric" rows="6" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm" placeholder="Paste your existing rubric here or use the 'Build one for me' button above to generate a rubric with AI."></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Student Work Section - NEW DEDICATED SECTION -->
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6 transition-all card-hover">
+                    <div class="flex items-center mb-4">
+                        <svg class="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
+                        </svg>
+                        <h3 class="font-medium text-gray-900">Student Work</h3>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <p class="text-sm text-gray-600">Select student submissions for grading</p>
+                            <div class="inline-flex items-center">
+                                <span class="text-xs text-gray-500 mr-2">Toggle selection</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="toggle-student-work">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div id="student-work-selector" class="student-work-selector">
+                            <button type="button" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                                <svg class="mr-2 -ml-1 h-5 w-5" viewBox="0 0 48 48" width="24px" height="24px">
+                                    <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"></path>
+                                    <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"></path>
+                                    <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"></path>
+                                    <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"></path>
+                                </svg>
+                                Select from Google Drive
+                            </button>
+                            <p class="text-xs text-gray-500 mt-2">Or drag and drop files here</p>
+                        </div>
+                        
+                        <div id="selected-files" class="selected-files">
+                            <div class="flex justify-between items-center mb-3">
+                                <p class="text-sm font-medium text-gray-700">3 files selected</p>
+                                <button type="button" class="text-sm text-blue-600 hover:text-blue-800">Change selection</button>
+                            </div>
+                            <ul class="space-y-2">
+                                <li class="flex items-center text-sm text-gray-600">
+                                    <svg class="mr-2 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    Climate_Essay_John_Smith.docx
+                                </li>
+                                <li class="flex items-center text-sm text-gray-600">
+                                    <svg class="mr-2 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    Climate_Essay_Jane_Doe.docx
+                                </li>
+                                <li class="flex items-center text-sm text-gray-600">
+                                    <svg class="mr-2 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    Climate_Essay_Alex_Johnson.docx
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Grading Settings Card -->
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6 transition-all card-hover">
+                    <div class="flex items-center mb-4">
+                        <svg class="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <h3 class="font-medium text-gray-900">Grading Settings</h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-4">
+                            <div>
+                                <p class="text-sm font-medium text-gray-700 mb-2">Feedback Style</p>
+                                <div class="space-y-2">
+                                    <div class="flex items-center">
+                                        <input id="detailed" name="feedback-style" type="radio" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                        <label for="detailed" class="ml-2 block text-sm text-gray-700">Detailed (paragraph + key points)</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input id="concise" name="feedback-style" type="radio" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                        <label for="concise" class="ml-2 block text-sm text-gray-700">Concise (bullet points only)</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input id="extensive" name="feedback-style" type="radio" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                        <label for="extensive" class="ml-2 block text-sm text-gray-700">Extensive (in-line comments + summary)</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <p class="text-sm font-medium text-gray-700 mb-2">Feedback Tone</p>
+                                <select class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
+                                    <option value="encouraging">Encouraging</option>
+                                    <option value="neutral">Neutral/Objective</option>
+                                    <option value="critical">Critical</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <p class="text-sm font-medium text-gray-700 mb-2">AI Assistance Level</p>
+                                <div class="space-y-2">
+                                    <div class="flex items-center">
+                                        <input id="full" name="ai-level" type="radio" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                        <label for="full" class="ml-2 block text-sm text-gray-700">Full AI grading (review final results)</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input id="assisted" name="ai-level" type="radio" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                        <label for="assisted" class="ml-2 block text-sm text-gray-700">AI-assisted (pre-grade with your approval)</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input id="manual" name="ai-level" type="radio" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                        <label for="manual" class="ml-2 block text-sm text-gray-700">Manual (you grade with AI suggestions)</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <span class="text-sm text-gray-700">Enable Plagiarism Check</span>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Button -->
+                <div class="flex justify-end">
+                    <button type="submit" class="px-6 py-3 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                        Create Grading Task
+                    </button>
+                </div>
+            </form>
+        </main>
+    </div>
+    
+    <!-- JavaScript to toggle student work selection display -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleSwitch = document.getElementById('toggle-student-work');
+            const selectedFiles = document.getElementById('selected-files');
+            
+            toggleSwitch.addEventListener('change', function() {
+                if (this.checked) {
+                    selectedFiles.classList.add('show-selected');
+                } else {
+                    selectedFiles.classList.remove('show-selected');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

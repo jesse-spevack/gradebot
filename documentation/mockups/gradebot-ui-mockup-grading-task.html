@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GradeBot Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Base transitions and animations */
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        /* Card and badge hover effects */
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .status-badge {
+            transition: all 0.2s ease;
+        }
+        .status-badge:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Progress bar animation */
+        .progress-bar-animation {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.8;
+            }
+        }
+        
+        /* Toggle switch styling */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background-color: #3B82F6;
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(30px);
+        }
+        
+        /* Insight card styling */
+        .insight-card {
+            transition: all 0.3s ease;
+        }
+        .insight-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="bg-white shadow-sm sticky top-0 z-10">
+            <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
+                <!-- Logo and Title -->
+                <div class="flex items-center">
+                    <svg class="h-8 w-8 text-blue-600 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                    </svg>
+                    <h1 class="text-2xl font-semibold text-gray-900">GradeBot Dashboard</h1>
+                </div>
+                
+                <!-- Status and Toggle Controls -->
+                <div class="flex items-center space-x-6">
+                    <!-- View State Toggle -->
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm text-gray-500">In Progress</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="viewToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="text-sm text-gray-500">Completed</span>
+                    </div>
+                    
+                    <!-- Mock Processing Toggle -->
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm text-gray-500">Processing</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="processingToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <!-- AI Status -->
+                    <div class="hidden md:flex items-center">
+                        <span class="relative flex h-3 w-3 mr-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                        </span>
+                        <span class="text-sm text-gray-500">AI Assistant Ready</span>
+                    </div>
+                    
+                    <!-- User Profile -->
+                    <div class="flex items-center space-x-3 border-l pl-4">
+                        <div class="text-right">
+                            <p class="text-sm font-medium text-gray-900">Ms. Thompson</p>
+                            <p class="text-xs text-gray-500">Grade 11 Science</p>
+                        </div>
+                        <img class="h-10 w-10 rounded-full ring-2 ring-blue-100" src="/api/placeholder/40/40" alt="User avatar">
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Task Overview -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6 transition-all">
+                <div class="flex flex-col md:flex-row md:justify-between md:items-start mb-6">
+                    <div>
+                        <!-- Back button and Task Title -->
+                        <div class="flex items-center">
+                            <button class="mr-2 p-1 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                <svg class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                </svg>
+                            </button>
+                            <h2 class="text-xl font-semibold text-gray-900">Essay Analysis: Impact of Climate Change</h2>
+                            <!-- Status badge: changes based on view toggle -->
+                            <span id="taskStatusBadge" class="ml-3 px-3 py-1 text-sm font-medium rounded-full bg-yellow-100 text-yellow-800 status-badge">In Progress</span>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-1">Grade 11 Environmental Science • Apr 1, 2025</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                    <!-- Assignment Prompt Card -->
+                    <div id="assignmentCard" class="border border-gray-200 rounded-lg p-5 transition-all card-hover bg-white">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center">
+                                <svg class="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                <h3 class="font-medium text-gray-900">Assignment Prompt</h3>
+                            </div>
+                            <!-- Status badge: changes based on processing toggle -->
+                            <span id="assignmentStatusBadge" class="px-2.5 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 status-badge">Complete</span>
+                        </div>
+                        <!-- Assignment content: changes based on processing toggle -->
+                        <div id="assignmentNormal">
+                            <p class="text-sm text-gray-600 mb-4">Write a 1000-word essay analyzing the local impacts of climate change in your community and propose evidence-based solutions...</p>
+                            <button id="viewAssignmentBtn" class="w-full mt-2 inline-flex items-center justify-center px-4 py-2 border border-blue-300 shadow-sm text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                                View Assignment
+                                <svg class="ml-2 -mr-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </button>
+                        </div>
+                        <!-- Assignment processing state: hidden by default -->
+                        <div id="assignmentProcessing" class="hidden">
+                            <div class="flex flex-col items-center justify-center py-4">
+                                <svg class="animate-spin h-8 w-8 text-blue-500 mb-3" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <p class="text-sm text-gray-600 text-center">GradeBot is analyzing your assignment prompt...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rubric Card -->
+                    <div id="rubricCard" class="border border-gray-200 rounded-lg p-5 transition-all card-hover bg-white">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center">
+                                <svg class="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                                <h3 class="font-medium text-gray-900">Rubric</h3>
+                            </div>
+                            <!-- Status badge: changes based on processing toggle -->
+                            <span id="rubricStatusBadge" class="px-2.5 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 status-badge">Complete</span>
+                        </div>
+                        <!-- Rubric content: changes based on processing toggle -->
+                        <div id="rubricNormal">
+                            <div class="mb-4">
+                                <div class="flex items-center text-sm text-gray-600 mb-1">
+                                    <span class="w-24">Evidence:</span>
+                                    <span class="font-medium">4 points</span>
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600 mb-1">
+                                    <span class="w-24">Analysis:</span>
+                                    <span class="font-medium">4 points</span>
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600 mb-1">
+                                    <span class="w-24">Solutions:</span>
+                                    <span class="font-medium">4 points</span>
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <span class="w-24">Structure:</span>
+                                    <span class="font-medium">4 points</span>
+                                </div>
+                            </div>
+                            <button id="viewRubricBtn" class="w-full mt-2 inline-flex items-center justify-center px-4 py-2 border border-blue-300 shadow-sm text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                                View Rubric
+                                <svg class="ml-2 -mr-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </button>
+                        </div>
+                        <!-- Rubric processing state: hidden by default -->
+                        <div id="rubricProcessing" class="hidden">
+                            <div class="flex flex-col items-center justify-center py-4">
+                                <svg class="animate-spin h-8 w-8 text-blue-500 mb-3" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <p class="text-sm text-gray-600 text-center">GradeBot is analyzing your rubric...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress/Summary Card (shows different content based on view toggle) -->
+                    <div class="border border-gray-200 rounded-lg p-5 transition-all card-hover bg-blue-50">
+                        <!-- In Progress View -->
+                        <div id="progressView">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center">
+                                    <svg class="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                    </svg>
+                                    <h3 class="font-medium text-gray-900">Progress</h3>
+                                </div>
+                                <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800 status-badge">In Progress</span>
+                            </div>
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="flex justify-between text-sm mb-2">
+                                        <span class="text-gray-600">Submissions Graded:</span>
+                                        <span class="font-medium text-gray-900">18/28</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-3">
+                                        <div class="bg-blue-600 h-3 rounded-full progress-bar-animation" style="width: 64%"></div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center text-sm">
+                                    <svg class="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span class="text-gray-600">Estimated Completion:</span>
+                                    <span class="ml-auto font-medium text-gray-900">~20 minutes</span>
+                                </div>
+                                <div class="flex items-center text-sm">
+                                    <svg class="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                    </svg>
+                                    <span class="text-gray-600">AI Status:</span>
+                                    <span class="ml-auto font-medium text-blue-600">Processing submissions...</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Completed View (hidden by default) -->
+                        <div id="completedView" class="hidden">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center">
+                                    <svg class="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                    </svg>
+                                    <h3 class="font-medium text-gray-900">Class Summary</h3>
+                                </div>
+                                <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 status-badge">Complete</span>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex items-center text-sm">
+                                    <svg class="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <span class="text-gray-600">Submissions Graded:</span>
+                                    <span class="ml-auto font-medium text-gray-900">28/28</span>
+                                </div>
+                                <div class="flex items-center text-sm">
+                                    <svg class="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span class="text-gray-600">Completion Time:</span>
+                                    <span class="ml-auto font-medium text-gray-900">1hr 15min</span>
+                                </div>
+                                <div class="flex items-center text-sm">
+                                    <svg class="h-5 w-5 text-yellow-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    </svg>
+                                    <span class="text-gray-600">Area for Growth:</span>
+                                    <span class="ml-auto font-medium text-gray-900">Analysis Depth</span>
+                                </div>
+                                <div class="flex items-center text-sm">
+                                    <svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span class="text-gray-600">Area of Strength:</span>
+                                    <span class="ml-auto font-medium text-gray-900">Evidence Use</span>
+                                </div>
+                                <div class="pt-2">
+                                    <button class="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                                        View Strategic Review
+                                        <svg class="ml-2 -mr-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Class Insights Section (only shown in completed view) -->
+            <div id="insightsSection" class="bg-white rounded-lg shadow-md p-6 mb-6 hidden">
+                <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
+                    <h3 class="text-lg font-medium text-gray-900 flex items-center">
+                        <svg class="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Class Insights
+                    </h3>
+                    <button class="mt-4 md:mt-0 text-sm text-blue-600 hover:text-blue-800 transition-all flex items-center">
+                        Download Detailed Report
+                        <svg class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm insight-card">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-sm text-gray-500">Submissions Complete</p>
+                            <svg class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <p class="text-xl font-semibold text-gray-900">100%</p>
+                        <p class="text-xs text-gray-600 mt-1">All 28 submissions processed</p>
+                    </div>
+                    <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm insight-card">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-sm text-gray-500">Processing Time</p>
+                            <svg class="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <p class="text-xl font-semibold text-gray-900">1hr 15min</p>
+                        <p class="text-xs text-gray-600 mt-1">~2.7 min per submission</p>
+                    </div>
+                    <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm insight-card">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-sm text-gray-500">Areas of Strength</p>
+                            <svg class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                        </div>
+                        <p class="text-xl font-semibold text-gray-900">Evidence</p>
+                        <p class="text-xs text-gray-600 mt-1">Strong evidence use across class</p>
+                    </div>
+                    <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm insight-card">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-sm text-gray-500">Areas for Growth</p>
+                            <svg class="h-5 w-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                        <p class="text-xl font-semibold text-gray-900">Analysis</p>
+                        <p class="text-xs text-gray-600 mt-1">Deeper critical analysis needed</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submissions List -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="px-6 py-4 border-b flex flex-col md:flex-row md:justify-between md:items-center space-y-4 md:space-y-0">
+                    <h3 class="text-lg font-medium text-gray-900 flex items-center">
+                        <!-- Changed to graduation cap icon per request -->
+                        <svg class="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
+                        </svg>
+                        Student Submissions
+                        <!-- Status badge: changes based on view toggle -->
+                        <span id="submissionsStatusBadge" class="ml-2 px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-800">28 Total</span>
+                    </h3>
+                    <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
+                        <div class="relative">
+                            <input type="text" placeholder="Search students..." class="pl-8 pr-4 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 w-full">
+                            <svg class="h-4 w-4 text-gray-400 absolute left-2.5 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <select class="text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                            <option>All Status</option>
+                            <option>Complete</option>
+                            <option>Processing</option>
+                            <option>Pending</option>
+                            <option>Failed</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- In Progress Submissions View -->
+                <div id="inProgressSubmissions" class="divide-y divide-gray-100">
+                    <!-- Completed submissions -->
+                    <div class="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-all">
+                        <div class="flex items-center">
+                            <img class="h-10 w-10 rounded-full" src="/api/placeholder/40/40" alt="Student avatar">
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900">Alex</p>
+                                <p class="text-xs text-gray-500">Submitted: Apr 1, 2025 • 10:45 AM</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 status-badge">Complete</span>
+                            <button class="text-sm text-blue-600 hover:text-blue-800 transition-all flex items-center">
+                                View Feedback
+                                <svg class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-all">
+                        <div class="flex items-center">
+                            <img class="h-10 w-10 rounded-full" src="/api/placeholder/40/40" alt="Student avatar">
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900">Sarah</p>
+                                <p class="text-xs text-gray-500">Submitted: Apr 1, 2025 • 9:30 AM</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 status-badge">Complete</span>
+                            <button class="text-sm text-blue-600 hover:text-blue-800 transition-all flex items-center">
+                                View Feedback
+                                <svg class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Processing submission -->
+                    <div class="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-all">
+                        <div class="flex items-center">
+                            <img class="h-10 w-10 rounded-full" src="/api/placeholder/40/40" alt="Student avatar">
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900">Michael</p>
+                                <p class="text-xs text-gray-500">Submitted: Apr 1, 2025 • 11:15 AM</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 flex items-center status-badge">
+                                <svg class="animate-spin -ml-0.5 mr-1.5 h-3 w-3 text-blue-800" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Processing
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Pending submission -->
+                    <div class="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-all">
+                        <div class="flex items-center">
+                            <img class="h-10 w-10 rounded-full" src="/api/placeholder/40/40" alt="Student avatar">
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900">Emily</p>
+                                <p class="text-xs text-gray-500">Submitted: Apr 1, 2025 • 1:20 PM</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800 status-badge">Pending</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Failed submission -->
+                    <div class="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-all">
+                        <div class="flex items-center">
+                            <img class="h-10 w-10 rounded-full" src="/api/placeholder/40/40" alt="Student avatar">
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900">James</p>
+                                <p class="text-xs text-gray-500">Submitted: Apr 1, 2025 • 10:05 AM</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800 status-badge">Failed</span>
+                            <button class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all">
+                                <svg class="mr-1 h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                                Retry
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Completed Submissions View (hidden by default) -->
+                <div id="completedSubmissions" class="divide-y divide-gray-100 hidden">
+                    <!-- All submissions are complete -->
+                    <div class="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-all">
+                        <div class="flex items-center">
+                            <img class="h-10 w-10 rounded-full" src="/api/placeholder/40/40" alt="Student avatar">
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900">Alex</p>
+                                <p class="text-xs text-gray-500">Submitted: Apr 1, 2025 • 10:45 AM</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 status-badge">Complete</span>
+                            <button class="text-sm text-blue-600 hover:text-blue-800 transition-all flex items-center">
+                                View Feedback
+                                <svg class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-all">
+                        <div class="flex items-center">
+                            <img class="h-10 w-10 rounded-full" src="/api/placeholder/40/40" alt="Student avatar">
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900">Sarah</p>
+                                <p class="text-xs text-gray-500">Submitted: Apr 1, 2025 • 9:30 AM</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 status-badge">Complete</span>
+                            <button class="text-sm text-blue-600 hover:text-blue-800 transition-all flex items-center">
+                                View Feedback
+                                <svg class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-all">
+                        <div class="flex items-center">
+                            <img class="h-10 w-10 rounded-full" src="/api/placeholder/40/40" alt="Student avatar">
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900">Michael</p>
+                                <p class="text-xs text-gray-500">Submitted: Apr 1, 2025 • 11:15 AM</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 status-badge">Complete</span>
+                            <button class="text-sm text-blue-600 hover:text-blue-800 transition-all flex items-center">
+                                View Feedback
+                                <svg class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between border-t space-y-4 md:space-y-0">
+                    <div class="text-sm text-gray-500">
+                        Showing <span class="font-medium">1</span> to <span class="font-medium">5</span> of <span class="font-medium">28</span> results
+                    </div>
+                    <div class="flex space-x-2">
+                        <button disabled class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-400 bg-gray-50 cursor-not-allowed">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+                        <button class="px-3 py-1 border border-blue-500 rounded text-sm bg-blue-600 text-white">1</button>
+                        <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">2</button>
+                        <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">3</button>
+                        <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50 flex items-center">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript for Functionality -->
+    <script>
+        // Get DOM elements
+        // Main toggle elements
+        const viewToggle = document.getElementById('viewToggle');
+        const processingToggle = document.getElementById('processingToggle');
+        
+        // Status elements
+        const taskStatusBadge = document.getElementById('taskStatusBadge');
+        const assignmentStatusBadge = document.getElementById('assignmentStatusBadge');
+        const rubricStatusBadge = document.getElementById('rubricStatusBadge');
+        const submissionsStatusBadge = document.getElementById('submissionsStatusBadge');
+        
+        // View sections
+        const progressView = document.getElementById('progressView');
+        const completedView = document.getElementById('completedView');
+        const insightsSection = document.getElementById('insightsSection');
+        const inProgressSubmissions = document.getElementById('inProgressSubmissions');
+        const completedSubmissions = document.getElementById('completedSubmissions');
+        
+        // Assignment and Rubric sections
+        const assignmentNormal = document.getElementById('assignmentNormal');
+        const assignmentProcessing = document.getElementById('assignmentProcessing');
+        const rubricNormal = document.getElementById('rubricNormal');
+        const rubricProcessing = document.getElementById('rubricProcessing');
+        const viewAssignmentBtn = document.getElementById('viewAssignmentBtn');
+        const viewRubricBtn = document.getElementById('viewRubricBtn');
+
+        // Toggle between In Progress and Completed views
+        viewToggle.addEventListener('change', function() {
+            if (this.checked) {
+                // Switch to Completed view
+                taskStatusBadge.className = 'ml-3 px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-800 status-badge';
+                taskStatusBadge.textContent = 'Complete';
+                
+                progressView.classList.add('hidden');
+                completedView.classList.remove('hidden');
+                insightsSection.classList.remove('hidden');
+                
+                inProgressSubmissions.classList.add('hidden');
+                completedSubmissions.classList.remove('hidden');
+                
+                submissionsStatusBadge.className = 'ml-2 px-2 py-0.5 text-xs font-medium rounded-full bg-green-100 text-green-800';
+                submissionsStatusBadge.textContent = 'All Complete';
+            } else {
+                // Switch to In Progress view
+                taskStatusBadge.className = 'ml-3 px-3 py-1 text-sm font-medium rounded-full bg-yellow-100 text-yellow-800 status-badge';
+                taskStatusBadge.textContent = 'In Progress';
+                
+                progressView.classList.remove('hidden');
+                completedView.classList.add('hidden');
+                insightsSection.classList.add('hidden');
+                
+                inProgressSubmissions.classList.remove('hidden');
+                completedSubmissions.classList.add('hidden');
+                
+                submissionsStatusBadge.className = 'ml-2 px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-800';
+                submissionsStatusBadge.textContent = '28 Total';
+            }
+        });
+
+        // Toggle Processing state for Assignment and Rubric
+        processingToggle.addEventListener('change', function() {
+            if (this.checked) {
+                // Switch to Processing view
+                assignmentStatusBadge.className = 'px-2.5 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 status-badge';
+                assignmentStatusBadge.textContent = 'Processing';
+                
+                rubricStatusBadge.className = 'px-2.5 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 status-badge';
+                rubricStatusBadge.textContent = 'Processing';
+                
+                assignmentNormal.classList.add('hidden');
+                assignmentProcessing.classList.remove('hidden');
+                
+                rubricNormal.classList.add('hidden');
+                rubricProcessing.classList.remove('hidden');
+            } else {
+                // Switch to Normal view
+                assignmentStatusBadge.className = 'px-2.5 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 status-badge';
+                assignmentStatusBadge.textContent = 'Complete';
+                
+                rubricStatusBadge.className = 'px-2.5 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 status-badge';
+                rubricStatusBadge.textContent = 'Complete';
+                
+                assignmentNormal.classList.remove('hidden');
+                assignmentProcessing.classList.add('hidden');
+                
+                rubricNormal.classList.remove('hidden');
+                rubricProcessing.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

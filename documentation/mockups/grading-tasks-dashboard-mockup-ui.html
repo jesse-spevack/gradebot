@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GradeBot - Browse Grading Tasks</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Base transitions and animations */
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        /* Card and badge hover effects */
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .status-badge {
+            transition: all 0.2s ease;
+        }
+        .status-badge:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Toggle switch styling */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background-color: #3B82F6;
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(30px);
+        }
+        
+        /* Task card styling */
+        .task-card {
+            transition: all 0.3s ease;
+        }
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Task card styling */
+        .task-card {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="bg-white shadow-sm sticky top-0 z-10">
+            <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
+                <!-- Logo and Title -->
+                <div class="flex items-center">
+                    <svg class="h-8 w-8 text-blue-600 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                    </svg>
+                    <h1 class="text-2xl font-semibold text-gray-900">GradeBot Dashboard</h1>
+                </div>
+                
+                <!-- Controls and User Profile -->
+                <div class="flex items-center space-x-6">
+                    <!-- View Toggle -->
+                    <div class="hidden md:flex items-center space-x-2">
+                        <span class="text-sm text-gray-500">Active</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="viewToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="text-sm text-gray-500">Archived</span>
+                    </div>
+                    
+                    <!-- AI Status -->
+                    <div class="hidden md:flex items-center">
+                        <span class="relative flex h-3 w-3 mr-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                        </span>
+                        <span class="text-sm text-gray-500">AI Assistant Ready</span>
+                    </div>
+                    
+                    <!-- User Profile -->
+                    <div class="flex items-center space-x-3 border-l pl-4">
+                        <div class="text-right">
+                            <p class="text-sm font-medium text-gray-900">Ms. Thompson</p>
+                            <p class="text-xs text-gray-500">Grade 11 Science</p>
+                        </div>
+                        <img class="h-10 w-10 rounded-full ring-2 ring-blue-100" src="/api/placeholder/40/40" alt="User avatar">
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Page Header and Actions -->
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 space-y-4 md:space-y-0">
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-900">My Grading Tasks</h2>
+                    <p class="text-sm text-gray-500 mt-1">Manage and track all your grading tasks</p>
+                </div>
+                <div class="flex space-x-3">
+                    <button class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                        <svg class="mr-2 -ml-1 h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                        </svg>
+                        Filter
+                    </button>
+                    <button class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                        <svg class="mr-2 -ml-1 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        New Grading Task
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Search and Filters -->
+            <div class="bg-white rounded-lg shadow-md p-4 mb-6 transition-all">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="relative">
+                        <input type="text" placeholder="Search tasks..." class="pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 w-full">
+                        <svg class="h-5 w-5 text-gray-400 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <select class="w-full text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                            <option value="">All Subjects</option>
+                            <option value="science">Science</option>
+                            <option value="environmental-science">Environmental Science</option>
+                            <option value="english">English</option>
+                            <option value="history">History</option>
+                            <option value="math">Math</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select class="w-full text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                            <option value="">All Statuses</option>
+                            <option value="draft">Draft</option>
+                            <option value="pending">Pending</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="complete">Complete</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select class="w-full text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                            <option value="recent">Most Recent</option>
+                            <option value="oldest">Oldest</option>
+                            <option value="alpha">Alphabetical</option>
+                            <option value="due-date">Due Date</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Task Summary Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm card-hover">
+                    <div class="flex items-center justify-between mb-1">
+                        <p class="text-sm text-gray-500">Total Tasks</p>
+                        <svg class="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                    </div>
+                    <p class="text-2xl font-semibold text-gray-900">12</p>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm card-hover">
+                    <div class="flex items-center justify-between mb-1">
+                        <p class="text-sm text-gray-500">In Progress</p>
+                        <svg class="h-5 w-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <p class="text-2xl font-semibold text-gray-900">3</p>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm card-hover">
+                    <div class="flex items-center justify-between mb-1">
+                        <p class="text-sm text-gray-500">Completed</p>
+                        <svg class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <p class="text-2xl font-semibold text-gray-900">8</p>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm card-hover">
+                    <div class="flex items-center justify-between mb-1">
+                        <p class="text-sm text-gray-500">Draft</p>
+                        <svg class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 0L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                    </div>
+                    <p class="text-2xl font-semibold text-gray-900">1</p>
+                </div>
+            </div>
+            
+            <!-- Active Tasks List -->
+            <div id="activeTasks">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Active Grading Tasks</h3>
+                
+                <div class="space-y-4">
+                    <!-- In Progress Task -->
+                    <div class="bg-white rounded-lg shadow-md p-5 transition-all task-card">
+                        <div class="flex flex-col md:flex-row md:items-start md:justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center">
+                                    <h4 class="text-lg font-medium text-gray-900">Essay Analysis: Impact of Climate Change</h4>
+                                    <span class="ml-3 px-3 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800 status-badge">In Progress</span>
+                                </div>
+                                <p class="text-sm text-gray-500 mt-1">Grade 11 Environmental Science • Due Apr 15, 2025</p>
+                                
+                                <div class="flex flex-wrap items-center mt-3 text-sm text-gray-600">
+                                    <div class="flex items-center mr-6 mb-2">
+                                        <svg class="h-4 w-4 text-gray-400 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                        </svg>
+                                        <span>28 students</span>
+                                    </div>
+                                    <div class="flex items-center mr-6 mb-2">
+                                        <svg class="h-4 w-4 text-gray-400 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        <span>18 graded</span>
+                                    </div>
+                                    <div class="flex items-center mb-2">
+                                        <svg class="h-4 w-4 text-gray-400 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span>~20 min remaining</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center mt-4 md:mt-0 md:ml-6 space-x-2">
+                                <button class="px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                </button>
+                                <button class="px-3 py-1.5 border border-blue-300 shadow-sm text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Complete Task -->
+                    <div class="bg-white rounded-lg shadow-md p-5 transition-all task-card">
+                        <div class="flex flex-col md:flex-row md:items-start md:justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center">
+                                    <h4 class="text-lg font-medium text-gray-900">Lab Report: Chemical Reactions</h4>
+                                    <span class="ml-3 px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 status-badge">Complete</span>
+                                </div>
+                                <p class="text-sm text-gray-500 mt-1">Grade 11 Science • Due Mar 10, 2025</p>
+                                
+                                <div class="flex flex-wrap items-center mt-3 text-sm text-gray-600">
+                                    <div class="flex items-center mr-6 mb-2">
+                                        <svg class="h-4 w-4 text-gray-400 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                        </svg>
+                                        <span>26 students</span>
+                                    </div>
+                                    <div class="flex items-center mr-6 mb-2">
+                                        <svg class="h-4 w-4 text-gray-400 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        <span>26 graded</span>
+                                    </div>
+                                    <div class="flex items-center mb-2">
+                                        <svg class="h-4 w-4 text-gray-400 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span>Completed Mar 12</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center mt-4 md:mt-0 md:ml-6 space-x-2">
+                                <button class="px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                </button>
+                                <button class="px-3 py-1.5 border border-blue-300 shadow-sm text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- In Progress Task -->
+                    <div class="bg-white rounded-lg shadow-md p-5 transition-all task-card">
+                        <div class="flex flex-col md:flex-row md:items-start md:justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center">
+                                    <h4 class="text-lg font-medium text-gray-900">Research Project: Renewable Energy</h4>
+                                    <span class="ml-3 px-3 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800 status-badge">In Progress</span>
+                                </div>
+                                <p class="text-sm text-gray-500 mt-1">Grade 11 Environmental Science • Due Apr 8, 2025</p>
+                                
+                                <div class="flex flex-wrap items-center mt-3 text-sm text-gray-600">
+                                    <div class="flex items-center mr-6 mb-2">
+                                        <svg class="h-4 w-4 text-gray-400 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                        </svg>
+                                        <span>25 students</span>
+                                    </div>
+                                    <div class="flex items-center mr-6 mb-2">
+                                        <svg class="h-4 w-4 text-gray-400 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        <span>11 graded</span>
+                                    </div>
+                                    <div class="flex items-center mb-2">
+                                        <svg class="h-4 w-4 text-gray-400 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span>~35 min remaining</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center mt-4 md:mt-0 md:ml-6 space-x-2">
+                                <button class="px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                </button>
+                                <button class="px-3 py-1.5 border border-blue-300 shadow-sm text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Complete Task -->
+                    <div class="bg-white rounded-lg shadow-md p-5 transition-all task-card">
+                        <div class="flex flex-col md:flex-row md:items-start md:justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center">
+                                    <h4 class="text-lg font-medium text-gray-900">Midterm Exam: Ecology</h4>
+                                    <span class="ml-3 px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 status-badge">Complete</span>
+                                </div>
+                                <p class="text-sm text-gray-500 mt-1">Grade 11 Science • Due Mar 20, 2025</p>
+                                
+                                <div class="flex flex-wrap items-center mt-3 text-sm text-gray-600">
+                                    <div class="flex items-center mr-6 mb-2">
+                                        <svg class="h-4 w-4 text-gray-400 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                        </svg>
+                                        <span>28 students</span>
+                                    </div>
+                                    <div class="flex items-center mr-6 mb-2">
+                                        <svg class="h-4 w-4 text-gray-400 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        <span>28 graded</span>
+                                    </div>
+                                    <div class="flex items-center mb-2">
+                                        <svg class="h-4 w-4 text-gray-400 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span>Completed Mar 23</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center mt-4 md:mt-0 md:ml-6 space-x-2">
+                                <button class="px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                </button>
+                                <button class="px-3 py-1.5 border border-blue-300 shadow-sm text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Draft Task -->
+                    <div class="bg-white rounded-lg shadow-md p-5 transition-all task-card">
+                        <div class="flex flex-col md:flex-row md:items-start md:justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center">
+                                    <h4 class="text-lg font-medium text-gray-900">Final Project: Climate Solutions</h4>
+                                    <span class="ml-3 px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800 status-badge">Draft</span>
+                                </div>
+                                <p class="text-sm text-gray-500 mt-1">Grade 11 Environmental Science • Not assigned yet</p>
+                                
+                                <div class="flex flex-wrap items-center mt-3 text-sm text-gray-600">
+                                    <div class="flex items-center mr-6 mb-2">
+                                        <svg class="h-4 w-4 text-gray-400 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                        </svg>
+                                        <span>Last edited Apr 1, 2025</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center mt-4 md:mt-0 md:ml-6 space-x-2">
+                                <button class="px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 0L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </button>
+                                <button class="px-3 py-1.5 border border-blue-300 shadow-sm text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                                    Continue Editing
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Archived Tasks List (hidden by default) -->
+            <div id="archivedTasks" class="hidden">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Archived Grading Tasks</h3>
+                
+                <div class="space-y-4">
+                    <!-- Archived Task -->
+                    <div class="bg-white rounded-lg shadow-md p-5 transition-all task-card opacity-80">
+                        <div class="flex flex-col md:flex-row md:items-start md:justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center">
+                                    <h4 class="text-lg font-medium text-gray-900">Unit Test: Cellular Biology</h4>
+                                    <span class="ml-3 px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800 status-badge">Archived</span>
+                                </div>
+                                <p class="text-sm text-gray-500 mt-1">Grade 11 Science • Completed Oct 15, 2024</p>
+                                
+                                <div class="flex flex-wrap items-center mt-3 text-sm text-gray-600">
+                                    <div class="flex items-center mr-6 mb-2">
+                                        <svg class="h-4 w-4 text-gray-400 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                        </svg>
+                                        <span>27 students</span>
+                                    </div>
+                                    <div class="flex items-center mr-6 mb-2">
+                                        <svg class="h-4 w-4 text-gray-400 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                        </svg>
+                                        <span>Average: 82%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center mt-4 md:mt-0 md:ml-6">
+                                <button class="px-3 py-1.5 border border-blue-300 shadow-sm text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                                    View Report
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Archived Task -->
+                    <div class="bg-white rounded-lg shadow-md p-5 transition-all task-card opacity-80">
+                        <div class="flex flex-col md:flex-row md:items-start md:justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center">
+                                    <h4 class="text-lg font-medium text-gray-900">Research Paper: Biomes</h4>
+                                    <span class="ml-3 px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800 status-badge">Archived</span>
+                                </div>
+                                <p class="text-sm text-gray-500 mt-1">Grade 11 Environmental Science • Completed Sep 28, 2024</p>
+                                
+                                <div class="flex flex-wrap items-center mt-3 text-sm text-gray-600">
+                                    <div class="flex items-center mr-6 mb-2">
+                                        <svg class="h-4 w-4 text-gray-400 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                        </svg>
+                                        <span>26 students</span>
+                                    </div>
+                                    <div class="flex items-center mr-6 mb-2">
+                                        <svg class="h-4 w-4 text-gray-400 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                        </svg>
+                                        <span>Average: 78%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center mt-4 md:mt-0 md:ml-6">
+                                <button class="px-3 py-1.5 border border-blue-300 shadow-sm text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                                    View Report
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pagination -->
+            <div class="mt-6 flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+                <div class="text-sm text-gray-500">
+                    Showing <span class="font-medium">1</span> to <span class="font-medium">5</span> of <span class="font-medium">12</span> tasks
+                </div>
+                <div class="flex space-x-2">
+                    <button disabled class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-400 bg-gray-50 cursor-not-allowed">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <button class="px-3 py-1 border border-blue-500 rounded text-sm bg-blue-600 text-white">1</button>
+                    <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">2</button>
+                    <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">3</button>
+                    <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50 flex items-center">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript for View Toggle -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const viewToggle = document.getElementById('viewToggle');
+            const activeTasks = document.getElementById('activeTasks');
+            const archivedTasks = document.getElementById('archivedTasks');
+            
+            viewToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    // Show archived tasks
+                    activeTasks.classList.add('hidden');
+                    archivedTasks.classList.remove('hidden');
+                } else {
+                    // Show active tasks
+                    activeTasks.classList.remove('hidden');
+                    archivedTasks.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
