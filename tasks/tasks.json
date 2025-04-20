@@ -225,13 +225,14 @@
       "id": 11,
       "title": "Create AssignmentSummary Model and Migration",
       "description": "Implement the AssignmentSummary model with attributes and associations.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
-        3
+        3,
+        9
       ],
       "priority": "high",
-      "details": "Create AssignmentSummary model with student_work_count (integer) and qualitative_insights (text). Add belongs_to :assignment association and has_many :feedback_items association (polymorphic). Create and run migration. Create fixture and model tests.",
-      "testStrategy": "Test association with assignment. Test creation and retrieval of associated feedback items."
+      "details": "Create AssignmentSummary model with student_work_count (integer, default 0, required) and qualitative_insights (text, required). Add belongs_to :assignment association and polymorphic has_many :feedback_items association. Create and run migration. Create fixture and model tests.",
+      "testStrategy": "Test association with assignment. Test creation and retrieval of associated feedback items (polymorphic). Test presence validations."
     },
     {
       "id": 12,

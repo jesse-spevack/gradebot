@@ -1,6 +1,6 @@
 # Task ID: 11
 # Title: Create AssignmentSummary Model and Migration
-# Status: pending
+# Status: in-progress
 # Dependencies: 3
 # Priority: high
 # Description: Implement the AssignmentSummary model with attributes and associations.

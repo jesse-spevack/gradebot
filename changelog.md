@@ -29,6 +29,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implement `StudentWorkCheck` model with attributes (`explanation`, `check_type`, `score`), association (`student_work`), validations (presence, score range 0-100, conditional score range 1-12 for `writing_grade_level`), enum (`check_type`), and prefixed ID (`chk`).
 - Add migration for `student_work_checks` table with `check_type` enum/index.
 - Add model tests and fixtures for `StudentWorkCheck`.
+- Implement `AssignmentSummary` model with attributes (`student_work_count`, `qualitative_insights`), associations (`assignment`, polymorphic `feedback_items`), validations (presence for all attributes, numericality for count), and prefixed ID (`asum_`).
+- Add migration for `assignment_summaries` table with required columns and default for count.
+- Add model tests and fixtures for `AssignmentSummary`.
 
 ## [2026-04-19]
 ### Added
