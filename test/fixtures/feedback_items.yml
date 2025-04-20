@@ -1,0 +1,18 @@
+strength_1:
+  feedbackable: one (StudentWork) # Corresponds to student_works(:one)
+  title: "Excellent Thesis"
+  description: "Your thesis statement is clear and effectively guides the essay."
+  kind: :strength
+  evidence: "In the first paragraph..."
+
+opportunity_1:
+  feedbackable: one (StudentWork)
+  title: "Weak Conclusion"
+  description: "The conclusion could be stronger by summarizing the main points more effectively."
+  kind: :opportunity
+
+strength_2:
+  feedbackable: two (StudentWork) # Corresponds to student_works(:two)
+  title: "Strong Evidence"
+  description: "You use compelling evidence to support your arguments."
+  kind: :strength 

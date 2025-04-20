@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_20_154803) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_20_165043) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -117,6 +117,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_20_154803) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.date "release_date"
+  end
+
+  create_table "feedback_items", force: :cascade do |t|
+    t.string "title", null: false
+    t.text "description", null: false
+    t.text "evidence"
+    t.integer "kind", null: false
+    t.string "feedbackable_type", null: false
+    t.integer "feedbackable_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["feedbackable_type", "feedbackable_id"], name: "index_feedback_items_on_feedbackable"
+    t.index ["kind"], name: "index_feedback_items_on_kind"
   end
 
   create_table "grading_tasks", force: :cascade do |t|

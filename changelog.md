@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add migration for `student_works` table with `status` enum (default: `pending`) and index.
 - Add model tests and fixtures for `StudentWork`.
 - Create `enum.mdc` rule.
+- Implement polymorphic `FeedbackItem` model with attributes (`title`, `description`, `evidence`, `kind`), associations (`feedbackable`), validations (`feedbackable`, `title`, `description`, `kind`), enum (`kind`), and prefixed ID (`fbk`).
+- Add migration for `feedback_items` table with polymorphic references and `kind` enum/index.
+- Add model tests and fixtures for `FeedbackItem`.
+- Update `StudentWork` model to declare polymorphic `has_many :feedback_items`.
 
 ## [2026-04-19]
 ### Added
