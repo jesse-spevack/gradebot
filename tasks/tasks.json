@@ -236,15 +236,15 @@
     },
     {
       "id": 12,
-      "title": "Create DocumentSelection Model and Migration",
-      "description": "Implement the DocumentSelection model for Google Doc selection.",
-      "status": "pending",
+      "title": "Create SelectedDocument Model and Migration",
+      "description": "Implement the SelectedDocument model for Google Doc selection.",
+      "status": "done",
       "dependencies": [
         3
       ],
       "priority": "high",
-      "details": "Create DocumentSelection model with google_doc_id (string), title (string), content (text), and word_count (integer). Add belongs_to :assignment association. Add validations for google_doc_id presence and uniqueness. Create and run migration. Create fixture and model tests.",
-      "testStrategy": "Test validations for google_doc_id presence and uniqueness. Test association with assignment."
+      "details": "Create SelectedDocument model with google_doc_id (string, required), title (string, required), and url (string, required). Add belongs_to :assignment association. Add validations for google_doc_id (presence, uniqueness) and assignment, title, url (presence). Create and run migration. Create fixture and model tests.",
+      "testStrategy": "Test validations for required fields and google_doc_id uniqueness. Test association with assignment."
     },
     {
       "id": 13,
@@ -284,15 +284,15 @@
     },
     {
       "id": 16,
-      "title": "Create DocumentSelection::BulkCreationService",
-      "description": "Implement service for creating multiple document selections in one transaction.",
+      "title": "Create SelectedDocument::BulkCreationService",
+      "description": "Implement service for creating multiple selected documents in one transaction.",
       "status": "pending",
       "dependencies": [
         12,
         15
       ],
       "priority": "high",
-      "details": "Create DocumentSelection::BulkCreationService that takes an array of Google document IDs and an assignment. Service should fetch document metadata, validate document size (<2000 words), and create DocumentSelection records in a single database transaction. Implement word count calculation for validation.",
+      "details": "Create SelectedDocument::BulkCreationService that takes an array of Google document IDs and an assignment. Service should fetch document metadata, validate document size (<2000 words), and create SelectedDocument records in a single database transaction. Implement word count calculation for validation.",
       "testStrategy": "Test bulk creation with valid and invalid documents. Test word count validation. Test transaction rollback on error."
     },
     {
@@ -305,8 +305,8 @@
         16
       ],
       "priority": "high",
-      "details": "Create StudentWork::BulkCreationService that takes an array of DocumentSelection records and an assignment. Service should create StudentWork records in a single database transaction with initial 'pending' status. Implement associations between StudentWork and DocumentSelection.",
-      "testStrategy": "Test bulk creation with valid inputs. Test proper association with DocumentSelection. Test transaction rollback on error."
+      "details": "Create StudentWork::BulkCreationService that takes an array of SelectedDocument records and an assignment. Service should create StudentWork records in a single database transaction with initial 'pending' status. Implement associations between StudentWork and SelectedDocument.",
+      "testStrategy": "Test bulk creation with valid inputs. Test proper association with SelectedDocument. Test transaction rollback on error."
     },
     {
       "id": 18,
@@ -318,7 +318,7 @@
         17
       ],
       "priority": "high",
-      "details": "Create Assignment::InitializerService that orchestrates the complete assignment creation process. Service should handle assignment creation, call DocumentSelection::BulkCreationService and StudentWork::BulkCreationService, and enqueue AssignmentProcessingJob. Implement error handling and rollback for failed operations.",
+      "details": "Create Assignment::InitializerService that orchestrates the complete assignment creation process. Service should handle assignment creation, call SelectedDocument::BulkCreationService and StudentWork::BulkCreationService, and enqueue AssignmentProcessingJob. Implement error handling and rollback for failed operations.",
       "testStrategy": "Test the complete flow with valid and invalid inputs. Test error handling and rollback. Test job enqueuing."
     },
     {
@@ -373,129 +373,156 @@
     },
     {
       "id": 23,
-      "title": "Create ProcessingPipeline Abstraction",
-      "description": "Implement the ProcessingPipeline abstraction for orchestrating LLM workflows.",
+      "title": "Create ProcessingFailure Model",
+      "description": "Implement model to store details about processing failures.",
       "status": "pending",
       "dependencies": [
         22
       ],
       "priority": "high",
-      "details": "Create ProcessingPipeline class to orchestrate LLM processing workflow. Implement methods for building prompts, making LLM requests, tracking processing time, parsing responses, storing results, managing status, and broadcasting updates. Add error handling, retry mechanisms, and timeout configuration.",
-      "testStrategy": "Test pipeline execution with mock ProcessingTask. Test each step of the workflow independently. Test error handling and retry mechanisms with simulated failures."
+      "details": "Create ProcessingFailure model with polymorphic association `failable`, `reason` (text), and other attributes as needed. Add tests and fixtures. Models like StudentWork, AssignmentSummary etc. will `has_many :processing_failures, as: :failable`.",
+      "testStrategy": "Test polymorphic association, validations, data storage."
     },
     {
       "id": 24,
+      "title": "Create ProcessingPipeline Abstraction",
+      "description": "Implement the ProcessingPipeline abstraction for orchestrating LLM workflows.",
+      "status": "pending",
+      "dependencies": [
+        22,
+        23
+      ],
+      "priority": "high",
+      "details": "Create ProcessingPipeline class to orchestrate LLM processing workflow. Implement methods for building prompts, making LLM requests, tracking processing time, parsing responses, storing results, managing status (including recording failures using ProcessingFailure model), and broadcasting updates. Add error handling, retry mechanisms, and timeout configuration.",
+      "testStrategy": "Test pipeline execution with mock ProcessingTask. Test each step of the workflow independently. Test error handling, failure recording, and retry mechanisms with simulated failures."
+    },
+    {
+      "id": 25,
       "title": "Create RubricPromptBuilder",
       "description": "Implement the prompt builder for rubric generation.",
       "status": "pending",
       "dependencies": [
         22,
-        23
+        24
       ],
       "priority": "medium",
       "details": "Create RubricPromptBuilder class that inherits from BasePromptBuilder. Implement build_prompt method that formats assignment details and raw rubric text (if provided) into a structured prompt for rubric generation. Add template selection logic based on presence of raw rubric text. Implement JSON output formatting instructions.",
       "testStrategy": "Test prompt building with and without raw rubric text. Test JSON formatting instructions. Test prompt length calculation."
     },
     {
-      "id": 25,
+      "id": 26,
       "title": "Create RubricResponseParser",
       "description": "Implement the response parser for rubric generation.",
       "status": "pending",
       "dependencies": [
-        24
+        25
       ],
       "priority": "medium",
       "details": "Create RubricResponseParser class that inherits from BaseResponseParser. Implement parse_response method that extracts rubric criteria and levels from JSON response. Add validation for required fields. Implement error handling for malformed responses. Format data for database storage.",
       "testStrategy": "Test parsing with valid and invalid JSON responses. Test validation of required fields. Test error handling for malformed responses."
     },
     {
-      "id": 26,
+      "id": 27,
       "title": "Create Rubric::CreationService",
       "description": "Implement service for creating rubric structure from parsed response.",
       "status": "pending",
       "dependencies": [
-        25
+        26
       ],
       "priority": "medium",
       "details": "Create Rubric::CreationService that takes parsed rubric data and an assignment. Service should create Rubric record with associated Criterion and Level records in a transaction. Implement proper position ordering for criteria and levels. Add validation for required data. Implement error handling and rollback.",
       "testStrategy": "Test creation with valid and invalid inputs. Test proper position ordering. Test transaction rollback on error."
     },
     {
-      "id": 27,
+      "id": 28,
+      "title": "Implement Content Validation in Pipeline",
+      "description": "Add step to StudentWork processing pipeline to validate content length.",
+      "status": "pending",
+      "dependencies": [
+        24,
+        7
+      ],
+      "priority": "medium",
+      "details": "Modify the StudentWork feedback processing pipeline (Task 24) to fetch document content via API and validate its length (e.g., word count or token count < limit). If validation fails, update StudentWork status to 'failed' and create a ProcessingFailure record.",
+      "testStrategy": "Test pipeline modification with documents exceeding the limit, ensure status update and failure recording."
+    },
+    {
+      "id": 29,
       "title": "Create StudentWorkPromptBuilder",
       "description": "Implement the prompt builder for student work feedback.",
       "status": "pending",
       "dependencies": [
         22,
-        23
+        24,
+        28
       ],
       "priority": "medium",
       "details": "Create StudentWorkPromptBuilder class that inherits from BasePromptBuilder. Implement build_prompt method that combines student work content, assignment details, and rubric structure into a prompt for feedback generation. Add feedback tone customization based on assignment settings. Implement JSON output formatting instructions.",
       "testStrategy": "Test prompt building with different feedback tones. Test handling of long student work content. Test JSON formatting instructions."
     },
     {
-      "id": 28,
+      "id": 30,
       "title": "Create StudentWorkResponseParser",
       "description": "Implement the response parser for student work feedback.",
       "status": "pending",
       "dependencies": [
-        27
+        29
       ],
       "priority": "medium",
       "details": "Create StudentWorkResponseParser class that inherits from BaseResponseParser. Implement parse_response method that extracts qualitative feedback, feedback items, rubric criterion levels, and checks from JSON response. Add validation for required fields. Implement error handling for malformed responses. Format data for database storage.",
       "testStrategy": "Test parsing with valid and invalid JSON responses. Test validation of required fields. Test error handling for malformed responses."
     },
     {
-      "id": 29,
+      "id": 31,
       "title": "Create StudentWork::UpdateService",
       "description": "Implement service for updating student work with feedback data.",
       "status": "pending",
       "dependencies": [
-        28
+        30
       ],
       "priority": "medium",
       "details": "Create StudentWork::UpdateService that takes parsed student work feedback data and a student work record. Service should update student work qualitative feedback and create associated FeedbackItem, StudentWorkCriterionLevel, and StudentWorkCheck records in a transaction. Implement proper type assignment for feedback items. Add validation for required data. Implement error handling and rollback.",
       "testStrategy": "Test update with valid and invalid inputs. Test creation of associated records. Test transaction rollback on error."
     },
     {
-      "id": 30,
+      "id": 32,
       "title": "Create SummaryPromptBuilder",
       "description": "Implement the prompt builder for assignment summary generation.",
       "status": "pending",
       "dependencies": [
         22,
-        23
+        24
       ],
       "priority": "medium",
       "details": "Create SummaryPromptBuilder class that inherits from BasePromptBuilder. Implement build_prompt method that combines assignment details, rubric structure, and aggregated student work feedback into a prompt for summary generation. Add aggregation logic for common strengths and weaknesses. Implement JSON output formatting instructions.",
       "testStrategy": "Test prompt building with various input combinations. Test aggregation logic for feedback. Test JSON formatting instructions."
     },
     {
-      "id": 31,
+      "id": 33,
       "title": "Create SummaryResponseParser",
       "description": "Implement the response parser for assignment summary.",
       "status": "pending",
       "dependencies": [
-        30
+        32
       ],
       "priority": "medium",
       "details": "Create SummaryResponseParser class that inherits from BaseResponseParser. Implement parse_response method that extracts qualitative insights and feedback items from JSON response. Add validation for required fields. Implement error handling for malformed responses. Format data for database storage.",
       "testStrategy": "Test parsing with valid and invalid JSON responses. Test validation of required fields. Test error handling for malformed responses."
     },
     {
-      "id": 32,
+      "id": 34,
       "title": "Create AssignmentSummary::CreationService",
       "description": "Implement service for creating assignment summary from parsed response.",
       "status": "pending",
       "dependencies": [
-        31
+        33
       ],
       "priority": "medium",
       "details": "Create AssignmentSummary::CreationService that takes parsed summary data and an assignment. Service should create AssignmentSummary record with associated FeedbackItem records in a transaction. Add calculation of student_work_count. Implement error handling and rollback.",
       "testStrategy": "Test creation with valid and invalid inputs. Test student_work_count calculation. Test transaction rollback on error."
     },
     {
-      "id": 33,
+      "id": 35,
       "title": "Create BroadcastService",
       "description": "Implement service for broadcasting real-time updates to the UI.",
       "status": "pending",
@@ -507,143 +534,143 @@
       "testStrategy": "Test broadcasting with mock channel. Test serialization of different data types. Test channel configuration for assignment-specific updates."
     },
     {
-      "id": 34,
+      "id": 36,
       "title": "Create TimerService",
       "description": "Implement service for calculating and updating processing time estimates.",
       "status": "pending",
       "dependencies": [
-        33
+        35
       ],
       "priority": "medium",
       "details": "Create TimerService class for calculating estimated completion times. Implement methods for initial time calculation based on task counts. Add dynamic adjustment based on completed tasks. Implement real-time updates via BroadcastService. Add persistence of actual processing times.",
       "testStrategy": "Test time calculation with various task counts. Test dynamic adjustment with progress updates. Test integration with BroadcastService."
     },
     {
-      "id": 35,
+      "id": 37,
       "title": "Create AssignmentProcessingJob",
       "description": "Implement background job for managing the assignment processing workflow.",
       "status": "pending",
       "dependencies": [
-        23,
-        33,
-        34
+        24,
+        35,
+        36
       ],
       "priority": "medium",
       "details": "Create AssignmentProcessingJob that inherits from ApplicationJob. Implement perform method that initializes and executes the parent ProcessingPipeline. Add creation and coordination of child pipelines for rubric generation, student work feedback, and assignment summary. Implement progress tracking and status updates. Add error handling and retry configuration.",
       "testStrategy": "Test job execution with mock pipelines. Test coordination of child pipelines. Test progress tracking and status updates. Test error handling and retry functionality."
     },
     {
-      "id": 36,
+      "id": 38,
       "title": "Create Assignment Show Page View",
       "description": "Build the view for displaying assignment details and processing status.",
       "status": "pending",
       "dependencies": [
         15,
-        33
+        35
       ],
       "priority": "medium",
       "details": "Create assignment show page with sections for assignment details, rubric, student works, and insights. Implement status badge for assignment processing. Add loading indicators for in-progress sections. Create collapsible sections for rubric criteria and levels. Build student work list with status badges and completion links. Add assignment summary section for displaying insights after processing completes.",
       "testStrategy": "Test page rendering with different assignment states. Test responsive design on different screen sizes."
     },
     {
-      "id": 37,
+      "id": 39,
       "title": "Create RubricComponent",
       "description": "Build the Stimulus controller and partial for displaying the rubric.",
       "status": "pending",
       "dependencies": [
-        36
+        38
       ],
       "priority": "medium",
       "details": "Create RubricComponent with Stimulus controller for handling user interactions. Implement collapsible sections for criteria and levels. Add loading state for rubric generation. Create partial for rendering criteria and levels. Implement real-time updates via Action Cable subscription. Add animations for state transitions.",
       "testStrategy": "Test component rendering with different rubric states. Test collapsible functionality. Test real-time updates with simulated broadcasts."
     },
     {
-      "id": 38,
+      "id": 40,
       "title": "Create StudentWorkListComponent",
       "description": "Build the Stimulus controller and partial for displaying the student work list.",
       "status": "pending",
       "dependencies": [
-        36
+        38
       ],
       "priority": "medium",
       "details": "Create StudentWorkListComponent with Stimulus controller for handling user interactions. Implement list rendering with status badges and completion links. Add progress indicators for processing status. Create partial for rendering student work items. Implement real-time updates via Action Cable subscription. Add sorting and filtering options.",
       "testStrategy": "Test component rendering with different student work states. Test progress indicators. Test real-time updates with simulated broadcasts."
     },
     {
-      "id": 39,
+      "id": 41,
       "title": "Create ProcessingStatusComponent",
       "description": "Build the Stimulus controller and partial for displaying processing status.",
       "status": "pending",
       "dependencies": [
-        36
+        38
       ],
       "priority": "medium",
       "details": "Create ProcessingStatusComponent with Stimulus controller for handling status updates. Implement progress bar for overall completion. Add time estimate display. Create partial for rendering status information. Implement real-time updates via Action Cable subscription. Add animations for state transitions.",
       "testStrategy": "Test component rendering with different processing states. Test progress bar functionality. Test time estimate display. Test real-time updates with simulated broadcasts."
     },
     {
-      "id": 40,
+      "id": 42,
       "title": "Create InsightsComponent",
       "description": "Build the Stimulus controller and partial for displaying assignment insights.",
       "status": "pending",
       "dependencies": [
-        36
+        38
       ],
       "priority": "medium",
       "details": "Create InsightsComponent with Stimulus controller for handling user interactions. Implement collapsible sections for different insight categories. Add visualization for common strengths and weaknesses. Create partial for rendering insight data. Implement conditional display based on assignment completion status.",
       "testStrategy": "Test component rendering with different insight data. Test collapsible functionality. Test conditional display based on assignment status."
     },
     {
-      "id": 41,
+      "id": 43,
       "title": "Create Student Work Show Page View",
       "description": "Build the view for displaying and editing student work feedback.",
       "status": "pending",
       "dependencies": [
-        38
+        40
       ],
       "priority": "low",
       "details": "Create student work show page with sections for feedback note, feedback items, rubric criteria levels, and checks. Implement edit/save functionality for each section. Add buttons for sending feedback to Google Docs. Create form elements for editing feedback content. Implement responsive design for mobile use.",
       "testStrategy": "Test page rendering with different student work states. Test edit/save functionality. Test responsive design on different screen sizes."
     },
     {
-      "id": 42,
+      "id": 44,
       "title": "Create FeedbackEditorComponent",
       "description": "Build the Stimulus controller for editing feedback content.",
       "status": "pending",
       "dependencies": [
-        41
+        43
       ],
       "priority": "low",
       "details": "Create FeedbackEditorComponent with Stimulus controller for handling edit/save functionality. Implement toggle between view and edit modes. Add form submission handling. Create partial for rendering feedback editor. Implement validation for edited content. Add success/error messaging for save operations.",
       "testStrategy": "Test component functionality for toggling between view and edit modes. Test form submission. Test validation for edited content. Test success/error messaging."
     },
     {
-      "id": 43,
+      "id": 45,
       "title": "Create GoogleDocsService",
       "description": "Implement service for appending feedback to Google documents.",
       "status": "pending",
       "dependencies": [
-        41,
-        42
+        43,
+        44
       ],
       "priority": "low",
       "details": "Create GoogleDocsService class for interacting with Google Docs API. Implement methods for appending content to documents. Add formatting service for converting feedback to Google Docs format. Implement authentication and authorization handling. Add error handling and retry mechanisms.",
       "testStrategy": "Test API integration with mock Google Docs API. Test formatting service for different feedback types. Test error handling and retry mechanisms."
     },
     {
-      "id": 44,
+      "id": 46,
       "title": "Create FeedbackSender",
       "description": "Implement controller and service for sending feedback to Google Docs.",
       "status": "pending",
       "dependencies": [
-        43
+        45
       ],
       "priority": "low",
       "details": "Create FeedbackSender controller with action for sending feedback to Google Docs. Implement service for formatting and combining feedback elements. Add configuration for feedback inclusion options. Create success/error response handling. Implement progress indicator for sending operation.",
       "testStrategy": "Test controller action with valid and invalid parameters. Test service for formatting different feedback combinations. Test success/error response handling."
     },
     {
-      "id": 45,
+      "id": 47,
       "title": "Create Assignments Index Page View",
       "description": "Build the view for displaying all assignments with analytics.",
       "status": "pending",
@@ -655,32 +682,32 @@
       "testStrategy": "Test page rendering with different assignment counts. Test filter and sort functionality. Test analytics calculations. Test responsive design on different screen sizes."
     },
     {
-      "id": 46,
+      "id": 48,
       "title": "Create StreakTracker",
       "description": "Implement service for tracking consecutive days with grading tasks.",
       "status": "pending",
       "dependencies": [
-        45
+        47
       ],
       "priority": "low",
       "details": "Create StreakTracker service for calculating consecutive days with grading activity. Implement methods for streak calculation based on completed student works. Add persistence for streak data. Create visualization component for displaying streak information. Implement real-time updates for streak changes.",
       "testStrategy": "Test streak calculation with various activity patterns. Test persistence of streak data. Test visualization component with different streak values."
     },
     {
-      "id": 47,
+      "id": 49,
       "title": "Create ContributionGraph",
       "description": "Build the component for displaying GitHub-style contribution graph.",
       "status": "pending",
       "dependencies": [
-        45,
-        46
+        47,
+        48
       ],
       "priority": "low",
       "details": "Create ContributionGraph component for visualizing daily grading activity. Implement grid layout with one square per day. Add color intensity scaling based on activity level. Create tooltip for displaying detailed information on hover. Implement month and day labels. Add responsive design for different screen sizes.",
       "testStrategy": "Test component rendering with different activity patterns. Test color intensity scaling. Test tooltip functionality. Test responsive design on different screen sizes."
     },
     {
-      "id": 48,
+      "id": 50,
       "title": "Setup Stripe Integration",
       "description": "Implement Stripe API integration for subscription management.",
       "status": "pending",
@@ -692,43 +719,43 @@
       "testStrategy": "Test API integration with Stripe test mode. Test webhook handling with simulated events. Test secure key handling."
     },
     {
-      "id": 49,
+      "id": 51,
       "title": "Create SubscriptionsController",
       "description": "Build controller for handling subscription management.",
       "status": "pending",
       "dependencies": [
-        48
+        50
       ],
       "priority": "low",
       "details": "Create SubscriptionsController with actions for plan selection, checkout, success, and cancel. Implement integration with Stripe Checkout for payment processing. Add session handling for checkout flow. Create success and cancel pages. Implement error handling for failed checkout attempts.",
       "testStrategy": "Test controller actions with valid and invalid parameters. Test integration with Stripe Checkout. Test success and cancel flows. Test error handling for failed checkout attempts."
     },
     {
-      "id": 50,
+      "id": 52,
       "title": "Create Subscription Model and Migration",
       "description": "Implement the Subscription model for tracking user subscriptions.",
       "status": "pending",
       "dependencies": [
-        48
+        50
       ],
       "priority": "low",
       "details": "Create Subscription model with plan_type (enum: free, paid), status (enum: active, canceled, expired), start_date (datetime), end_date (datetime), and stripe_subscription_id (string). Add belongs_to :user association. Implement methods for checking assignment limits. Create and run migration. Add model tests.",
       "testStrategy": "Test model creation and validation. Test association with user. Test methods for checking assignment limits."
     },
     {
-      "id": 51,
+      "id": 53,
       "title": "Create SubscriptionLimitEnforcer",
       "description": "Implement service for enforcing subscription assignment limits.",
       "status": "pending",
       "dependencies": [
-        50
+        52
       ],
       "priority": "low",
       "details": "Create SubscriptionLimitEnforcer service for checking and enforcing assignment limits. Implement methods for counting assignments within the current month. Add integration with assignments controller to prevent creation when limit is reached. Create upgrade prompts for free tier users who reach their limit.",
       "testStrategy": "Test limit enforcement with different subscription types. Test assignment counting within current month. Test integration with assignments controller."
     },
     {
-      "id": 52,
+      "id": 54,
       "title": "Create Privacy, Terms, and AI Pages",
       "description": "Build static pages describing data usage policies.",
       "status": "pending",
@@ -742,7 +769,7 @@
   ],
   "metadata": {
     "projectName": "GradeBot Implementation",
-    "totalTasks": 52,
+    "totalTasks": 54,
     "sourceFile": "gradebot-prd.md",
     "generatedAt": "2025-04-19"
   }

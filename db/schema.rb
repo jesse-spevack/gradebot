@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_20_193417) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_20_212826) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -210,6 +210,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_20_193417) do
     t.index ["assignment_id"], name: "index_rubrics_on_assignment_id"
   end
 
+  create_table "selected_documents", force: :cascade do |t|
+    t.string "google_doc_id", null: false
+    t.string "title", null: false
+    t.string "url", null: false
+    t.integer "assignment_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["assignment_id"], name: "index_selected_documents_on_assignment_id"
+    t.index ["google_doc_id"], name: "index_selected_documents_on_google_doc_id", unique: true
+  end
+
   create_table "sessions", force: :cascade do |t|
     t.integer "user_id", null: false
     t.datetime "created_at", null: false
@@ -313,6 +324,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_20_193417) do
   add_foreign_key "levels", "criteria"
   add_foreign_key "llm_cost_logs", "users"
   add_foreign_key "rubrics", "assignments"
+  add_foreign_key "selected_documents", "assignments"
   add_foreign_key "sessions", "users"
   add_foreign_key "student_submissions", "document_selections"
   add_foreign_key "student_submissions", "grading_tasks"
