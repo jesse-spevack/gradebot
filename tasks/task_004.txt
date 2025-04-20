@@ -1,6 +1,6 @@
 # Task ID: 4
 # Title: Create Rubric Model and Migration
-# Status: in-progress
+# Status: done
 # Dependencies: 3
 # Priority: high
 # Description: Implement the Rubric model with its attributes and associations.
@@ -11,7 +11,7 @@ Create Rubric model with title (string) and description (text). Add belongs_to :
 Test validation for title presence. Test associations with assignment and criteria.
 
 # Subtasks:
-## 1. Generate Rubric model and migration [in-progress]
+## 1. Generate Rubric model and migration [done]
 ### Dependencies: None
 ### Description: Create the Rubric model with its attributes and run the migration to update the database schema
 ### Details:
@@ -36,7 +36,7 @@ Test validation for title presence. Test associations with assignment and criter
    rails db:migrate
    ```
 
-## 2. Implement Rubric model associations and validations [in-progress]
+## 2. Implement Rubric model associations and validations [done]
 ### Dependencies: 4.1
 ### Description: Add the necessary associations and validations to the Rubric model
 ### Details:
@@ -67,7 +67,7 @@ Test validation for title presence. Test associations with assignment and criter
    rubric.respond_to?(:criteria) # Should return true
    ```
 
-## 3. Create fixtures and model tests for Rubric [in-progress]
+## 3. Create fixtures and model tests for Rubric [done]
 ### Dependencies: 4.1, 4.2
 ### Description: Implement test fixtures and model tests to ensure the Rubric model works correctly
 ### Details:

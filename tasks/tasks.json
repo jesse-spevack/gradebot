@@ -72,7 +72,7 @@
       "id": 4,
       "title": "Create Rubric Model and Migration",
       "description": "Implement the Rubric model with its attributes and associations.",
-      "status": "in-progress",
+      "status": "done",
       "dependencies": [
         3
       ],
@@ -86,7 +86,7 @@
           "description": "Create the Rubric model with its attributes and run the migration to update the database schema",
           "dependencies": [],
           "details": "1. Generate the Rubric model with its attributes using Rails generator:\n   ```\n   rails generate model Rubric title:string description:text assignment:references\n   ```\n2. Review the generated migration file in db/migrate/\n3. Ensure the migration includes:\n   - A string column for 'title'\n   - A text column for 'description'\n   - A foreign key for 'assignment_id'\n   - Appropriate indexes (particularly on assignment_id)\n4. Run the migration:\n   ```\n   rails db:migrate\n   ```\n5. Verify the schema.rb file to confirm the table was created correctly\n6. Test the migration by rolling back and re-migrating:\n   ```\n   rails db:rollback\n   rails db:migrate\n   ```",
-          "status": "in-progress",
+          "status": "done",
           "parentTaskId": 4
         },
         {
@@ -97,7 +97,7 @@
             1
           ],
           "details": "1. Open the app/models/rubric.rb file\n2. Implement the belongs_to association:\n   ```ruby\n   belongs_to :assignment\n   ```\n3. Implement the has_many association:\n   ```ruby\n   has_many :criteria, dependent: :destroy\n   ```\n4. Add validations for title presence:\n   ```ruby\n   validates :title, presence: true\n   ```\n5. Make sure the Assignment model has the corresponding has_many or has_one association:\n   ```ruby\n   # In app/models/assignment.rb\n   has_one :rubric, dependent: :destroy\n   # or has_many :rubrics, dependent: :destroy (depending on your requirements)\n   ```\n6. Test the associations in the Rails console:\n   ```\n   rails console\n   rubric = Rubric.new\n   rubric.respond_to?(:assignment) # Should return true\n   rubric.respond_to?(:criteria) # Should return true\n   ```",
-          "status": "in-progress",
+          "status": "done",
           "parentTaskId": 4
         },
         {
@@ -109,7 +109,7 @@
             2
           ],
           "details": "1. Create a fixture file for Rubrics in test/fixtures/rubrics.yml:\n   ```yaml\n   valid_rubric:\n     title: Sample Rubric\n     description: A sample rubric for testing\n     assignment: assignment_one # Reference to an assignment fixture\n   \n   rubric_without_title:\n     description: A rubric without a title\n     assignment: assignment_two # Reference to another assignment fixture\n   ```\n2. Ensure you have assignment fixtures in test/fixtures/assignments.yml\n3. Create model tests in test/models/rubric_test.rb:\n   ```ruby\n   require 'test_helper'\n   \n   class RubricTest < ActiveSupport::TestCase\n     test \"should be valid with all attributes\" do\n       rubric = rubrics(:valid_rubric)\n       assert rubric.valid?\n     end\n   \n     test \"should be invalid without title\" do\n       rubric = rubrics(:rubric_without_title)\n       assert_not rubric.valid?\n       assert_includes rubric.errors[:title], \"can't be blank\"\n     end\n   \n     test \"should belong to an assignment\" do\n       rubric = rubrics(:valid_rubric)\n       assert_respond_to rubric, :assignment\n       assert_instance_of Assignment, rubric.assignment\n     end\n   \n     test \"should have many criteria\" do\n       rubric = rubrics(:valid_rubric)\n       assert_respond_to rubric, :criteria\n     end\n   end\n   ```\n4. Run the tests to ensure everything is working correctly:\n   ```\n   rails test test/models/rubric_test.rb\n   ```\n5. Debug and fix any failing tests",
-          "status": "in-progress",
+          "status": "done",
           "parentTaskId": 4
         }
       ]
@@ -118,13 +118,47 @@
       "id": 5,
       "title": "Create Criterion Model and Migration",
       "description": "Implement the Criterion model with attributes and associations.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         4
       ],
       "priority": "high",
       "details": "Create Criterion model with title (string), description (text), and position (integer). Add belongs_to :rubric association and has_many :levels association. Add validations for title presence. Create and run migration. Create fixture and model tests.",
-      "testStrategy": "Test validation for title presence. Test associations with rubric and levels. Test position attribute for proper ordering."
+      "testStrategy": "Test validation for title presence. Test associations with rubric and levels. Test position attribute for proper ordering.",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Generate Criterion model and migration file",
+          "description": "Create the Criterion model file and generate the migration file with the required attributes",
+          "dependencies": [],
+          "details": "1. Use Rails generator to create the Criterion model and migration:\n   ```\n   rails generate model Criterion title:string description:text position:integer rubric:references\n   ```\n2. This will create:\n   - app/models/criterion.rb\n   - db/migrate/YYYYMMDDHHMMSS_create_criteria.rb\n3. Verify the migration file includes the correct fields (title, description, position, and rubric reference)\n4. Ensure the table name is 'criteria' (Rails should pluralize this correctly)\n5. Test by inspecting the generated files to confirm they contain the expected fields",
+          "status": "done",
+          "parentTaskId": 5
+        },
+        {
+          "id": 2,
+          "title": "Update Criterion model with associations and validations",
+          "description": "Add the required associations, validations, and any other model configurations",
+          "dependencies": [
+            1
+          ],
+          "details": "1. Open app/models/criterion.rb\n2. Add the belongs_to association:\n   ```ruby\n   belongs_to :rubric\n   ```\n3. Add the has_many association:\n   ```ruby\n   has_many :levels, dependent: :destroy\n   ```\n4. Add validation for title presence:\n   ```ruby\n   validates :title, presence: true\n   ```\n5. Ensure any other necessary model configurations are added\n6. Update the Rubric model (if it exists) to include:\n   ```ruby\n   has_many :criteria, dependent: :destroy\n   ```\n7. Test by checking syntax and ensuring the model file contains all required elements",
+          "status": "done",
+          "parentTaskId": 5
+        },
+        {
+          "id": 3,
+          "title": "Run migration and create tests",
+          "description": "Execute the migration and create fixture and model tests for the Criterion model",
+          "dependencies": [
+            1,
+            2
+          ],
+          "details": "1. Run the migration:\n   ```\n   rails db:migrate\n   ```\n2. Create fixture for Criterion in test/fixtures/criteria.yml:\n   ```yaml\n   criterion_one:\n     title: First Criterion\n     description: This is a test criterion\n     position: 1\n     rubric: one # assuming you have a rubric fixture\n\n   criterion_two:\n     title: Second Criterion\n     description: Another test criterion\n     position: 2\n     rubric: one\n   ```\n3. Create model tests in test/models/criterion_test.rb:\n   ```ruby\n   require \"test_helper\"\n\n   class CriterionTest < ActiveSupport::TestCase\n     test \"should not save criterion without title\" do\n       criterion = Criterion.new(description: \"Test\", position: 1)\n       assert_not criterion.save\n     end\n\n     test \"should save valid criterion\" do\n       criterion = Criterion.new(title: \"Test\", description: \"Test\", position: 1, rubric: rubrics(:one))\n       assert criterion.save\n     end\n\n     test \"should have association with rubric\" do\n       criterion = criteria(:criterion_one)\n       assert_not_nil criterion.rubric\n     end\n   end\n   ```\n4. Run the tests to verify:\n   ```\n   rails test test/models/criterion_test.rb\n   ```\n5. Verify the schema.rb file has been updated with the new table",
+          "status": "done",
+          "parentTaskId": 5
+        }
+      ]
     },
     {
       "id": 6,

@@ -1,0 +1,11 @@
+valid_criterion_1:
+  title: "Clarity"
+  description: "The writing is clear and easy to understand."
+  position: 1
+  rubric: valid_rubric
+
+valid_criterion_2:
+  title: "Content"
+  description: "The content addresses the prompt thoroughly."
+  position: 2
+  rubric: valid_rubric 

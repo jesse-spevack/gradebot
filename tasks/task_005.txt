@@ -1,6 +1,6 @@
 # Task ID: 5
 # Title: Create Criterion Model and Migration
-# Status: pending
+# Status: in-progress
 # Dependencies: 4
 # Priority: high
 # Description: Implement the Criterion model with attributes and associations.
@@ -9,3 +9,93 @@ Create Criterion model with title (string), description (text), and position (in
 
 # Test Strategy:
 Test validation for title presence. Test associations with rubric and levels. Test position attribute for proper ordering.
+
+# Subtasks:
+## 1. Generate Criterion model and migration file [in-progress]
+### Dependencies: None
+### Description: Create the Criterion model file and generate the migration file with the required attributes
+### Details:
+1. Use Rails generator to create the Criterion model and migration:
+   ```
+   rails generate model Criterion title:string description:text position:integer rubric:references
+   ```
+2. This will create:
+   - app/models/criterion.rb
+   - db/migrate/YYYYMMDDHHMMSS_create_criteria.rb
+3. Verify the migration file includes the correct fields (title, description, position, and rubric reference)
+4. Ensure the table name is 'criteria' (Rails should pluralize this correctly)
+5. Test by inspecting the generated files to confirm they contain the expected fields
+
+## 2. Update Criterion model with associations and validations [in-progress]
+### Dependencies: 5.1
+### Description: Add the required associations, validations, and any other model configurations
+### Details:
+1. Open app/models/criterion.rb
+2. Add the belongs_to association:
+   ```ruby
+   belongs_to :rubric
+   ```
+3. Add the has_many association:
+   ```ruby
+   has_many :levels, dependent: :destroy
+   ```
+4. Add validation for title presence:
+   ```ruby
+   validates :title, presence: true
+   ```
+5. Ensure any other necessary model configurations are added
+6. Update the Rubric model (if it exists) to include:
+   ```ruby
+   has_many :criteria, dependent: :destroy
+   ```
+7. Test by checking syntax and ensuring the model file contains all required elements
+
+## 3. Run migration and create tests [in-progress]
+### Dependencies: 5.1, 5.2
+### Description: Execute the migration and create fixture and model tests for the Criterion model
+### Details:
+1. Run the migration:
+   ```
+   rails db:migrate
+   ```
+2. Create fixture for Criterion in test/fixtures/criteria.yml:
+   ```yaml
+   criterion_one:
+     title: First Criterion
+     description: This is a test criterion
+     position: 1
+     rubric: one # assuming you have a rubric fixture
+
+   criterion_two:
+     title: Second Criterion
+     description: Another test criterion
+     position: 2
+     rubric: one
+   ```
+3. Create model tests in test/models/criterion_test.rb:
+   ```ruby
+   require "test_helper"
+
+   class CriterionTest < ActiveSupport::TestCase
+     test "should not save criterion without title" do
+       criterion = Criterion.new(description: "Test", position: 1)
+       assert_not criterion.save
+     end
+
+     test "should save valid criterion" do
+       criterion = Criterion.new(title: "Test", description: "Test", position: 1, rubric: rubrics(:one))
+       assert criterion.save
+     end
+
+     test "should have association with rubric" do
+       criterion = criteria(:criterion_one)
+       assert_not_nil criterion.rubric
+     end
+   end
+   ```
+4. Run the tests to verify:
+   ```
+   rails test test/models/criterion_test.rb
+   ```
+5. Verify the schema.rb file has been updated with the new table
+

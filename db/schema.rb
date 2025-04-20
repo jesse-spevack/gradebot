@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_20_033452) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_20_142758) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -51,6 +51,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_20_033452) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_assignments_on_user_id"
+  end
+
+  create_table "criteria", force: :cascade do |t|
+    t.string "title", null: false
+    t.text "description"
+    t.integer "position"
+    t.integer "rubric_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["rubric_id"], name: "index_criteria_on_rubric_id"
   end
 
   create_table "document_actions", force: :cascade do |t|
@@ -227,6 +237,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_20_033452) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "assignments", "users"
+  add_foreign_key "criteria", "rubrics"
   add_foreign_key "document_actions", "student_submissions"
   add_foreign_key "document_selections", "grading_tasks"
   add_foreign_key "feature_flag_audit_logs", "feature_flags"

@@ -1,0 +1,21 @@
+---
+description: Guidelines for creating migrations
+globs: db/migrate/*.rb
+alwaysApply: true
+---
+- **Table Naming and Inflections:**
+  - Be mindful of irregular pluralizations when naming models and generating migrations.
+  - Rails uses ActiveSupport::Inflector to guess the plural table name from the singular model name.
+  - If Rails guesses incorrectly (e.g., `Criterion` -> `criterions` instead of `criteria`), the migration will create the wrong table name, leading to errors later.
+  - **✅ DO:** Check the generated migration file to ensure the `create_table` name matches the expected plural form.
+  - **✅ DO:** If the pluralization is incorrect, add an irregular inflection rule to `config/initializers/inflections.rb` *before* running the migration.
+
+  ```ruby
+  # Example: Adding an inflection rule for Criterion/Criteria
+  # in config/initializers/inflections.rb
+  ActiveSupport::Inflector.inflections(:en) do |inflect|
+    inflect.irregular "criterion", "criteria"
+  end
+  ```
+
+  - After adding the inflection, you may need to regenerate the migration or manually edit the existing migration file (before running `db:migrate`) to use the correct table name (`create_table :criteria`).

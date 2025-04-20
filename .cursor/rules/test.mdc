@@ -3,6 +3,7 @@ description: Consistent test structure for better readability.
 globs: test/**/*_test.rb
 ---
 # Rails Test Format
+# Rails Test Format
 
 Tests should follow this structure:
 - Setup
@@ -31,45 +32,14 @@ We use Rails fixtures exclusively, NOT FactoryBot. Key principles:
 - Always review existing fixtures in test/fixtures/*.yml before creating tests
 - Use descriptive fixture references (e.g., `users(:admin)`, not `users(:one)`)
 - Don't assume fixture data - verify what's defined in the fixture files first
+- Avoid making up fixtures that don't exist in the YAML files; check the relevant `test/fixtures/*.yml` file to confirm a fixture key exists before using it in a test.
 - Create test data in the test itself when necessary, but prefer fixtures for common cases
-- Avoid making up fixtures that don't exist in the YAML files
 - Consider adding new fixtures for reusable test data rather than creating objects in multiple tests
 
 Example of proper fixture usage:
 ```ruby
-# Setup - referencing existing fixtures
-@admin_user = users(:admin)
-@article = articles(:published)
-
-# Creating test-specific data when needed
-@custom_comment = Comment.create(
-  user: @admin_user,
-  article: @article,
-  body: "Test comment for this specific test"
-)
+# ✅ Good - this fixture exists in test/fixtures/assignments.yml
+assignment = assignments(:valid_assignment)
+# ❌ Bad - this fixture does not exist
+assignment = assignments(:one)
 ```
-
-We use minitest.
-
-Example:
-```ruby
-require 'test_helper'
-
-class UserTest < ActiveSupport::TestCase
-  test "should be valid with valid attributes" do
-    # Setup
-    user = User.new(name: "Test User", email: "test@example.com")
-    
-    # Exercise & Verify
-    assert user.valid?
-  end
-  
-  test "should not be valid without email" do
-    # Setup
-    user = User.new(name: "Test User")
-    
-    # Exercise & Verify
-    assert_not user.valid?
-    assert_includes user.errors[:email], "can't be blank"
-  end
-end
