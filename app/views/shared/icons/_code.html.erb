@@ -3,7 +3,6 @@
   Parameters:
   - class: Additional CSS classes to apply to the SVG
 %>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="<%= local_assigns[:class] %>">
-  <polyline points="16 18 22 12 16 6"></polyline>
-  <polyline points="8 6 2 12 8 18"></polyline>
-</svg> 
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="<%= local_assigns[:class] || 'size-6' %>">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" />
+</svg>

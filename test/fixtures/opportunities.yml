@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+paragraph_structure:
+  recordable: pending_submission (StudentSubmission)
+  content: "Paragraph structure and transitions"
+  reason: "The submission would benefit from clearer paragraph transitions to improve flow."
+
+grammar_usage:
+  recordable: completed_submission (StudentSubmission)
+  content: "Grammar and punctuation"
+  reason: "Several grammatical errors and incorrect punctuation affect overall readability."

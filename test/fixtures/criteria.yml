@@ -1,0 +1,27 @@
+content_criterion:
+  rubric: essay_rubric
+  title: Content Quality
+  description: Evaluates the depth and quality of content in the essay
+  points: 25
+  position: 1
+
+organization_criterion:
+  rubric: essay_rubric
+  title: Organization
+  description: Evaluates the structure and flow of the essay
+  points: 25
+  position: 2
+
+grammar_criterion:
+  rubric: essay_rubric
+  title: Grammar and Mechanics
+  description: Evaluates proper use of grammar, spelling, and punctuation
+  points: 25
+  position: 3
+
+critical_thinking_criterion:
+  rubric: essay_rubric
+  title: Critical Thinking
+  description: Evaluates the depth of analysis and critical thinking demonstrated
+  points: 25
+  position: 4

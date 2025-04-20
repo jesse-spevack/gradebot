@@ -16,7 +16,6 @@ module LLM
     # @return [Hash] The response with content and metadata
     def generate(llm_request)
       Rails.logger.info("Calling LLM with model: #{llm_request.llm_model_name}")
-
       # Validate the request
       unless llm_request.is_a?(LLMRequest)
         raise ArgumentError, "Expected LLMRequest object, got #{llm_request.class.name}"

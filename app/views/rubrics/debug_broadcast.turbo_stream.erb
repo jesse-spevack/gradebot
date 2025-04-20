@@ -1,0 +1,10 @@
+<%# Ultra simple broadcast for testing %>
+<%= turbo_stream.replace "rubric_container_#{rubric.id}" do %>
+  <div id="rubric_container_<%= rubric.id %>" class="border border-gray-200 rounded-lg p-5">
+    <h3>BROADCAST TEST: UPDATED CONTENT</h3>
+    <p>Rubric ID: <%= rubric.id %></p>
+    <p>Status: <%= rubric.status %></p>
+    <p>Display Status: <%= rubric.display_status %></p>
+    <p>Updated at: <%= Time.current.strftime("%H:%M:%S") %></p>
+  </div>
+<% end %> 

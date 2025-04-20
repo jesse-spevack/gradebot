@@ -1,0 +1,59 @@
+## State Management Patterns
+
+- Centralize state transitions in dedicated StatusManagerService classes:
+  - Define explicit VALID_TRANSITIONS constant for allowed state paths
+  - Implement validation logic to prevent invalid transitions
+  - Include proper error handling and logging
+  - Provide helper methods for common transitions (e.g., transition_to_processing)
+
+- Status manager implementation pattern:
+  ```ruby
+  class ModelName::StatusManagerService
+    VALID_TRANSITIONS = {
+      pending: [:processing],
+      processing: [:complete, :failed],
+      failed: [:pending]
+    }.freeze
+    
+    def self.transition_to_status(model)
+      new(model).transition_to(:status)
+    end
+    
+    def transition_to(status, error_message = nil)
+      # Validation and transition logic
+    end
+  end
+  ```
+
+## Status Consistency Issues
+
+- **Never use statuses not defined in the model's enum definition**:
+  - Example issue: `GradingTask::CreationService` used `status: :created` but the model only defined `pending`, `processing`, `completed`, and `failed`
+  - Always check the model's enum definition before using status values: `ModelName.statuses.keys`
+  - Keep service implementations synchronized with model definitions
+  - When updating enum values, ensure all references are updated
+
+- **Test for valid status transitions**:
+  ```ruby
+  test "raises error when transitioning to invalid status" do
+    task = GradingTask.new(status: :pending)
+    
+    assert_raises(InvalidTransitionError) do
+      GradingTask::StatusManagerService.transition_to_status(task, :unknown_status)
+    end
+  end
+  ```
+
+## No Meta Programming or Monkey Patching
+
+- **NEVER** use monkey patching to modify existing classes, even for testing purposes:
+  - Instead, identify and fix the underlying issue at its source
+  - Create proper abstractions that follow single responsibility principle
+  - Use dependency injection for testing rather than runtime modification
+  - Consider using delegation or composition instead of inheritance or modification
+
+- When encountering issues like status mismatches:
+  - Fix the actual source code (e.g., update service to use correct status values)
+  - Add comprehensive tests to prevent regression
+  - Update all affected code paths
+  - Document the change in changelog.md 

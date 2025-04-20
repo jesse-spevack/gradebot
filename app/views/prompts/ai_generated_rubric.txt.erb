@@ -1,0 +1,50 @@
+You are an expert educator creating a grading rubric for the following assignment:
+
+<%= assignment_prompt.to_llm %>
+
+Create a comprehensive rubric with 3-5 criteria that assess the key learning objectives. Each criterion should have 5 performance levels.
+
+Return ONLY valid JSON matching this exact structure:
+{
+  "criteria": [
+    {
+      "title": "Criterion name",
+      "description": "Detailed explanation of what this criterion evaluates",
+      "points": 25,
+      "position": 1,
+      "levels": [
+        {
+          "title": "Excellent",
+          "description": "Detailed description of excellent performance",
+          "position": 1
+        },
+        {
+          "title": "Advanced Proficient",
+          "description": "Detailed description of advanced proficient performance",
+          "position": 2
+        },
+        {
+          "title": "Proficient",
+          "description": "Detailed description of proficient performance",
+          "position": 3
+        },
+        {
+          "title": "Developing",
+          "description": "Detailed description of developing performance",
+          "position": 4
+        },
+        {
+          "title": "Beginning",
+          "description": "Detailed description of beginning performance",
+          "position": 5
+        }
+      ]
+    },
+    ...additional criteria...
+  ]
+}
+
+IMPORTANT REQUIREMENTS:
+1. The sum of all criteria points MUST equal exactly 100
+2. Levels position connotes the order of the levels, the highest level is 1, the next highest is 2, etc.
+3. Return ONLY the JSON with no additional text or formatting

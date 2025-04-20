@@ -1,0 +1,73 @@
+<div class="p-4">
+  <h1 class="text-2xl font-bold mb-4">Rubric Diagnostics</h1>
+  
+  <div id="rubric_<%= @rubric.id %>"
+       class="p-4 border rounded-lg shadow-sm mb-4"
+       data-controller="rubric-stream"
+       data-rubric-stream-id-value="<%= @rubric.id %>">
+    
+    <h2 class="text-xl font-semibold mb-2">Rubric #<%= @rubric.id %></h2>
+    
+    <div class="grid grid-cols-2 gap-4 mb-4">
+      <div>
+        <h3 class="font-medium">Status:</h3>
+        <div id="rubric_status_<%= @rubric.id %>" class="mt-1">
+          <%= render "shared/status_badge", status: @rubric.display_status, object: @rubric %>
+        </div>
+      </div>
+      
+      <div>
+        <h3 class="font-medium">Created At:</h3>
+        <p><%= @rubric.created_at %></p>
+      </div>
+      
+      <div>
+        <h3 class="font-medium">Updated At:</h3>
+        <p><%= @rubric.updated_at %></p>
+      </div>
+      
+      <div>
+        <h3 class="font-medium">Raw Status:</h3>
+        <p><%= @rubric.status %></p>
+      </div>
+    </div>
+    
+    <h3 class="font-medium mb-2">Criteria:</h3>
+    <div class="space-y-2 mb-4">
+      <% if @rubric.criteria.present? %>
+        <% @rubric.criteria.each_with_index do |criterion, index| %>
+          <div class="p-2 border rounded">
+            <p><strong>Criterion <%= index + 1 %>:</strong> <%= criterion["description"] %></p>
+            <% if criterion["score"].present? %>
+              <p class="text-sm">Score: <%= criterion["score"] %></p>
+            <% else %>
+              <p class="text-sm text-gray-500">No score yet</p>
+            <% end %>
+          </div>
+        <% end %>
+      <% else %>
+        <p class="text-gray-500">No criteria available</p>
+      <% end %>
+    </div>
+    
+    <% if @rubric.error_message.present? %>
+      <div class="p-3 bg-red-100 border border-red-300 rounded mb-4">
+        <h3 class="font-medium text-red-700">Error Message:</h3>
+        <p class="text-red-700"><%= @rubric.error_message %></p>
+      </div>
+    <% end %>
+    
+    <div class="mb-4">
+      <h3 class="font-medium mb-2">Debug Info:</h3>
+      <pre class="bg-gray-100 p-3 rounded text-sm overflow-auto"><%= JSON.pretty_generate(@rubric.as_json) %></pre>
+    </div>
+    
+    <div class="mt-4">
+      <a href="<%= grading_task_path(@rubric.grading_task) %>" class="text-blue-600 hover:underline">
+        Back to Grading Task
+      </a>
+    </div>
+  </div>
+</div>
+
+<%= turbo_stream_from @rubric %> 

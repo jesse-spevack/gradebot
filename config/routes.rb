@@ -47,4 +47,11 @@ Rails.application.routes.draw do
     resources :document_actions, only: [ :create ]
   end
   resources :features, only: [ :index ]
+
+  # Diagnostic route for Turbo Stream testing
+  get "/test-rubric-turbo-stream/:id", to: "diagnostics#test_rubric_stream", as: :test_rubric_stream
+  get "/diagnostics/rubric/:id", to: "diagnostics#rubric", as: :diagnostic_rubric
+  post "/diagnostics/update-rubric-status/:id", to: "diagnostics#update_rubric_status", as: :update_rubric_status
+  get "/test-stream/:channel/:id", to: "diagnostics#test_stream", as: :test_stream
+  get "/test-stream", to: "diagnostics#test_stream"
 end

@@ -1,6 +1,7 @@
 ---
 description: Ensures controllers follow a consistent structure with clear action definitions.
 globs: app/controllers/**/*.rb
+alwaysApply: false
 ---
 # Rails Controller Format
 

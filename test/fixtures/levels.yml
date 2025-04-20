@@ -1,0 +1,34 @@
+excellent_level:
+  criterion: content_criterion
+  title: Excellent
+  description: Content is comprehensive, accurate, and shows deep understanding
+  points: 25
+  position: 1
+
+good_level:
+  criterion: content_criterion
+  title: Good
+  description: Content is accurate with some depth of understanding
+  points: 20
+  position: 2
+
+average_level:
+  criterion: content_criterion
+  title: Average
+  description: Content meets basic requirements with some inaccuracies
+  points: 15
+  position: 3
+
+poor_level:
+  criterion: content_criterion
+  title: Poor
+  description: Content has significant gaps or inaccuracies
+  points: 10
+  position: 4
+
+excellent_organization:
+  criterion: organization_criterion
+  title: Excellent
+  description: Well-structured with clear flow and logical progression
+  points: 25
+  position: 1

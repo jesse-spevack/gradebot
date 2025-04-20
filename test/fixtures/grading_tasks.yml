@@ -2,19 +2,11 @@
 
 one:
   user: teacher
-  assignment_prompt: Write a 500-word essay about your favorite book and why it resonates with you.
-  grading_rubric: |
-    Content (40%):
-    - Clear thesis statement
-    - Well-developed arguments
-    - Specific examples
-    
-    Organization (30%):
-    - Logical flow
-    - Clear transitions
-    - Strong intro and conclusion
-    
-    Language (30%):
-    - Grammar and mechanics
-    - Word choice
-    - Style and tone
+
+two:
+  user: teacher
+
+three:
+  user: teacher
+  rubric: essay_rubric
+  status: :pending

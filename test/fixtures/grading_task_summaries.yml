@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+essay_summary:
+  grading_task: one
+  submissions_count: 15
+  status: 2  # completed
+  insights: "Most students performed well on content development but struggled with citations."
+
+math_summary:
+  grading_task: two
+  submissions_count: 18
+  status: 2  # completed
+  insights: "Students showed strength in calculation but had difficulties with showing complete work."

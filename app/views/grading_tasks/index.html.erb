@@ -1,59 +1,135 @@
-<% content_for :header do %>
-  <%= render "shared/page_header", 
-             title: "Your Grading Tasks",
-             subtitle: "Track and manage your assignment grading progress" %>
-<% end %>
-
-<% content_for :content do %>
-  <%# Full width button for mobile, below header %>
-  <div class="lg:hidden mb-4">
-    <%= link_to new_grading_task_path, 
-        class: "w-full flex items-center justify-center px-4 py-3 text-base font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-sm transition-colors duration-150" do %>
-      <%= render "shared/icons/plus", class: "h-5 w-5 mr-2" %>
-      New Task
-    <% end %>
-  </div>
-
-  <%# Hide FAB on smaller screens, show only on lg+ %>
-  <div class="hidden lg:block">
-    <%= render "shared/floating_action_button", path: new_grading_task_path, icon: "plus", title: "New Grading Task" %>
-  </div>
-  
-  <%= render "shared/card" do %>
-    <% if @grading_tasks.any? %>
-      <% 
-        headers = ["Assignment", "Prompt", "Created"]
-        columns = [
-          { attribute: :display_name, type: :icon_text, icon: 'clipboard', class: "font-medium text-gray-900" },
-          { attribute: :assignment_prompt, truncate: 150, class: "text-gray-600" },
-          { attribute: :created_at, type: :time_ago, class: "text-gray-500" }
-        ]
-      %>
-      
-      <%# Mobile View: Cards (hidden on lg and up) %>
-      <div class="lg:hidden divide-y divide-gray-200">
-        <% @grading_tasks.each do |task| %>
-          <%= render partial: "shared/index_card", locals: { 
-                  item: task,
-                  columns: columns,
-                  link_to: ->(item) { grading_task_path(item) } 
-                } %>
-        <% end %>
-      </div>
-
-      <%# Desktop View: Table (hidden below lg) %>
-      <div class="hidden lg:block">
-        <%= render partial: "shared/index_table", locals: { 
-                headers: headers, 
-                items: @grading_tasks, 
-                row_partial_path: "shared/index_table_row",
-                row_locals: { columns: columns, link_to: ->(item) { grading_task_path(item) } }
-              } %>
-      </div>
-    <% else %>
-      <%= render "grading_tasks/empty_state" %>
-    <% end %>
-  <% end %>
-<% end %>
-
-<%= render "shared/page_wrapper" %>
+<!-- Main Content -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Page Header and Actions -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 space-y-4 md:space-y-0">
+        <div>
+            <h2 class="text-xl font-semibold text-gray-900">My Grading Tasks</h2>
+            <p class="text-sm text-gray-500 mt-1">Manage and track all your grading tasks</p>
+        </div>
+        <div class="flex space-x-3">
+            <%= render partial: 'shared/button', locals: { 
+                variant: 'secondary',
+                text: 'Filter',
+                icon: render('shared/icons/filter')
+            } %>
+            <%= render partial: 'shared/button', locals: { 
+                variant: 'primary',
+                text: 'New Grading Task',
+                icon: render('shared/icons/plus'),
+                url: new_grading_task_path
+            } %>
+        </div>
+    </div>
+    
+    <!-- Search and Filters -->
+    <div class="bg-white rounded-lg shadow-md p-4 mb-6 transition-all">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="relative">
+                <input type="text" placeholder="Search tasks..." class="pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 w-full">
+                <svg class="h-5 w-5 text-gray-400 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <%= render 'shared/icons/search' %>
+                </svg>
+            </div>
+            <div>
+                <select class="w-full text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                    <option value="">All Subjects</option>
+                    <option value="science">Science</option>
+                    <option value="environmental-science">Environmental Science</option>
+                    <option value="english">English</option>
+                    <option value="history">History</option>
+                    <option value="math">Math</option>
+                </select>
+            </div>
+            <div>
+                <select class="w-full text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                    <option value="">All Statuses</option>
+                    <option value="draft">Draft</option>
+                    <option value="pending">Pending</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="complete">Complete</option>
+                </select>
+            </div>
+            <div>
+                <select class="w-full text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                    <option value="recent">Most Recent</option>
+                    <option value="oldest">Oldest</option>
+                    <option value="alpha">Alphabetical</option>
+                    <option value="due-date">Due Date</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Task Summary Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-lg">
+            <div class="flex items-center justify-between mb-1">
+                <p class="text-sm text-gray-500">Total Tasks</p>
+                <svg class="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <%= render 'shared/icons/document_stack' %>
+                </svg>
+            </div>
+            <p class="text-2xl font-semibold text-gray-900">12</p>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-lg">
+            <div class="flex items-center justify-between mb-1">
+                <p class="text-sm text-gray-500">In Progress</p>
+                <svg class="h-5 w-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <%= render 'shared/icons/clock' %>
+                </svg>
+            </div>
+            <p class="text-2xl font-semibold text-gray-900">3</p>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-lg">
+            <div class="flex items-center justify-between mb-1">
+                <p class="text-sm text-gray-500">Completed</p>
+                <svg class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <%= render 'shared/icons/checkmark' %>
+                </svg>
+            </div>
+            <p class="text-2xl font-semibold text-gray-900">8</p>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-lg">
+            <div class="flex items-center justify-between mb-1">
+                <p class="text-sm text-gray-500">Draft</p>
+                <svg class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <%= render 'shared/icons/pencil' %>
+                </svg>
+            </div>
+            <p class="text-2xl font-semibold text-gray-900">1</p>
+        </div>
+    </div>
+    
+    <!-- Active Tasks List -->
+    <div id="activeTasks">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Active Grading Tasks</h3>
+        
+        <div class="space-y-4">
+            <% @temporary_grading_tasks.each do |grading_task| %>
+                <%= render partial: 'grading_tasks/card', locals: { grading_task: grading_task } %>
+            <% end %>
+        </div>
+    </div>
+    
+    <!-- Pagination -->
+    <div class="mt-6 flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+        <div class="text-sm text-gray-500">
+            Showing <span class="font-medium">1</span> to <span class="font-medium">5</span> of <span class="font-medium">12</span> tasks
+        </div>
+        <div class="flex space-x-2">
+            <button disabled class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-400 bg-gray-50 cursor-not-allowed">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+            </button>
+            <button class="px-3 py-1 border border-blue-500 rounded text-sm bg-blue-600 text-white">1</button>
+            <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">2</button>
+            <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">3</button>
+            <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50 flex items-center">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>

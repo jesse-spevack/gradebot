@@ -1,0 +1,33 @@
+<%# Update the status cells %>
+<%= turbo_stream.replace "rubric-status-cell" do %>
+  <td id="rubric-status-cell">
+    <span id="rubric-status" class="badge <%= @rubric.status == 'complete' ? 'badge-green' : (@rubric.status == 'failed' ? 'badge-red' : 'badge-blue') %>">
+      <%= @rubric.status %>
+    </span>
+  </td>
+<% end %>
+
+<%# Update the display status cells %>
+<%= turbo_stream.replace "rubric-display-status-cell" do %>
+  <td id="rubric-display-status-cell">
+    <span id="rubric-display-status" class="badge <%= @rubric.display_status == 'completed' ? 'badge-green' : (@rubric.display_status == 'failed' ? 'badge-red' : 'badge-blue') %>">
+      <%= @rubric.display_status %>
+    </span>
+  </td>
+<% end %>
+
+<%# Update the updated_at time %>
+<%= turbo_stream.replace "rubric-updated-at" do %>
+  <td id="rubric-updated-at"><%= @rubric.updated_at.strftime("%Y-%m-%d %H:%M:%S") %></td>
+<% end %>
+
+<%# Update the status badge %>
+<%= turbo_stream.replace "rubric_status_badge_#{@rubric.id}" do %>
+  <div id="rubric_status_badge_<%= @rubric.id %>" class="inline-block">
+    <%= render partial: 'shared/status_badge', locals: { 
+      status: @rubric.display_status, 
+      size: 'md',
+      hide_processing_spinner: false
+    } %>
+  </div>
+<% end %> 

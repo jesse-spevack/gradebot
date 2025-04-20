@@ -1,8 +1,40 @@
-<%# Usage: render "shared/card", title: "Optional Title", subtitle: "Optional Subtitle" do %>
-<%#   Content goes here %>
-<%# end %>
+<%# =========================================================== %>
+<%# Generic Card Component                                    %>
+<%# =========================================================== %>
+<%# This is a versatile, reusable card component that provides a  %>
+<%# consistent container style across the application.           %>
+<%#                                                              %>
+<%# Parameters:                                                  %>
+<%# - title (optional): Main heading text for the card           %>
+<%# - subtitle (optional): Secondary text displayed below title  %>
+<%# - content: Provided as a block to the partial                %>
+<%#                                                              %>
+<%# Styling:                                                     %>
+<%# - Uses Tailwind classes for a clean white card with subtle   %>
+<%#   shadow and rounded corners                                 %>
+<%# - Maintains consistent padding and spacing                   %>
+<%#                                                              %>
+<%# Examples:                                                    %>
+<%# 1. Basic card with content only:                             %>
+<%#    <%= render "shared/card" do %>                           %>
+<%#      <p>Your content here</p>                                %>
+<%#    <% end %>                                                 %>
+<%#                                                              %>
+<%# 2. Card with title and content:                              %>
+<%#    <%= render "shared/card", title: "Statistics" do %>     %>
+<%#      <p>Content with statistics...</p>                       %>
+<%#    <% end %>                                                 %>
+<%#                                                              %>
+<%# 3. Full card with title, subtitle and content:               %>
+<%#    <%= render "shared/card",                               %>
+<%#            title: "Performance",                            %>
+<%#            subtitle: "Last 30 days" do %>                  %>
+<%#      <p>Performance metrics...</p>                           %>
+<%#    <% end %>                                                 %>
+<%# =========================================================== %>
 
 <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-xl p-6">
+  <%# Render the header section if title or subtitle is provided %>
   <% if local_assigns[:title] || local_assigns[:subtitle] %>
     <div class="mb-6">
       <% if local_assigns[:title] %>
@@ -14,5 +46,6 @@
     </div>
   <% end %>
 
+  <%# Render the content passed to the card via block %>
   <%= yield %>
 </div>

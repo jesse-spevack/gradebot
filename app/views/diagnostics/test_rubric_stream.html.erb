@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Rubric Turbo Stream Test</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+  <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+  <%= javascript_importmap_tags %>
+  
+  <style>
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+    th, td { padding: 0.5rem; text-align: left; border: 1px solid #ccc; }
+    th { background-color: #f3f4f6; }
+    .flash { padding: 1rem; margin: 1rem 0; border-radius: 0.25rem; }
+    .flash-success { background-color: #d1fae5; color: #065f46; }
+    .flash-error { background-color: #fee2e2; color: #b91c1c; }
+    .debug-section { margin-top: 2rem; padding: 1rem; background-color: #f3f4f6; border-radius: 0.25rem; }
+    .badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 9999px; font-weight: 600; font-size: 0.75rem; }
+    .badge-green { background-color: #d1fae5; color: #065f46; }
+    .badge-blue { background-color: #dbeafe; color: #1e40af; }
+    .badge-yellow { background-color: #fef3c7; color: #92400e; }
+    .badge-red { background-color: #fee2e2; color: #b91c1c; }
+  </style>
+</head>
+
+<body class="p-8 bg-gray-50">
+  <%# This is the key line that sets up the Turbo Stream subscription %>
+  <%= turbo_stream_from "rubric_#{@rubric.id}" %>
+  
+  <div class="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow">
+    <h1 class="text-2xl font-bold mb-6">Rubric Turbo Stream Test</h1>
+    
+    <div id="connection-status" class="flash flash-success mb-4">
+      ✅ Connected to Turbo Stream for Rubric #<%= @rubric.id %>
+    </div>
+    
+    <div id="last-update-time" class="text-sm text-gray-500 mb-4">
+      Page loaded at: <%= Time.current.strftime("%Y-%m-%d %H:%M:%S") %>
+    </div>
+    
+    <div id="full-rubric-container">
+      <h2 class="text-xl font-semibold mb-4">Rubric Attributes</h2>
+      
+      <table>
+        <tr>
+          <th>Attribute</th>
+          <th>Value</th>
+        </tr>
+        <tr>
+          <td>ID</td>
+          <td id="rubric-id"><%= @rubric.id %></td>
+        </tr>
+        <tr>
+          <td>Title</td>
+          <td id="rubric-title"><%= @rubric.title %></td>
+        </tr>
+        <tr>
+          <td>Status</td>
+          <td id="rubric-status-cell">
+            <span id="rubric-status" class="badge <%= @rubric.status == 'complete' ? 'badge-green' : (@rubric.status == 'failed' ? 'badge-red' : 'badge-blue') %>">
+              <%= @rubric.status %>
+            </span>
+          </td>
+        </tr>
+        <tr>
+          <td>Display Status</td>
+          <td id="rubric-display-status-cell">
+            <span id="rubric-display-status" class="badge <%= @rubric.display_status == 'completed' ? 'badge-green' : (@rubric.display_status == 'failed' ? 'badge-red' : 'badge-blue') %>">
+              <%= @rubric.display_status %>
+            </span>
+          </td>
+        </tr>
+        <tr>
+          <td>Total Points</td>
+          <td id="rubric-total-points"><%= @rubric.total_points %></td>
+        </tr>
+        <tr>
+          <td>User ID</td>
+          <td id="rubric-user-id"><%= @rubric.user_id %></td>
+        </tr>
+        <tr>
+          <td>Created At</td>
+          <td id="rubric-created-at"><%= @rubric.created_at.strftime("%Y-%m-%d %H:%M:%S") %></td>
+        </tr>
+        <tr>
+          <td>Updated At</td>
+          <td id="rubric-updated-at"><%= @rubric.updated_at.strftime("%Y-%m-%d %H:%M:%S") %></td>
+        </tr>
+      </table>
+    </div>
+    
+    <div id="debug-badge-container" class="mt-4">
+      <h3 class="text-lg font-semibold mb-2">Status Badge Test</h3>
+      <div id="rubric_status_badge_<%= @rubric.id %>" class="inline-block">
+        <%= render partial: 'shared/status_badge', locals: { 
+          status: @rubric.display_status, 
+          size: 'md',
+          hide_processing_spinner: false
+        } %>
+      </div>
+    </div>
+    
+    <div class="debug-section">
+      <h3 class="text-lg font-semibold mb-2">Debug Information</h3>
+      
+      <div class="mb-6">
+        <h4 class="text-md font-semibold mb-2">Status Control Buttons:</h4>
+        <div class="flex space-x-2 mb-4">
+          <button id="set-pending" class="px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">Set Pending</button>
+          <button id="set-processing" class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200">Set Processing</button>
+          <button id="set-complete" class="px-3 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200">Set Complete</button>
+          <button id="set-failed" class="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200">Set Failed</button>
+        </div>
+        
+        <div class="mt-4 border-t pt-4">
+          <h4 class="text-md font-semibold mb-2">Alternative HTML Form:</h4>
+          <p class="text-sm text-gray-600 mb-2">Use this if the buttons above don't work</p>
+          <%= form_with url: update_rubric_status_path(@rubric.id), method: :post, class: "flex space-x-2" do |f| %>
+            <%= f.hidden_field :authenticity_token, value: form_authenticity_token %>
+            <%= f.select :status, 
+                options_for_select([
+                  ['Pending', 'pending'],
+                  ['Processing', 'processing'],
+                  ['Complete', 'complete'],
+                  ['Failed', 'failed']
+                ]), 
+                {}, 
+                { class: "px-3 py-1 border rounded" } 
+            %>
+            <%= f.submit "Update Status", class: "px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600" %>
+          <% end %>
+        </div>
+      </div>
+      
+      <p class="mb-2">To test updating this rubric, run these commands in the Rails console:</p>
+      <pre class="bg-gray-800 text-white p-4 rounded overflow-x-auto mb-4">
+# Update to processing
+r = Rubric.find(<%= @rubric.id %>)
+r.update_column(:status, "processing") 
+Rubric::BroadcasterService.broadcast(r.reload)
+
+# Update to complete
+r = Rubric.find(<%= @rubric.id %>)
+r.update_column(:status, "complete")
+Rubric::BroadcasterService.broadcast(r.reload)
+
+# Update to failed
+r = Rubric.find(<%= @rubric.id %>)
+r.update_column(:status, "failed")
+Rubric::BroadcasterService.broadcast(r.reload)
+      </pre>
+      
+      <div id="event-log" class="bg-gray-100 p-4 rounded max-h-60 overflow-y-auto">
+        <h4 class="text-md font-semibold mb-1">Event Log:</h4>
+        <ul id="event-log-entries" class="list-disc pl-5">
+          <li>Page loaded at <%= Time.current.strftime("%H:%M:%S") %></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Debug script to watch Turbo Stream events
+    document.addEventListener("turbo:before-stream-render", function(event) {
+      // Update the last update time
+      const timeDisplay = document.getElementById("last-update-time");
+      const now = new Date();
+      const timeString = now.toISOString().split('T')[1].slice(0, 8);
+      timeDisplay.innerHTML = `Last update: ${timeString}`;
+      
+      // Log the event
+      const logEntries = document.getElementById("event-log-entries");
+      const entry = document.createElement("li");
+      entry.innerHTML = `Turbo Stream event at ${timeString} - Target: ${event.target.getAttribute("target")}, Action: ${event.target.getAttribute("action")}`;
+      logEntries.appendChild(entry);
+      
+      // Auto-scroll the log
+      const eventLog = document.getElementById("event-log");
+      eventLog.scrollTop = eventLog.scrollHeight;
+    });
+    
+    // Set up status control buttons
+    document.addEventListener("DOMContentLoaded", function() {
+      const rubricId = <%= @rubric.id %>;
+      const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+      
+      function updateStatus(status) {
+        fetch(`/diagnostics/update-rubric-status/${rubricId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': csrfToken
+          },
+          body: JSON.stringify({ status: status })
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log(`Status updated to ${data.status}`);
+        })
+        .catch(error => {
+          console.error('Error updating status:', error);
+        });
+      }
+      
+      document.getElementById('set-pending').addEventListener('click', () => updateStatus('pending'));
+      document.getElementById('set-processing').addEventListener('click', () => updateStatus('processing'));
+      document.getElementById('set-complete').addEventListener('click', () => updateStatus('complete'));
+      document.getElementById('set-failed').addEventListener('click', () => updateStatus('failed'));
+    });
+  </script>
+</body>
+</html> 

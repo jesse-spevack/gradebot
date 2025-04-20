@@ -24,6 +24,31 @@ Prefer lengthy tests that are easy to read than DRY tests.
 
 Avoid excessive mocking and stubbing. Do not ever stub things like Time or Kernel.
 
+## Fixtures vs FactoryBot
+
+We use Rails fixtures exclusively, NOT FactoryBot. Key principles:
+
+- Always review existing fixtures in test/fixtures/*.yml before creating tests
+- Use descriptive fixture references (e.g., `users(:admin)`, not `users(:one)`)
+- Don't assume fixture data - verify what's defined in the fixture files first
+- Create test data in the test itself when necessary, but prefer fixtures for common cases
+- Avoid making up fixtures that don't exist in the YAML files
+- Consider adding new fixtures for reusable test data rather than creating objects in multiple tests
+
+Example of proper fixture usage:
+```ruby
+# Setup - referencing existing fixtures
+@admin_user = users(:admin)
+@article = articles(:published)
+
+# Creating test-specific data when needed
+@custom_comment = Comment.create(
+  user: @admin_user,
+  article: @article,
+  body: "Test comment for this specific test"
+)
+```
+
 We use minitest.
 
 Example:
