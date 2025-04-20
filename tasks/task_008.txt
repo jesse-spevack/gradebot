@@ -1,6 +1,6 @@
 # Task ID: 8
 # Title: Create StudentWorkCriterionLevel Model and Migration
-# Status: in-progress
+# Status: done
 # Dependencies: 6, 7
 # Priority: high
 # Description: Implement the join model between StudentWork, Criterion, and Level.

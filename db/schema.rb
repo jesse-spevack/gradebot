@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_20_171102) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_20_173024) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -234,6 +234,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_20_171102) do
     t.index ["status"], name: "index_student_submissions_on_status"
   end
 
+  create_table "student_work_checks", force: :cascade do |t|
+    t.text "explanation"
+    t.integer "check_type", null: false
+    t.integer "score", null: false
+    t.integer "student_work_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["check_type"], name: "index_student_work_checks_on_check_type"
+    t.index ["student_work_id"], name: "index_student_work_checks_on_student_work_id"
+  end
+
   create_table "student_work_criterion_levels", force: :cascade do |t|
     t.text "explanation"
     t.integer "student_work_id", null: false
@@ -295,6 +306,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_20_171102) do
   add_foreign_key "sessions", "users"
   add_foreign_key "student_submissions", "document_selections"
   add_foreign_key "student_submissions", "grading_tasks"
+  add_foreign_key "student_work_checks", "student_works"
   add_foreign_key "student_work_criterion_levels", "criteria"
   add_foreign_key "student_work_criterion_levels", "levels"
   add_foreign_key "student_work_criterion_levels", "student_works"

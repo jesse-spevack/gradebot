@@ -1,0 +1,22 @@
+llm_check_sw_one:
+  student_work: one
+  check_type: :llm_generated
+  score: 15
+  explanation: "Low probability of AI generation detected."
+
+grade_level_sw_one:
+  student_work: one
+  check_type: :writing_grade_level
+  score: 8
+  explanation: "Consistent with 8th grade writing level."
+
+plagiarism_sw_one:
+  student_work: one
+  check_type: :plagiarism
+  score: 5
+  explanation: "Minimal overlap found with external sources."
+
+grade_level_sw_two:
+  student_work: two
+  check_type: :writing_grade_level
+  score: 10 # Valid grade level score 
