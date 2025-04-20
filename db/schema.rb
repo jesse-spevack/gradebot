@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_20_150248) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_20_154803) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -221,6 +221,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_20_150248) do
     t.index ["status"], name: "index_student_submissions_on_status"
   end
 
+  create_table "student_works", force: :cascade do |t|
+    t.text "qualitative_feedback"
+    t.integer "assignment_id", null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["assignment_id"], name: "index_student_works_on_assignment_id"
+    t.index ["status"], name: "index_student_works_on_status"
+  end
+
   create_table "user_tokens", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "access_token"
@@ -259,5 +269,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_20_150248) do
   add_foreign_key "sessions", "users"
   add_foreign_key "student_submissions", "document_selections"
   add_foreign_key "student_submissions", "grading_tasks"
+  add_foreign_key "student_works", "assignments"
   add_foreign_key "user_tokens", "users"
 end

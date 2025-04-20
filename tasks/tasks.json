@@ -176,12 +176,12 @@
       "id": 7,
       "title": "Create StudentWork Model and Migration",
       "description": "Implement the StudentWork model with attributes and associations.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         3
       ],
       "priority": "high",
-      "details": "Create StudentWork model with content (text), submission_date (datetime), qualitative_feedback (text), and status (enum: pending, processing, completed, failed). Add belongs_to :assignment association, has_many :feedback_items association, and has_many :student_work_checks association. Create and run migration. Create fixture and model tests.",
+      "details": "Create StudentWork model with qualitative_feedback (text), and status (enum: pending, processing, completed, failed). Add belongs_to :assignment association, has_many :feedback_items association, and has_many :student_work_checks association. Create and run migration. Create fixture and model tests.",
       "testStrategy": "Test associations with assignment, feedback_items, and student_work_checks. Test status enum functionality."
     },
     {
