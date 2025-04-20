@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add migration for `levels` table, enforcing `NOT NULL` on `title` and `criterion_id`.
 - Add model tests and fixtures for `Level`.
 - Create `prefix_ids.mdc` rule.
+- Implement `StudentWork` model with attributes (`qualitative_feedback`, `status`), associations (`assignment`, `feedback_items`, `student_work_checks` with `dependent: :destroy`), validation (`assignment`), enum (`status`), and prefixed ID (`sw_`).
+- Add migration for `student_works` table with `status` enum (default: `pending`) and index.
+- Add model tests and fixtures for `StudentWork`.
+- Create `enum.mdc` rule.
 
 ## [2026-04-19]
 ### Added

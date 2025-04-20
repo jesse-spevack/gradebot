@@ -1,6 +1,6 @@
 # Task ID: 7
 # Title: Create StudentWork Model and Migration
-# Status: pending
+# Status: in-progress
 # Dependencies: 3
 # Priority: high
 # Description: Implement the StudentWork model with attributes and associations.

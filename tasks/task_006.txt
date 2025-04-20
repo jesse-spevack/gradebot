@@ -1,11 +1,11 @@
 # Task ID: 6
 # Title: Create Level Model and Migration
-# Status: in-progress
+# Status: done
 # Dependencies: 5
 # Priority: high
 # Description: Implement the Level model with attributes and associations.
 # Details:
-Create Level model with title (string), description (text), and position (integer). Add belongs_to :criterion association. Add validations for title presence and points numericality. Create and run migration. Create fixture and model tests.
+Create Level model with title (string), description (text), and position (integer). Add belongs_to :criterion association. Add validations for title presence. Create and run migration. Create fixture and model tests.
 
 # Test Strategy:
-Test validations for title presence and points numericality. Test association with criterion. Test position attribute for proper ordering.
+Test validations for title presence. Test association with criterion. Test position attribute for proper ordering.

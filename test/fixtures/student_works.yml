@@ -1,0 +1,8 @@
+one:
+  assignment: valid_assignment # From assignments.yml
+  status: :pending
+
+two:
+  assignment: valid_assignment # From assignments.yml
+  qualitative_feedback: "Excellent work!"
+  status: :completed 
