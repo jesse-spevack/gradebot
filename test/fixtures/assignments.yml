@@ -1,0 +1,9 @@
+valid_assignment:
+  title: Sample Assignment
+  description: This is a sample assignment
+  grade_level: "8"
+  subject: Science
+  instructions: Complete the following experiment...
+  raw_rubric_text: Clarity - 10 points, Content - 15 points
+  total_processing_milliseconds: 1500
+  user: teacher # Use existing 'teacher' fixture 

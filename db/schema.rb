@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_29_221623) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_20_024243) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -37,6 +37,20 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_29_221623) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "assignments", force: :cascade do |t|
+    t.string "title", null: false
+    t.text "description"
+    t.string "grade_level", null: false
+    t.string "subject", null: false
+    t.text "instructions"
+    t.text "raw_rubric_text"
+    t.integer "total_processing_milliseconds"
+    t.integer "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_assignments_on_user_id"
   end
 
   create_table "document_actions", force: :cascade do |t|
@@ -102,26 +116,30 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_29_221623) do
     t.datetime "updated_at", null: false
     t.text "grading_rubric"
     t.integer "status", default: 0
-    t.integer "lock_version", default: 0, null: false
+    t.integer "pending_count", default: 0
+    t.integer "processing_count", default: 0
+    t.integer "completed_count", default: 0
+    t.integer "failed_count", default: 0
+    t.integer "total_count", default: 0
     t.text "formatted_assignment_prompt"
     t.text "formatted_grading_rubric"
     t.index ["user_id"], name: "index_grading_tasks_on_user_id"
   end
 
   create_table "llm_cost_logs", force: :cascade do |t|
+    t.string "request_type"
+    t.string "llm_model_name", null: false
+    t.integer "prompt_tokens", default: 0
+    t.integer "completion_tokens", default: 0
+    t.integer "total_tokens", default: 0
+    t.decimal "cost", precision: 10, scale: 6, null: false
+    t.json "metadata"
     t.integer "user_id"
     t.string "trackable_type"
     t.integer "trackable_id"
-    t.string "request_type"
-    t.string "llm_model_name"
-    t.integer "prompt_tokens"
-    t.integer "completion_tokens"
-    t.integer "total_tokens"
-    t.decimal "cost", precision: 10, scale: 6
-    t.string "request_id"
-    t.json "metadata"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "request_id"
     t.index ["created_at"], name: "index_llm_cost_logs_on_created_at"
     t.index ["llm_model_name"], name: "index_llm_cost_logs_on_llm_model_name"
     t.index ["request_id"], name: "index_llm_cost_logs_on_request_id"
@@ -159,7 +177,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_29_221623) do
     t.string "graded_doc_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "lock_version", default: 0, null: false
     t.text "strengths"
     t.text "opportunities"
     t.string "overall_grade"
@@ -170,7 +187,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_29_221623) do
     t.integer "document_selection_id"
     t.index ["document_selection_id"], name: "index_student_submissions_on_document_selection_id"
     t.index ["first_attempted_at"], name: "index_student_submissions_on_first_attempted_at"
-    t.index ["grading_task_id", "status"], name: "index_submissions_on_grading_task_id_and_status"
     t.index ["grading_task_id"], name: "index_student_submissions_on_grading_task_id"
     t.index ["original_doc_id"], name: "index_student_submissions_on_original_doc_id"
     t.index ["status"], name: "index_student_submissions_on_status"
@@ -201,6 +217,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_29_221623) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "assignments", "users"
   add_foreign_key "document_actions", "student_submissions"
   add_foreign_key "document_selections", "grading_tasks"
   add_foreign_key "feature_flag_audit_logs", "feature_flags"
