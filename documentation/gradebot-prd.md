@@ -87,12 +87,12 @@ For the Google Docs integration we use the `drive.file` scope.
 
 * Belongs to an assignment  
 * Belongs to a document selection  
-* Has many rubric criterion levels  
+* Has many student work criterion levels  
 * Has many feedback items  
 * Qualitative feedback as text  
 * Has many checks
 
-#### Rubric Criterion Level
+#### Student Work Criterion Level
 
 * Join between student work, criteria and level representing how a student did on a particular rubric criteria  
 * Has explanation as text

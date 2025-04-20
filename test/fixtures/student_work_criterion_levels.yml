@@ -1,0 +1,17 @@
+one:
+  student_work: one
+  criterion: valid_criterion_1
+  level: clarity_excellent
+  explanation: "Student demonstrated excellent clarity."
+
+two:
+  student_work: one
+  criterion: valid_criterion_2
+  level: content_excellent
+  explanation: "Content was thorough and well-supported."
+
+three:
+  student_work: two
+  criterion: valid_criterion_1
+  level: clarity_good
+  explanation: "Mostly clear, some minor points could be refined." 

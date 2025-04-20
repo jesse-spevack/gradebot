@@ -5,7 +5,7 @@
 # Priority: medium
 # Description: Implement service for updating student work with feedback data.
 # Details:
-Create StudentWork::UpdateService that takes parsed student work feedback data and a student work record. Service should update student work qualitative feedback and create associated FeedbackItem, RubricCriterionLevel, and StudentWorkCheck records in a transaction. Implement proper type assignment for feedback items. Add validation for required data. Implement error handling and rollback.
+Create StudentWork::UpdateService that takes parsed student work feedback data and a student work record. Service should update student work qualitative feedback and create associated FeedbackItem, StudentWorkCriterionLevel, and StudentWorkCheck records in a transaction. Implement proper type assignment for feedback items. Add validation for required data. Implement error handling and rollback.
 
 # Test Strategy:
 Test update with valid and invalid inputs. Test creation of associated records. Test transaction rollback on error.

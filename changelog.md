@@ -23,6 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add migration for `feedback_items` table with polymorphic references and `kind` enum/index.
 - Add model tests and fixtures for `FeedbackItem`.
 - Update `StudentWork` model to declare polymorphic `has_many :feedback_items`.
+- Implement `StudentWorkCriterionLevel` join model with attributes (`explanation`), associations (`student_work`, `criterion`, `level`), validation (uniqueness on `student_work` + `criterion`), and prefixed ID (`swcl_`).
+- Add migration for `student_work_criterion_levels` table with unique index.
+- Add model tests and fixtures for `StudentWorkCriterionLevel`.
 
 ## [2026-04-19]
 ### Added
