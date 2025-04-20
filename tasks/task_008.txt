@@ -1,0 +1,11 @@
+# Task ID: 8
+# Title: Build Assignment Show Page with Real-time Updates
+# Status: pending
+# Dependencies: 7
+# Priority: medium
+# Description: Create the assignment show page with real-time updates for processing status, rubric display, student work progress, and completion estimates.
+# Details:
+Build assignment show page with sections for assignment details, rubric, student works, and insights. Implement Stimulus controllers for handling real-time updates. Connect to Action Cable for receiving broadcast updates. Create UI components for displaying processing status, progress indicators, and time estimates. Implement collapsible sections for rubric criteria and levels. Build student work list with status badges and completion links. Add assignment summary section for displaying insights after processing completes. Implement TimerService for updating completion time estimates.
+
+# Test Strategy:
+Test real-time updates with simulated broadcasts. Verify UI state changes based on processing status. Test progress indicators and time estimates with mock data. Create system tests for the complete user interaction flow. Test responsive design on different screen sizes.

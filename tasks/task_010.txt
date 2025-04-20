@@ -1,0 +1,11 @@
+# Task ID: 10
+# Title: Implement Subscription Management and Gamification Features
+# Status: pending
+# Dependencies: 9
+# Priority: low
+# Description: Integrate Stripe for subscription management and implement gamification features including streak tracking and contribution graph.
+# Details:
+Integrate Stripe API for subscription management. Implement subscription tiers (free: 1 assignment/month, paid: 300 assignments/month). Create subscription controller and views for plan selection and payment. Build upgrade prompts for free tier users who reach their limit. Implement assignment count tracking per month. Create assignments index page with analytics and gamification features. Build streak tracking for consecutive days with grading tasks. Implement GitHub-style contribution graph showing daily grading activity. Add privacy, terms of service, and AI pages describing data usage policies.
+
+# Test Strategy:
+Test Stripe integration with test mode API keys. Verify subscription limit enforcement. Test upgrade flow for free tier users. Verify streak and contribution graph calculations with sample data. Test responsive design of assignments index page. Verify proper display of analytics and gamification elements.

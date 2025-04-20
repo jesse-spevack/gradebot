@@ -1,0 +1,164 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Setup Rails Project with Required Dependencies",
+      "description": "Initialize a Rails 8+ project with Stimulus, Tailwind 4+, SQLite, and configure Solid gems (cache, queue, cable). Set up the deployment configuration with Kamal for GCP.",
+      "status": "done",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Create a new Rails 8+ project with `rails new gradebot --database=sqlite3`. Install and configure Tailwind 4+ via the tailwindcss-rails gem. Add Stimulus for JavaScript interactions. Configure Solid gems (solid_cache, solid_queue, solid_cable) for background processing and real-time updates. Set up Kamal deployment configuration for Google Cloud Platform, including secrets management with the 1Password adapter. Configure minitest for testing with fixtures. Set up the Google API client with 'drive.file' scope for Google Docs integration.",
+      "testStrategy": "Create a basic test suite that verifies project initialization, confirms all dependencies are correctly installed, and validates the configuration of Solid gems. Test Google API connectivity with mock credentials."
+    },
+    {
+      "id": 2,
+      "title": "Implement Core Database Models and Relationships",
+      "description": "Create all database models as specified in the PRD, including User, Assignment, Rubric, Criterion, Level, StudentWork, RubricCriterionLevel, FeedbackItem, StudentWorkCheck, and AssignmentSummary with their relationships.",
+      "status": "pending",
+      "dependencies": [
+        1
+      ],
+      "priority": "high",
+      "details": "Generate models with appropriate attributes and relationships as specified in the PRD. Create migrations for all tables. Implement model validations, associations, and any required callbacks. Ensure Assignment has the raw_rubric_text field and total_processing_milliseconds. Implement proper join tables and relationships between models. Add position attributes to Criterion and Level models for sorting. Add proper enum definitions for types in FeedbackItem (strength/opportunity) and StudentWorkCheck.",
+      "testStrategy": "Write model tests covering validations, associations, and callbacks. Create fixtures for all models. Test the creation of records with associations to ensure relationships work as expected. Verify that dependent records are handled appropriately on deletion.",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Create User, Assignment, and Rubric-related Models",
+          "description": "Implement the User, Assignment, Rubric, Criterion, and Level models with their relationships and validations",
+          "dependencies": [],
+          "details": "Implementation steps:\n1. Create the User model with attributes like email, name, password_digest, etc.\n2. Create the Assignment model with attributes including title, description, raw_rubric_text, total_processing_milliseconds, etc.\n3. Create the Rubric model with attributes like title, description, and its relationship to Assignment.\n4. Create the Criterion model with attributes including title, description, position (for sorting).\n5. Create the Level model with attributes including title, description, points, position (for sorting).\n6. Implement relationships: User has_many Assignments, Assignment belongs_to User and has_one Rubric, Rubric has_many Criteria, Criterion has_many Levels.\n7. Add validations for required fields and data integrity.\n8. Create and run migrations for these models.\n9. Test model creation, relationships, and validations using unit tests and the Rails console.",
+          "status": "pending",
+          "parentTaskId": 2
+        },
+        {
+          "id": 2,
+          "title": "Implement StudentWork and Feedback Models",
+          "description": "Create the StudentWork, RubricCriterionLevel, FeedbackItem, and their relationships",
+          "dependencies": [
+            1
+          ],
+          "details": "Implementation steps:\n1. Create the StudentWork model with attributes including content, submission_date, and references to User (student) and Assignment.\n2. Create the RubricCriterionLevel join table/model to connect rubric criteria with their selected levels for each student work.\n3. Create the FeedbackItem model with content, type (enum for strength/opportunity), and references to StudentWork and potentially Criterion.\n4. Implement relationships: StudentWork belongs_to User and Assignment, has_many FeedbackItems and RubricCriterionLevels. RubricCriterionLevel belongs_to StudentWork, Criterion, and Level. FeedbackItem belongs_to StudentWork.\n5. Add enum definition for FeedbackItem types (strength/opportunity).\n6. Implement validations for required fields and data integrity.\n7. Create and run migrations for these models.\n8. Test the relationships and validations with unit tests, focusing on the correct association of feedback with student work and proper enum functionality.",
+          "status": "pending",
+          "parentTaskId": 2
+        },
+        {
+          "id": 3,
+          "title": "Implement StudentWorkCheck and AssignmentSummary Models",
+          "description": "Create the StudentWorkCheck and AssignmentSummary models with their relationships and any remaining model functionality",
+          "dependencies": [
+            1,
+            2
+          ],
+          "details": "Implementation steps:\n1. Create the StudentWorkCheck model with status enum, timestamps, and references to StudentWork.\n2. Create the AssignmentSummary model with aggregate data fields (e.g., average_score, submission_count) and reference to Assignment.\n3. Implement relationships: StudentWorkCheck belongs_to StudentWork, AssignmentSummary belongs_to Assignment.\n4. Add enum definition for StudentWorkCheck status types.\n5. Implement any callbacks needed (e.g., updating AssignmentSummary when new StudentWorks are submitted).\n6. Create and run migrations for these models.\n7. Implement any remaining validations or model methods required by the PRD.\n8. Test the complete model structure, ensuring all relationships work correctly across the entire database schema.\n9. Verify that enums are working properly for StudentWorkCheck status.\n10. Test any callbacks or automated processes to ensure they function as expected.\n11. Create a database schema diagram to document the final structure.",
+          "status": "pending",
+          "parentTaskId": 2
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Create Authentication System with Google OAuth",
+      "description": "Implement user authentication using Google OAuth to allow teachers to log in with their Google accounts and authorize access to Google Drive files.",
+      "status": "pending",
+      "dependencies": [
+        2
+      ],
+      "priority": "high",
+      "details": "Integrate OmniAuth with Google OAuth2 provider. Configure the authentication flow to request 'drive.file' scope for Google Docs access. Create sessions controller to handle authentication callbacks. Implement user creation/lookup based on Google profile information. Add login/logout functionality with appropriate routes. Create middleware to ensure authenticated access to protected routes. Store Google OAuth tokens securely for API access. Implement token refresh mechanism for expired tokens.",
+      "testStrategy": "Create tests for authentication flow with mock OAuth responses. Test token storage and refresh mechanisms. Verify access restrictions on protected routes. Test user creation and lookup functionality with fixtures. Create integration tests for the complete login flow."
+    },
+    {
+      "id": 4,
+      "title": "Implement Assignment Creation and Google Picker Integration",
+      "description": "Build the assignment creation form and integrate Google Picker API to allow teachers to select student work documents from Google Drive.",
+      "status": "pending",
+      "dependencies": [
+        3
+      ],
+      "priority": "high",
+      "details": "Create assignment controller with new and create actions. Build assignment form with fields for title, subject, grade level, and instructions. Add option to generate or paste a rubric. Integrate Google Picker API for document selection with a limit of 35 documents. Implement DocumentSelection::BulkCreationService and StudentWork::BulkCreationService for creating records in a single database transaction. Validate that selected documents are under 2000 words. Create Assignment::InitializerService to handle the creation process and enqueue the AssignmentProcessingJob. Implement redirect to assignment show page after submission.",
+      "testStrategy": "Test assignment form submission with valid and invalid inputs. Mock Google Picker API responses for testing document selection. Test document validation for word count limits. Verify bulk creation services correctly create records. Test the complete assignment creation flow with integration tests."
+    },
+    {
+      "id": 5,
+      "title": "Implement LLM Processing Abstractions",
+      "description": "Build the ProcessingTask and ProcessingPipeline abstractions to handle the standardized workflow for LLM processing tasks.",
+      "status": "pending",
+      "dependencies": [
+        2
+      ],
+      "priority": "high",
+      "details": "Create the ProcessingTask class to encapsulate LLM processing configuration and context. Implement ProcessingPipeline to orchestrate the processing flow. Build prompt builders for different task types (rubric generation, student feedback, assignment summary). Create response parsers for each task type to handle LLM responses. Implement storage services to save parsed results to the database. Create broadcaster services for real-time UI updates. Implement status management for tracking task progress. Add error handling, retries, and timeout mechanisms. Track processing time for performance metrics.",
+      "testStrategy": "Create unit tests for ProcessingTask and ProcessingPipeline with mock LLM responses. Test prompt builders with various inputs to ensure correct prompt generation. Test response parsers with sample LLM responses. Test error handling with simulated failures. Measure processing time accuracy."
+    },
+    {
+      "id": 6,
+      "title": "Implement Cost Tracking System",
+      "description": "Build the comprehensive cost tracking system to monitor and record the cost of each LLM request at user and assignment levels.",
+      "status": "pending",
+      "dependencies": [
+        5
+      ],
+      "priority": "medium",
+      "details": "Create BaseClient for LLM requests with built-in cost tracking. Implement event-based architecture for publishing request completion events. Build CostTrackingSubscriber to calculate costs based on token usage and model pricing. Create fallback mechanism for direct cost tracking if event system fails. Implement database models for storing cost data with associations to users and assignments. Add reporting functionality to aggregate costs at user and assignment levels. Integrate with the subscription model to enforce usage limits (1 free assignment/month, 300 assignments/month for paid tier).",
+      "testStrategy": "Test token counting and cost calculation with sample responses. Verify event publication and subscription with mock events. Test fallback mechanism by simulating event system failures. Verify cost aggregation at user and assignment levels. Test integration with subscription limits."
+    },
+    {
+      "id": 7,
+      "title": "Implement Assignment Processing Workflow",
+      "description": "Build the complete assignment processing workflow including rubric generation, student work feedback, and assignment summary generation.",
+      "status": "pending",
+      "dependencies": [
+        4,
+        5,
+        6
+      ],
+      "priority": "medium",
+      "details": "Implement AssignmentProcessingJob to manage the parent ProcessingPipeline. Create child pipelines for rubric generation, student work feedback, and assignment summary. Implement Google Drive integration to fetch document content. Build prompt templates for each processing step. Create services to save parsed responses to appropriate database models (Rubric::CreationService, etc.). Implement processing time estimation system with dynamic adjustment. Add real-time status updates via BroadcastService. Implement error handling and retry mechanisms for failed processing tasks.",
+      "testStrategy": "Create integration tests for the complete processing workflow. Test each child pipeline independently with mock LLM responses. Verify correct database record creation from parsed responses. Test processing time estimation accuracy. Verify real-time status updates. Test error handling and retry mechanisms with simulated failures."
+    },
+    {
+      "id": 8,
+      "title": "Build Assignment Show Page with Real-time Updates",
+      "description": "Create the assignment show page with real-time updates for processing status, rubric display, student work progress, and completion estimates.",
+      "status": "pending",
+      "dependencies": [
+        7
+      ],
+      "priority": "medium",
+      "details": "Build assignment show page with sections for assignment details, rubric, student works, and insights. Implement Stimulus controllers for handling real-time updates. Connect to Action Cable for receiving broadcast updates. Create UI components for displaying processing status, progress indicators, and time estimates. Implement collapsible sections for rubric criteria and levels. Build student work list with status badges and completion links. Add assignment summary section for displaying insights after processing completes. Implement TimerService for updating completion time estimates.",
+      "testStrategy": "Test real-time updates with simulated broadcasts. Verify UI state changes based on processing status. Test progress indicators and time estimates with mock data. Create system tests for the complete user interaction flow. Test responsive design on different screen sizes."
+    },
+    {
+      "id": 9,
+      "title": "Implement Student Work Feedback Review and Google Docs Integration",
+      "description": "Build the student work feedback review page with functionality to edit feedback and send it to the student's Google document.",
+      "status": "pending",
+      "dependencies": [
+        8
+      ],
+      "priority": "low",
+      "details": "Create student work show page with sections for feedback note, feedback items, rubric criteria levels, and checks. Implement edit/save functionality for each feedback section. Build Google Docs integration for appending feedback to student documents. Create a service for formatting feedback for Google Docs insertion. Implement append operations using Google Docs API. Add confirmation and error handling for Google Docs operations. Create UI components for displaying feedback items with strength/opportunity indicators. Implement responsive design for mobile use.",
+      "testStrategy": "Test feedback editing functionality with various inputs. Mock Google Docs API for testing append operations. Verify proper formatting of feedback for Google Docs. Test error handling with simulated API failures. Create system tests for the complete feedback review and sending flow."
+    },
+    {
+      "id": 10,
+      "title": "Implement Subscription Management and Gamification Features",
+      "description": "Integrate Stripe for subscription management and implement gamification features including streak tracking and contribution graph.",
+      "status": "pending",
+      "dependencies": [
+        9
+      ],
+      "priority": "low",
+      "details": "Integrate Stripe API for subscription management. Implement subscription tiers (free: 1 assignment/month, paid: 300 assignments/month). Create subscription controller and views for plan selection and payment. Build upgrade prompts for free tier users who reach their limit. Implement assignment count tracking per month. Create assignments index page with analytics and gamification features. Build streak tracking for consecutive days with grading tasks. Implement GitHub-style contribution graph showing daily grading activity. Add privacy, terms of service, and AI pages describing data usage policies.",
+      "testStrategy": "Test Stripe integration with test mode API keys. Verify subscription limit enforcement. Test upgrade flow for free tier users. Verify streak and contribution graph calculations with sample data. Test responsive design of assignments index page. Verify proper display of analytics and gamification elements."
+    }
+  ],
+  "metadata": {
+    "projectName": "GradeBot Implementation",
+    "totalTasks": 10,
+    "sourceFile": "gradebot-prd.md",
+    "generatedAt": "2023-05-22"
+  }
+}
