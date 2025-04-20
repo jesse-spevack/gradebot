@@ -1,0 +1,11 @@
+# Task ID: 40
+# Title: Create InsightsComponent
+# Status: pending
+# Dependencies: 36
+# Priority: medium
+# Description: Build the Stimulus controller and partial for displaying assignment insights.
+# Details:
+Create InsightsComponent with Stimulus controller for handling user interactions. Implement collapsible sections for different insight categories. Add visualization for common strengths and weaknesses. Create partial for rendering insight data. Implement conditional display based on assignment completion status.
+
+# Test Strategy:
+Test component rendering with different insight data. Test collapsible functionality. Test conditional display based on assignment status.

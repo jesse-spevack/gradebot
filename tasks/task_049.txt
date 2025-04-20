@@ -1,0 +1,11 @@
+# Task ID: 49
+# Title: Create SubscriptionsController
+# Status: pending
+# Dependencies: 48
+# Priority: low
+# Description: Build controller for handling subscription management.
+# Details:
+Create SubscriptionsController with actions for plan selection, checkout, success, and cancel. Implement integration with Stripe Checkout for payment processing. Add session handling for checkout flow. Create success and cancel pages. Implement error handling for failed checkout attempts.
+
+# Test Strategy:
+Test controller actions with valid and invalid parameters. Test integration with Stripe Checkout. Test success and cancel flows. Test error handling for failed checkout attempts.

@@ -1,0 +1,11 @@
+# Task ID: 52
+# Title: Create Privacy, Terms, and AI Pages
+# Status: pending
+# Dependencies: 1
+# Priority: low
+# Description: Build static pages describing data usage policies.
+# Details:
+Create privacy policy page describing data collection and usage. Build terms of service page outlining user agreements. Add AI page explaining LLM usage and data handling. Implement responsive design for all pages. Add links to these pages in the application footer.
+
+# Test Strategy:
+Test page rendering and content. Test responsive design on different screen sizes. Test navigation links to these pages.

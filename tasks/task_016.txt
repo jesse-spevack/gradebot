@@ -1,0 +1,11 @@
+# Task ID: 16
+# Title: Create DocumentSelection::BulkCreationService
+# Status: pending
+# Dependencies: 12, 15
+# Priority: high
+# Description: Implement service for creating multiple document selections in one transaction.
+# Details:
+Create DocumentSelection::BulkCreationService that takes an array of Google document IDs and an assignment. Service should fetch document metadata, validate document size (<2000 words), and create DocumentSelection records in a single database transaction. Implement word count calculation for validation.
+
+# Test Strategy:
+Test bulk creation with valid and invalid documents. Test word count validation. Test transaction rollback on error.

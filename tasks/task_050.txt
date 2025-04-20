@@ -1,0 +1,11 @@
+# Task ID: 50
+# Title: Create Subscription Model and Migration
+# Status: pending
+# Dependencies: 48
+# Priority: low
+# Description: Implement the Subscription model for tracking user subscriptions.
+# Details:
+Create Subscription model with plan_type (enum: free, paid), status (enum: active, canceled, expired), start_date (datetime), end_date (datetime), and stripe_subscription_id (string). Add belongs_to :user association. Implement methods for checking assignment limits. Create and run migration. Add model tests.
+
+# Test Strategy:
+Test model creation and validation. Test association with user. Test methods for checking assignment limits.

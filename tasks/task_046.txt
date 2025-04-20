@@ -1,0 +1,11 @@
+# Task ID: 46
+# Title: Create StreakTracker
+# Status: pending
+# Dependencies: 45
+# Priority: low
+# Description: Implement service for tracking consecutive days with grading tasks.
+# Details:
+Create StreakTracker service for calculating consecutive days with grading activity. Implement methods for streak calculation based on completed student works. Add persistence for streak data. Create visualization component for displaying streak information. Implement real-time updates for streak changes.
+
+# Test Strategy:
+Test streak calculation with various activity patterns. Test persistence of streak data. Test visualization component with different streak values.

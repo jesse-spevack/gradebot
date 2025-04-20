@@ -1,0 +1,11 @@
+# Task ID: 17
+# Title: Create StudentWork::BulkCreationService
+# Status: pending
+# Dependencies: 7, 16
+# Priority: high
+# Description: Implement service for creating multiple student work records in one transaction.
+# Details:
+Create StudentWork::BulkCreationService that takes an array of DocumentSelection records and an assignment. Service should create StudentWork records in a single database transaction with initial 'pending' status. Implement associations between StudentWork and DocumentSelection.
+
+# Test Strategy:
+Test bulk creation with valid inputs. Test proper association with DocumentSelection. Test transaction rollback on error.

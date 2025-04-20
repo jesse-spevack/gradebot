@@ -1,11 +1,11 @@
 # Task ID: 6
-# Title: Implement Cost Tracking System
+# Title: Create Level Model and Migration
 # Status: pending
 # Dependencies: 5
-# Priority: medium
-# Description: Build the comprehensive cost tracking system to monitor and record the cost of each LLM request at user and assignment levels.
+# Priority: high
+# Description: Implement the Level model with attributes and associations.
 # Details:
-Create BaseClient for LLM requests with built-in cost tracking. Implement event-based architecture for publishing request completion events. Build CostTrackingSubscriber to calculate costs based on token usage and model pricing. Create fallback mechanism for direct cost tracking if event system fails. Implement database models for storing cost data with associations to users and assignments. Add reporting functionality to aggregate costs at user and assignment levels. Integrate with the subscription model to enforce usage limits (1 free assignment/month, 300 assignments/month for paid tier).
+Create Level model with title (string), description (text), points (decimal), and position (integer). Add belongs_to :criterion association. Add validations for title presence and points numericality. Create and run migration. Create fixture and model tests.
 
 # Test Strategy:
-Test token counting and cost calculation with sample responses. Verify event publication and subscription with mock events. Test fallback mechanism by simulating event system failures. Verify cost aggregation at user and assignment levels. Test integration with subscription limits.
+Test validations for title presence and points numericality. Test association with criterion. Test position attribute for proper ordering.

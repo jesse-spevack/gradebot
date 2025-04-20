@@ -1,0 +1,11 @@
+# Task ID: 24
+# Title: Create RubricPromptBuilder
+# Status: pending
+# Dependencies: 22, 23
+# Priority: medium
+# Description: Implement the prompt builder for rubric generation.
+# Details:
+Create RubricPromptBuilder class that inherits from BasePromptBuilder. Implement build_prompt method that formats assignment details and raw rubric text (if provided) into a structured prompt for rubric generation. Add template selection logic based on presence of raw rubric text. Implement JSON output formatting instructions.
+
+# Test Strategy:
+Test prompt building with and without raw rubric text. Test JSON formatting instructions. Test prompt length calculation.
