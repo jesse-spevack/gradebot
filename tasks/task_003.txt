@@ -1,6 +1,6 @@
 # Task ID: 3
 # Title: Create Assignment Model and Migration
-# Status: pending
+# Status: done
 # Dependencies: 2
 # Priority: high
 # Description: Implement the Assignment model with attributes and associations.
@@ -11,7 +11,7 @@ Create Assignment model with title (string), description (text), grade_level (st
 Test validations for required fields (title, subject, grade_level). Test associations with user, rubric, student_works, and assignment_summary.
 
 # Subtasks:
-## 1. Create Assignment model and migration with attributes [pending]
+## 1. Create Assignment model and migration with attributes [done]
 ### Dependencies: None
 ### Description: Create the Assignment model with required attributes and generate the database migration to set up the table structure
 ### Details:
@@ -32,7 +32,7 @@ Testing approach:
 - Verify schema.rb contains all the specified columns with correct types
 - Use Rails console to create a test Assignment instance and confirm all attributes can be set and saved
 
-## 2. Add associations and validations to Assignment model [pending]
+## 2. Add associations and validations to Assignment model [done]
 ### Dependencies: 3.1
 ### Description: Implement the required associations and validations in the Assignment model
 ### Details:
@@ -58,7 +58,7 @@ Testing approach:
 - Test that associations are properly defined by creating related records and checking the relationships work as expected
 - Verify that dependent destroy works correctly for all has_one and has_many relationships
 
-## 3. Create test fixtures and model tests for Assignment [pending]
+## 3. Create test fixtures and model tests for Assignment [done]
 ### Dependencies: 3.1, 3.2
 ### Description: Implement test fixtures and comprehensive model tests to ensure Assignment model works correctly
 ### Details:

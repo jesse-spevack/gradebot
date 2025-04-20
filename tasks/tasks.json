@@ -26,7 +26,7 @@
       "id": 3,
       "title": "Create Assignment Model and Migration",
       "description": "Implement the Assignment model with attributes and associations.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         2
       ],
@@ -40,7 +40,7 @@
           "description": "Create the Assignment model with required attributes and generate the database migration to set up the table structure",
           "dependencies": [],
           "details": "Implementation steps:\n1. Generate the Assignment model and migration:\n   ```ruby\n   rails generate model Assignment title:string description:text grade_level:string subject:string instructions:text raw_rubric_text:text total_processing_milliseconds:integer user:references\n   ```\n2. Open the generated migration file in db/migrate/ and verify the table structure includes all required fields\n3. Modify the migration if needed to ensure proper column types and constraints\n4. Run the migration to create the table:\n   ```ruby\n   rails db:migrate\n   ```\n5. Test the migration by checking the schema.rb file to confirm all fields were created correctly\n\nTesting approach:\n- Verify schema.rb contains all the specified columns with correct types\n- Use Rails console to create a test Assignment instance and confirm all attributes can be set and saved",
-          "status": "pending",
+          "status": "done",
           "parentTaskId": 3
         },
         {
@@ -51,7 +51,7 @@
             1
           ],
           "details": "Implementation steps:\n1. Open the Assignment model file (app/models/assignment.rb)\n2. Add the following associations:\n   ```ruby\n   belongs_to :user\n   has_one :rubric, dependent: :destroy\n   has_many :student_works, dependent: :destroy\n   has_one :assignment_summary, dependent: :destroy\n   ```\n3. Add validations for required fields:\n   ```ruby\n   validates :title, presence: true\n   validates :subject, presence: true\n   validates :grade_level, presence: true\n   ```\n4. Save the model file\n\nTesting approach:\n- Create unit tests that verify validations reject records without title, subject, and grade_level\n- Test that associations are properly defined by creating related records and checking the relationships work as expected\n- Verify that dependent destroy works correctly for all has_one and has_many relationships",
-          "status": "pending",
+          "status": "done",
           "parentTaskId": 3
         },
         {
@@ -63,7 +63,7 @@
             2
           ],
           "details": "Implementation steps:\n1. Create a fixture file for assignments in test/fixtures/assignments.yml:\n   ```yaml\n   valid_assignment:\n     title: Sample Assignment\n     description: This is a sample assignment\n     grade_level: 8\n     subject: Science\n     instructions: Complete the following experiment...\n     raw_rubric_text: Clarity - 10 points, Content - 15 points\n     total_processing_milliseconds: 1500\n     user: one\n   \n   missing_title:\n     description: Missing title assignment\n     grade_level: 7\n     subject: Math\n     user: one\n   ```\n2. Create or update the Assignment model test file (test/models/assignment_test.rb):\n   ```ruby\n   require \"test_helper\"\n   \n   class AssignmentTest < ActiveSupport::TestCase\n     test \"valid assignment\" do\n       assignment = assignments(:valid_assignment)\n       assert assignment.valid?\n     end\n     \n     test \"invalid without title\" do\n       assignment = assignments(:missing_title)\n       assert_not assignment.valid?\n       assert_includes assignment.errors[:title], \"can't be blank\"\n     end\n     \n     test \"invalid without subject\" do\n       assignment = assignments(:valid_assignment)\n       assignment.subject = nil\n       assert_not assignment.valid?\n     end\n     \n     test \"invalid without grade_level\" do\n       assignment = assignments(:valid_assignment)\n       assignment.grade_level = nil\n       assert_not assignment.valid?\n     end\n     \n     test \"has correct associations\" do\n       assignment = assignments(:valid_assignment)\n       assert_respond_to assignment, :user\n       assert_respond_to assignment, :rubric\n       assert_respond_to assignment, :student_works\n       assert_respond_to assignment, :assignment_summary\n     end\n   end\n   ```\n3. Run the tests to verify the model works as expected:\n   ```\n   rails test test/models/assignment_test.rb\n   ```\n\nTesting approach:\n- Use fixtures to test both valid and invalid assignment scenarios\n- Test all validations to ensure they work as expected\n- Test all associations to confirm they're properly defined\n- Verify error messages are appropriate for validation failures",
-          "status": "pending",
+          "status": "done",
           "parentTaskId": 3
         }
       ]
