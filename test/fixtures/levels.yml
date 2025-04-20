@@ -1,0 +1,25 @@
+# Levels for Clarity Criterion (valid_criterion_1)
+clarity_excellent: # Position 0
+  title: "Excellent"
+  description: "Writing is exceptionally clear, focused, and engaging."
+  position: 0
+  criterion: valid_criterion_1
+
+clarity_good: # Position 1
+  title: "Good"
+  description: "Writing is clear and focused for the most part."
+  position: 1
+  criterion: valid_criterion_1
+
+clarity_needs_improvement: # Position 2
+  title: "Needs Improvement"
+  description: "Writing is sometimes unclear or lacks focus."
+  position: 2
+  criterion: valid_criterion_1
+
+# Levels for Content Criterion (valid_criterion_2)
+content_excellent: # Position 0
+  title: "Excellent"
+  description: "Content fully addresses the prompt with insightful details."
+  position: 0
+  criterion: valid_criterion_2 

@@ -1,6 +1,6 @@
 # Task ID: 5
 # Title: Create Criterion Model and Migration
-# Status: in-progress
+# Status: done
 # Dependencies: 4
 # Priority: high
 # Description: Implement the Criterion model with attributes and associations.
@@ -11,7 +11,7 @@ Create Criterion model with title (string), description (text), and position (in
 Test validation for title presence. Test associations with rubric and levels. Test position attribute for proper ordering.
 
 # Subtasks:
-## 1. Generate Criterion model and migration file [in-progress]
+## 1. Generate Criterion model and migration file [done]
 ### Dependencies: None
 ### Description: Create the Criterion model file and generate the migration file with the required attributes
 ### Details:
@@ -26,7 +26,7 @@ Test validation for title presence. Test associations with rubric and levels. Te
 4. Ensure the table name is 'criteria' (Rails should pluralize this correctly)
 5. Test by inspecting the generated files to confirm they contain the expected fields
 
-## 2. Update Criterion model with associations and validations [in-progress]
+## 2. Update Criterion model with associations and validations [done]
 ### Dependencies: 5.1
 ### Description: Add the required associations, validations, and any other model configurations
 ### Details:
@@ -50,7 +50,7 @@ Test validation for title presence. Test associations with rubric and levels. Te
    ```
 7. Test by checking syntax and ensuring the model file contains all required elements
 
-## 3. Run migration and create tests [in-progress]
+## 3. Run migration and create tests [done]
 ### Dependencies: 5.1, 5.2
 ### Description: Execute the migration and create fixture and model tests for the Criterion model
 ### Details:

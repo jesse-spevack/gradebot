@@ -164,13 +164,13 @@
       "id": 6,
       "title": "Create Level Model and Migration",
       "description": "Implement the Level model with attributes and associations.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         5
       ],
       "priority": "high",
-      "details": "Create Level model with title (string), description (text), points (decimal), and position (integer). Add belongs_to :criterion association. Add validations for title presence and points numericality. Create and run migration. Create fixture and model tests.",
-      "testStrategy": "Test validations for title presence and points numericality. Test association with criterion. Test position attribute for proper ordering."
+      "details": "Create Level model with title (string), description (text), and position (integer). Add belongs_to :criterion association. Add validations for title presence. Create and run migration. Create fixture and model tests.",
+      "testStrategy": "Test validations for title presence. Test association with criterion. Test position attribute for proper ordering."
     },
     {
       "id": 7,
