@@ -1,11 +1,11 @@
 # Task ID: 4
-# Title: Implement Assignment Creation and Google Picker Integration
+# Title: Create Rubric Model and Migration
 # Status: pending
 # Dependencies: 3
 # Priority: high
-# Description: Build the assignment creation form and integrate Google Picker API to allow teachers to select student work documents from Google Drive.
+# Description: Implement the Rubric model with its attributes and associations.
 # Details:
-Create assignment controller with new and create actions. Build assignment form with fields for title, subject, grade level, and instructions. Add option to generate or paste a rubric. Integrate Google Picker API for document selection with a limit of 35 documents. Implement DocumentSelection::BulkCreationService and StudentWork::BulkCreationService for creating records in a single database transaction. Validate that selected documents are under 2000 words. Create Assignment::InitializerService to handle the creation process and enqueue the AssignmentProcessingJob. Implement redirect to assignment show page after submission.
+Create Rubric model with title (string) and description (text). Add belongs_to :assignment association and has_many :criteria association. Add validations for title presence. Create and run migration. Create fixture and model tests.
 
 # Test Strategy:
-Test assignment form submission with valid and invalid inputs. Mock Google Picker API responses for testing document selection. Test document validation for word count limits. Verify bulk creation services correctly create records. Test the complete assignment creation flow with integration tests.
+Test validation for title presence. Test associations with assignment and criteria.

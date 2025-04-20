@@ -1,0 +1,11 @@
+# Task ID: 30
+# Title: Create SummaryPromptBuilder
+# Status: pending
+# Dependencies: 22, 23
+# Priority: medium
+# Description: Implement the prompt builder for assignment summary generation.
+# Details:
+Create SummaryPromptBuilder class that inherits from BasePromptBuilder. Implement build_prompt method that combines assignment details, rubric structure, and aggregated student work feedback into a prompt for summary generation. Add aggregation logic for common strengths and weaknesses. Implement JSON output formatting instructions.
+
+# Test Strategy:
+Test prompt building with various input combinations. Test aggregation logic for feedback. Test JSON formatting instructions.

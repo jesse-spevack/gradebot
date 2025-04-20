@@ -1,0 +1,11 @@
+# Task ID: 19
+# Title: Create LLM BaseClient Implementation
+# Status: pending
+# Dependencies: 1
+# Priority: high
+# Description: Implement the base client for LLM requests with cost tracking.
+# Details:
+Create BaseClient class for LLM requests that handles authentication, request formatting, and response parsing. Implement methods for sending prompts to LLMs. Add token counting for prompt and completion. Implement event publication for request completion. Add timing mechanisms for performance tracking.
+
+# Test Strategy:
+Test client initialization with valid and invalid credentials. Test request formatting and response parsing. Test token counting accuracy. Test event publication for completed requests.

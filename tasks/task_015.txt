@@ -1,0 +1,11 @@
+# Task ID: 15
+# Title: Implement Assignment Controller
+# Status: pending
+# Dependencies: 14
+# Priority: high
+# Description: Create the controller for handling assignment creation and display.
+# Details:
+Create AssignmentsController with new, create, show, and index actions. Implement new action to display form. Implement create action to process form submission and create Assignment record. Add strong parameters for assignment attributes. Add before_action to ensure authentication. Implement redirect to assignment show page after creation.
+
+# Test Strategy:
+Test controller actions with valid and invalid parameters. Test authentication requirement. Test redirect after creation.

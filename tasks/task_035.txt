@@ -1,0 +1,11 @@
+# Task ID: 35
+# Title: Create AssignmentProcessingJob
+# Status: pending
+# Dependencies: 23, 33, 34
+# Priority: medium
+# Description: Implement background job for managing the assignment processing workflow.
+# Details:
+Create AssignmentProcessingJob that inherits from ApplicationJob. Implement perform method that initializes and executes the parent ProcessingPipeline. Add creation and coordination of child pipelines for rubric generation, student work feedback, and assignment summary. Implement progress tracking and status updates. Add error handling and retry configuration.
+
+# Test Strategy:
+Test job execution with mock pipelines. Test coordination of child pipelines. Test progress tracking and status updates. Test error handling and retry functionality.

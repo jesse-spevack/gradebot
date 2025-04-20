@@ -1,0 +1,11 @@
+# Task ID: 33
+# Title: Create BroadcastService
+# Status: pending
+# Dependencies: 1
+# Priority: medium
+# Description: Implement service for broadcasting real-time updates to the UI.
+# Details:
+Create BroadcastService class for sending real-time updates via Action Cable. Implement methods for broadcasting rubric updates, student work status changes, and assignment completion. Add channel configurations for assignment-specific updates. Implement serialization of broadcast data.
+
+# Test Strategy:
+Test broadcasting with mock channel. Test serialization of different data types. Test channel configuration for assignment-specific updates.

@@ -1,11 +1,11 @@
 # Task ID: 9
-# Title: Implement Student Work Feedback Review and Google Docs Integration
+# Title: Create FeedbackItem Model and Migration
 # Status: pending
-# Dependencies: 8
-# Priority: low
-# Description: Build the student work feedback review page with functionality to edit feedback and send it to the student's Google document.
+# Dependencies: 7
+# Priority: high
+# Description: Implement the FeedbackItem model with attributes and associations.
 # Details:
-Create student work show page with sections for feedback note, feedback items, rubric criteria levels, and checks. Implement edit/save functionality for each feedback section. Build Google Docs integration for appending feedback to student documents. Create a service for formatting feedback for Google Docs insertion. Implement append operations using Google Docs API. Add confirmation and error handling for Google Docs operations. Create UI components for displaying feedback items with strength/opportunity indicators. Implement responsive design for mobile use.
+Create FeedbackItem model with type (enum: strength, opportunity), title (string), description (text), and evidence (text). Add belongs_to :student_work association. Add validations for title and type presence. Create and run migration. Create fixture and model tests.
 
 # Test Strategy:
-Test feedback editing functionality with various inputs. Mock Google Docs API for testing append operations. Verify proper formatting of feedback for Google Docs. Test error handling with simulated API failures. Create system tests for the complete feedback review and sending flow.
+Test validations for title and type presence. Test association with student_work. Test enum functionality for type.

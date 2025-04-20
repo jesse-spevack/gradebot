@@ -1,0 +1,11 @@
+# Task ID: 27
+# Title: Create StudentWorkPromptBuilder
+# Status: pending
+# Dependencies: 22, 23
+# Priority: medium
+# Description: Implement the prompt builder for student work feedback.
+# Details:
+Create StudentWorkPromptBuilder class that inherits from BasePromptBuilder. Implement build_prompt method that combines student work content, assignment details, and rubric structure into a prompt for feedback generation. Add feedback tone customization based on assignment settings. Implement JSON output formatting instructions.
+
+# Test Strategy:
+Test prompt building with different feedback tones. Test handling of long student work content. Test JSON formatting instructions.

@@ -1,0 +1,11 @@
+# Task ID: 51
+# Title: Create SubscriptionLimitEnforcer
+# Status: pending
+# Dependencies: 50
+# Priority: low
+# Description: Implement service for enforcing subscription assignment limits.
+# Details:
+Create SubscriptionLimitEnforcer service for checking and enforcing assignment limits. Implement methods for counting assignments within the current month. Add integration with assignments controller to prevent creation when limit is reached. Create upgrade prompts for free tier users who reach their limit.
+
+# Test Strategy:
+Test limit enforcement with different subscription types. Test assignment counting within current month. Test integration with assignments controller.

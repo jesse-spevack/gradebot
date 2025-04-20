@@ -1,0 +1,11 @@
+# Task ID: 14
+# Title: Create Assignment Form View
+# Status: pending
+# Dependencies: 13
+# Priority: high
+# Description: Build the form for creating new assignments.
+# Details:
+Create a form view at /assignments/new with fields for title (text input), subject (text input), grade level (select dropdown), and instructions (textarea). Add radio buttons for 'Generate rubric' or 'Paste rubric' options. Include a textarea for manual rubric input that appears conditionally when 'Paste rubric' is selected. Add a feedback tone dropdown with options: encouraging, neutral/objective, and critical. Use Stimulus for form interaction handling. Add a 'Submit for grading' button.
+
+# Test Strategy:
+Test form rendering with all required fields. Test conditional display of rubric textarea. Test form submission with both rubric options.

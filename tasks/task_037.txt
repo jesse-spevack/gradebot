@@ -1,0 +1,11 @@
+# Task ID: 37
+# Title: Create RubricComponent
+# Status: pending
+# Dependencies: 36
+# Priority: medium
+# Description: Build the Stimulus controller and partial for displaying the rubric.
+# Details:
+Create RubricComponent with Stimulus controller for handling user interactions. Implement collapsible sections for criteria and levels. Add loading state for rubric generation. Create partial for rendering criteria and levels. Implement real-time updates via Action Cable subscription. Add animations for state transitions.
+
+# Test Strategy:
+Test component rendering with different rubric states. Test collapsible functionality. Test real-time updates with simulated broadcasts.

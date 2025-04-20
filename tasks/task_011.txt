@@ -1,0 +1,11 @@
+# Task ID: 11
+# Title: Create AssignmentSummary Model and Migration
+# Status: pending
+# Dependencies: 3
+# Priority: high
+# Description: Implement the AssignmentSummary model with attributes and associations.
+# Details:
+Create AssignmentSummary model with student_work_count (integer) and qualitative_insights (text). Add belongs_to :assignment association and has_many :feedback_items association (polymorphic). Create and run migration. Create fixture and model tests.
+
+# Test Strategy:
+Test association with assignment. Test creation and retrieval of associated feedback items.

@@ -1,0 +1,11 @@
+# Task ID: 32
+# Title: Create AssignmentSummary::CreationService
+# Status: pending
+# Dependencies: 31
+# Priority: medium
+# Description: Implement service for creating assignment summary from parsed response.
+# Details:
+Create AssignmentSummary::CreationService that takes parsed summary data and an assignment. Service should create AssignmentSummary record with associated FeedbackItem records in a transaction. Add calculation of student_work_count. Implement error handling and rollback.
+
+# Test Strategy:
+Test creation with valid and invalid inputs. Test student_work_count calculation. Test transaction rollback on error.

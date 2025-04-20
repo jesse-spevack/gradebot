@@ -1,0 +1,11 @@
+# Task ID: 20
+# Title: Add Gemini Flash 2.5 Support to LLM Client
+# Status: pending
+# Dependencies: 19
+# Priority: high
+# Description: Extend the LLM client to support the Gemini Flash 2.5 model.
+# Details:
+Create GeminiClient class that inherits from BaseClient. Implement Gemini-specific request formatting, API endpoint configuration, and authentication. Add response parsing for Gemini-specific response format. Implement token counting for Gemini model. Add configuration options for model parameters (temperature, top_p, etc.).
+
+# Test Strategy:
+Test Gemini API integration with mock responses. Test token counting for Gemini-specific tokenization. Test parameter configuration. Test end-to-end request and response flow.

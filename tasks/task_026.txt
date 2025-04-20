@@ -1,0 +1,11 @@
+# Task ID: 26
+# Title: Create Rubric::CreationService
+# Status: pending
+# Dependencies: 25
+# Priority: medium
+# Description: Implement service for creating rubric structure from parsed response.
+# Details:
+Create Rubric::CreationService that takes parsed rubric data and an assignment. Service should create Rubric record with associated Criterion and Level records in a transaction. Implement proper position ordering for criteria and levels. Add validation for required data. Implement error handling and rollback.
+
+# Test Strategy:
+Test creation with valid and invalid inputs. Test proper position ordering. Test transaction rollback on error.

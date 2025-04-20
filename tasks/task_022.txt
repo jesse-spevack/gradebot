@@ -1,0 +1,11 @@
+# Task ID: 22
+# Title: Create ProcessingTask Abstraction
+# Status: pending
+# Dependencies: 19, 20
+# Priority: high
+# Description: Implement the ProcessingTask abstraction for LLM processing tasks.
+# Details:
+Create ProcessingTask class to encapsulate LLM processing configuration and context. Implement methods for storing task-specific data, prompt template selection, response parser selection, storage service selection, and broadcaster selection. Add methods for tracking processing time and user attribution.
+
+# Test Strategy:
+Test task initialization with various configurations. Test method selection logic for different task types. Test processing time tracking.
