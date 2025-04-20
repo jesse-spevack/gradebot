@@ -1,0 +1,51 @@
+---
+description: Guidelines for using the prefix_id gem
+globs: models/*.rb
+alwaysApply: true
+---
+- **Add to All New Models:**
+  - The `prefixed_ids` gem ([prefixed_ids](https://github.com/excid3/prefixed_ids)) should be added to *all* new Active Record models.
+  - This provides user-friendly, non-sequential IDs (e.g., `crit_...`, `lvl_...`) instead of standard integer IDs.
+
+- **Placement:**
+  - Place the `has_prefix_id :prefix` call at the top of the model definition, typically right after the class declaration or any constants.
+
+  ```ruby
+  # ✅ Correct Placement
+  class Criterion < ApplicationRecord
+    has_prefix_id :crit
+    
+    # Associations
+    belongs_to :rubric
+    # ...
+  end
+  ```
+
+- **Choosing Prefixes:**
+  - Select a short, descriptive, and unique prefix for each model (usually 3-4 letters).
+  - Examples: `:crit` for `Criterion`, `:lvl` for `Level`, `:rb` for `Rubric`.
+
+- **Testing:**
+  - When testing models that use `prefixed_ids`, ensure you are testing the `prefix_id` attribute, not the standard `id` attribute, when checking for the prefixed value.
+  - The standard `id` will still contain the underlying integer primary key.
+
+  ```ruby
+  # In test/models/level_test.rb
+  test "has prefix id" do
+    # Setup
+    level = levels(:clarity_excellent) 
+    
+    # Verify
+    assert_not_nil level.id # Standard integer ID still exists
+    assert_respond_to level, :prefix_id
+    assert_not_nil level.prefix_id
+    # ✅ DO: Assert against prefix_id for the string value
+    assert level.prefix_id.starts_with?("lvl_")
+    
+    # ❌ DON'T: Assert string format against the standard id
+    # assert level.id.starts_with?("lvl_") # This will fail
+  end
+  ```
+
+- **Foreign Keys:**
+  - Foreign keys in the database (e.g., `criterion_id` in the `levels` table) will still store the standard integer ID of the associated record, not the prefixed ID.
