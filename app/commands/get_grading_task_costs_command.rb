@@ -104,7 +104,7 @@ class GetGradingTaskCostsCommand < CommandBase
   end
 
   def start_date
-    @start_date ||= GradingTask.minimum(:created_at)
+    @start_date ||= GradingTask.minimum(:created_at) || 1.year.ago
   end
 
   def end_date

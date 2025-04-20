@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_20_173024) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_20_193417) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -37,6 +37,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_20_173024) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "assignment_summaries", force: :cascade do |t|
+    t.integer "student_work_count", default: 0, null: false
+    t.text "qualitative_insights", null: false
+    t.integer "assignment_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["assignment_id"], name: "index_assignment_summaries_on_assignment_id"
   end
 
   create_table "assignments", force: :cascade do |t|
@@ -293,6 +302,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_20_173024) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "assignment_summaries", "assignments"
   add_foreign_key "assignments", "users"
   add_foreign_key "criteria", "rubrics"
   add_foreign_key "document_actions", "student_submissions"

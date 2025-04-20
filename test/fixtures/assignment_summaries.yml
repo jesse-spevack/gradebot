@@ -1,0 +1,4 @@
+one:
+  assignment: valid_assignment # From assignments.yml
+  student_work_count: 2 # Assuming valid_assignment might have 2 student_works
+  qualitative_insights: "Overall, the class demonstrated a good understanding of the core concepts. Common strengths included clear topic sentences. Areas for improvement involve providing more specific textual evidence." 
