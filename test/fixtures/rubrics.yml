@@ -1,0 +1,4 @@
+valid_rubric:
+  title: Sample Rubric
+  description: A rubric for the sample assignment
+  assignment: valid_assignment # Assumes an assignment fixture named 'valid_assignment' exists 

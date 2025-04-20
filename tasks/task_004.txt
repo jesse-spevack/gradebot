@@ -1,6 +1,6 @@
 # Task ID: 4
 # Title: Create Rubric Model and Migration
-# Status: pending
+# Status: in-progress
 # Dependencies: 3
 # Priority: high
 # Description: Implement the Rubric model with its attributes and associations.
@@ -9,3 +9,111 @@ Create Rubric model with title (string) and description (text). Add belongs_to :
 
 # Test Strategy:
 Test validation for title presence. Test associations with assignment and criteria.
+
+# Subtasks:
+## 1. Generate Rubric model and migration [in-progress]
+### Dependencies: None
+### Description: Create the Rubric model with its attributes and run the migration to update the database schema
+### Details:
+1. Generate the Rubric model with its attributes using Rails generator:
+   ```
+   rails generate model Rubric title:string description:text assignment:references
+   ```
+2. Review the generated migration file in db/migrate/
+3. Ensure the migration includes:
+   - A string column for 'title'
+   - A text column for 'description'
+   - A foreign key for 'assignment_id'
+   - Appropriate indexes (particularly on assignment_id)
+4. Run the migration:
+   ```
+   rails db:migrate
+   ```
+5. Verify the schema.rb file to confirm the table was created correctly
+6. Test the migration by rolling back and re-migrating:
+   ```
+   rails db:rollback
+   rails db:migrate
+   ```
+
+## 2. Implement Rubric model associations and validations [in-progress]
+### Dependencies: 4.1
+### Description: Add the necessary associations and validations to the Rubric model
+### Details:
+1. Open the app/models/rubric.rb file
+2. Implement the belongs_to association:
+   ```ruby
+   belongs_to :assignment
+   ```
+3. Implement the has_many association:
+   ```ruby
+   has_many :criteria, dependent: :destroy
+   ```
+4. Add validations for title presence:
+   ```ruby
+   validates :title, presence: true
+   ```
+5. Make sure the Assignment model has the corresponding has_many or has_one association:
+   ```ruby
+   # In app/models/assignment.rb
+   has_one :rubric, dependent: :destroy
+   # or has_many :rubrics, dependent: :destroy (depending on your requirements)
+   ```
+6. Test the associations in the Rails console:
+   ```
+   rails console
+   rubric = Rubric.new
+   rubric.respond_to?(:assignment) # Should return true
+   rubric.respond_to?(:criteria) # Should return true
+   ```
+
+## 3. Create fixtures and model tests for Rubric [in-progress]
+### Dependencies: 4.1, 4.2
+### Description: Implement test fixtures and model tests to ensure the Rubric model works correctly
+### Details:
+1. Create a fixture file for Rubrics in test/fixtures/rubrics.yml:
+   ```yaml
+   valid_rubric:
+     title: Sample Rubric
+     description: A sample rubric for testing
+     assignment: assignment_one # Reference to an assignment fixture
+   
+   rubric_without_title:
+     description: A rubric without a title
+     assignment: assignment_two # Reference to another assignment fixture
+   ```
+2. Ensure you have assignment fixtures in test/fixtures/assignments.yml
+3. Create model tests in test/models/rubric_test.rb:
+   ```ruby
+   require 'test_helper'
+   
+   class RubricTest < ActiveSupport::TestCase
+     test "should be valid with all attributes" do
+       rubric = rubrics(:valid_rubric)
+       assert rubric.valid?
+     end
+   
+     test "should be invalid without title" do
+       rubric = rubrics(:rubric_without_title)
+       assert_not rubric.valid?
+       assert_includes rubric.errors[:title], "can't be blank"
+     end
+   
+     test "should belong to an assignment" do
+       rubric = rubrics(:valid_rubric)
+       assert_respond_to rubric, :assignment
+       assert_instance_of Assignment, rubric.assignment
+     end
+   
+     test "should have many criteria" do
+       rubric = rubrics(:valid_rubric)
+       assert_respond_to rubric, :criteria
+     end
+   end
+   ```
+4. Run the tests to ensure everything is working correctly:
+   ```
+   rails test test/models/rubric_test.rb
+   ```
+5. Debug and fix any failing tests
+
