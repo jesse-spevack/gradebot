@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_20_024243) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_20_033452) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -159,6 +159,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_20_024243) do
     t.index ["llm_model_name"], name: "index_llm_pricing_configs_on_llm_model_name", unique: true
   end
 
+  create_table "rubrics", force: :cascade do |t|
+    t.string "title", null: false
+    t.text "description"
+    t.integer "assignment_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["assignment_id"], name: "index_rubrics_on_assignment_id"
+  end
+
   create_table "sessions", force: :cascade do |t|
     t.integer "user_id", null: false
     t.datetime "created_at", null: false
@@ -224,6 +233,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_20_024243) do
   add_foreign_key "feature_flag_audit_logs", "users"
   add_foreign_key "grading_tasks", "users"
   add_foreign_key "llm_cost_logs", "users"
+  add_foreign_key "rubrics", "assignments"
   add_foreign_key "sessions", "users"
   add_foreign_key "student_submissions", "document_selections"
   add_foreign_key "student_submissions", "grading_tasks"

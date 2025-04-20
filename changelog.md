@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2026-04-19]
 ### Added
+- Create `bin/rails check` Rake task to run tests, Rubocop, and Brakeman.
 - Implement `Assignment` model with attributes, associations (user, rubric, student_works, assignment_summary), and validations (title, subject, grade_level).
 - Add database migration for the `assignments` table with appropriate constraints.
 - Create model tests and fixtures for the `Assignment` model.
+### Changed
+- Updated `.cursor/rules/lessons.mdc` with TDD and fixture management takeaways.
