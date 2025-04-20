@@ -213,13 +213,13 @@
       "id": 10,
       "title": "Create StudentWorkCheck Model and Migration",
       "description": "Implement the StudentWorkCheck model with attributes and associations.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         7
       ],
       "priority": "high",
-      "details": "Create StudentWorkCheck model with type (string), score (integer, 0-100), and explanation (text). Add belongs_to :student_work association. Add validations for type presence and score range. Create and run migration. Create fixture and model tests.",
-      "testStrategy": "Test validations for type presence and score range. Test association with student_work."
+      "details": "Create StudentWorkCheck model with check_type (enum: llm_generated, writing_grade_level, plagiarism), score (integer, 0-100), and explanation (text). Add belongs_to :student_work association. Add validations for check_type, score (including conditional 1-12 range for writing_grade_level), and student_work presence. Create and run migration. Create fixture and model tests.",
+      "testStrategy": "Test validations for required fields and score ranges (including conditional). Test association with student_work. Test check_type enum."
     },
     {
       "id": 11,

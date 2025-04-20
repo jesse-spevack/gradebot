@@ -1,6 +1,6 @@
 # Task ID: 10
 # Title: Create StudentWorkCheck Model and Migration
-# Status: pending
+# Status: in-progress
 # Dependencies: 7
 # Priority: high
 # Description: Implement the StudentWorkCheck model with attributes and associations.

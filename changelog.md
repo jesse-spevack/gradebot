@@ -26,6 +26,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implement `StudentWorkCriterionLevel` join model with attributes (`explanation`), associations (`student_work`, `criterion`, `level`), validation (uniqueness on `student_work` + `criterion`), and prefixed ID (`swcl_`).
 - Add migration for `student_work_criterion_levels` table with unique index.
 - Add model tests and fixtures for `StudentWorkCriterionLevel`.
+- Implement `StudentWorkCheck` model with attributes (`explanation`, `check_type`, `score`), association (`student_work`), validations (presence, score range 0-100, conditional score range 1-12 for `writing_grade_level`), enum (`check_type`), and prefixed ID (`chk`).
+- Add migration for `student_work_checks` table with `check_type` enum/index.
+- Add model tests and fixtures for `StudentWorkCheck`.
 
 ## [2026-04-19]
 ### Added
