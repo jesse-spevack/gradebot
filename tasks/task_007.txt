@@ -1,0 +1,11 @@
+# Task ID: 7
+# Title: Implement Assignment Processing Workflow
+# Status: pending
+# Dependencies: 4, 5, 6
+# Priority: medium
+# Description: Build the complete assignment processing workflow including rubric generation, student work feedback, and assignment summary generation.
+# Details:
+Implement AssignmentProcessingJob to manage the parent ProcessingPipeline. Create child pipelines for rubric generation, student work feedback, and assignment summary. Implement Google Drive integration to fetch document content. Build prompt templates for each processing step. Create services to save parsed responses to appropriate database models (Rubric::CreationService, etc.). Implement processing time estimation system with dynamic adjustment. Add real-time status updates via BroadcastService. Implement error handling and retry mechanisms for failed processing tasks.
+
+# Test Strategy:
+Create integration tests for the complete processing workflow. Test each child pipeline independently with mock LLM responses. Verify correct database record creation from parsed responses. Test processing time estimation accuracy. Verify real-time status updates. Test error handling and retry mechanisms with simulated failures.

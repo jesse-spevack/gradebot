@@ -1,0 +1,59 @@
+# Task ID: 2
+# Title: Implement Core Database Models and Relationships
+# Status: pending
+# Dependencies: 1
+# Priority: high
+# Description: Create all database models as specified in the PRD, including User, Assignment, Rubric, Criterion, Level, StudentWork, RubricCriterionLevel, FeedbackItem, StudentWorkCheck, and AssignmentSummary with their relationships.
+# Details:
+Generate models with appropriate attributes and relationships as specified in the PRD. Create migrations for all tables. Implement model validations, associations, and any required callbacks. Ensure Assignment has the raw_rubric_text field and total_processing_milliseconds. Implement proper join tables and relationships between models. Add position attributes to Criterion and Level models for sorting. Add proper enum definitions for types in FeedbackItem (strength/opportunity) and StudentWorkCheck.
+
+# Test Strategy:
+Write model tests covering validations, associations, and callbacks. Create fixtures for all models. Test the creation of records with associations to ensure relationships work as expected. Verify that dependent records are handled appropriately on deletion.
+
+# Subtasks:
+## 1. Create User, Assignment, and Rubric-related Models [pending]
+### Dependencies: None
+### Description: Implement the User, Assignment, Rubric, Criterion, and Level models with their relationships and validations
+### Details:
+Implementation steps:
+1. Create the User model with attributes like email, name, password_digest, etc.
+2. Create the Assignment model with attributes including title, description, raw_rubric_text, total_processing_milliseconds, etc.
+3. Create the Rubric model with attributes like title, description, and its relationship to Assignment.
+4. Create the Criterion model with attributes including title, description, position (for sorting).
+5. Create the Level model with attributes including title, description, points, position (for sorting).
+6. Implement relationships: User has_many Assignments, Assignment belongs_to User and has_one Rubric, Rubric has_many Criteria, Criterion has_many Levels.
+7. Add validations for required fields and data integrity.
+8. Create and run migrations for these models.
+9. Test model creation, relationships, and validations using unit tests and the Rails console.
+
+## 2. Implement StudentWork and Feedback Models [pending]
+### Dependencies: 2.1
+### Description: Create the StudentWork, RubricCriterionLevel, FeedbackItem, and their relationships
+### Details:
+Implementation steps:
+1. Create the StudentWork model with attributes including content, submission_date, and references to User (student) and Assignment.
+2. Create the RubricCriterionLevel join table/model to connect rubric criteria with their selected levels for each student work.
+3. Create the FeedbackItem model with content, type (enum for strength/opportunity), and references to StudentWork and potentially Criterion.
+4. Implement relationships: StudentWork belongs_to User and Assignment, has_many FeedbackItems and RubricCriterionLevels. RubricCriterionLevel belongs_to StudentWork, Criterion, and Level. FeedbackItem belongs_to StudentWork.
+5. Add enum definition for FeedbackItem types (strength/opportunity).
+6. Implement validations for required fields and data integrity.
+7. Create and run migrations for these models.
+8. Test the relationships and validations with unit tests, focusing on the correct association of feedback with student work and proper enum functionality.
+
+## 3. Implement StudentWorkCheck and AssignmentSummary Models [pending]
+### Dependencies: 2.1, 2.2
+### Description: Create the StudentWorkCheck and AssignmentSummary models with their relationships and any remaining model functionality
+### Details:
+Implementation steps:
+1. Create the StudentWorkCheck model with status enum, timestamps, and references to StudentWork.
+2. Create the AssignmentSummary model with aggregate data fields (e.g., average_score, submission_count) and reference to Assignment.
+3. Implement relationships: StudentWorkCheck belongs_to StudentWork, AssignmentSummary belongs_to Assignment.
+4. Add enum definition for StudentWorkCheck status types.
+5. Implement any callbacks needed (e.g., updating AssignmentSummary when new StudentWorks are submitted).
+6. Create and run migrations for these models.
+7. Implement any remaining validations or model methods required by the PRD.
+8. Test the complete model structure, ensuring all relationships work correctly across the entire database schema.
+9. Verify that enums are working properly for StudentWorkCheck status.
+10. Test any callbacks or automated processes to ensure they function as expected.
+11. Create a database schema diagram to document the final structure.
+
