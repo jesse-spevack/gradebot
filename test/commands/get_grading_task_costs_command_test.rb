@@ -2,6 +2,7 @@ require "test_helper"
 
 class GetGradingTaskCostsCommandTest < ActiveSupport::TestCase
   setup do
+    freeze_time
     @user = users(:teacher)
 
     GradingTask.destroy_all
