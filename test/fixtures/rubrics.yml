@@ -1,0 +1,17 @@
+essay_rubric:
+  title: Essay Writing Rubric
+  user: teacher
+  total_points: 100
+  status: 0 # pending
+
+research_rubric:
+  title: Research Paper Rubric
+  user: teacher
+  total_points: 150
+  status: 2 # complete
+
+empty_rubric:
+  title: Empty Rubric
+  user: teacher
+  total_points: 100
+  status: 1 # processing

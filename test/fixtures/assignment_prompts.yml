@@ -1,0 +1,27 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+# We're creating AssignmentPrompt objects directly in the tests instead of using fixtures
+# This is better for ActionText content which requires special handling
+
+essay_analysis:
+  title: "Literary Analysis Essay"
+  subject: "English Literature"
+  grade_level: "High School"
+  word_count: 1500
+  grading_task: one
+  content: >
+    Write a detailed analysis of the symbolism in The Great Gatsby. Focus on how F. Scott Fitzgerald 
+    uses color symbolism throughout the novel to represent different themes and character traits. 
+    Your essay should include specific textual evidence and explain how these symbols contribute 
+    to the overall meaning of the work.
+
+essay_analysis_for_grading_task_three:
+  title: "Literary Analysis Essay"
+  subject: "English Literature"
+  grade_level: "High School"
+  word_count: 800
+  grading_task: three
+  content: >
+    Write a detailed analysis of the symbolism in The Great Gatsby. Focus on how F. Scott Fitzgerald 
+    uses color symbolism throughout the novel to represent different themes and character traits. 
+    Your essay should include specific textual evidence and explain how these symbols contribute 
+    to the overall meaning of the work.

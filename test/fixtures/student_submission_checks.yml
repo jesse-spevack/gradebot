@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+plagiarism_check:
+  student_submission: completed_submission
+  check_type: 0  # 0 = plagiarism
+  score: 98
+  reason: "Content appears to be original work with no signs of plagiarism."
+
+authenticity_check:
+  student_submission: completed_submission
+  check_type: 1  # 1 = authenticity
+  score: 85
+  reason: "Content appears to be authentic work by the student, with some minor concerns about style consistency."

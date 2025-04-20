@@ -1,0 +1,68 @@
+<%#
+  This partial renders a button or link with appropriate styling
+  
+  Parameters:
+  - variant: The button style variant (primary, secondary, action, icon)
+  - text: The text to display in the button (optional for icon variant)
+  - icon: SVG path for the icon (optional)
+  - icon_only: Set to true if the button should only display an icon (default: false)
+  - additional_classes: Additional CSS classes to apply (optional)
+  - data_attributes: Hash of data attributes to add to the button (optional)
+  - url: When provided, renders as a link instead of a button (optional)
+  - method: HTTP method for link (get, post, put, delete) - only used with url (optional)
+%>
+
+<%
+# Define style mappings based on button variant
+variant_mappings = {
+  "primary" => "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all",
+  "secondary" => "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all",
+  "action" => "px-3 py-1.5 border border-blue-300 shadow-sm text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all",
+  "icon" => "px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all"
+}
+
+# Get class from mapping or use default secondary
+btn_class = variant_mappings[variant.to_s.downcase] || variant_mappings["secondary"]
+
+# Additional classes provided
+btn_class = "#{btn_class} #{additional_classes}" if local_assigns[:additional_classes].present?
+
+# Build data attributes hash
+data_attrs_hash = {}
+if local_assigns[:data_attributes].present?
+  data_attrs_hash = local_assigns[:data_attributes]
+end
+
+# Build data attributes string for button (only needed for the button, not the link_to)
+data_attrs_str = ""
+data_attrs_hash.each do |key, value|
+  data_attrs_str += " data-#{key}=\"#{value}\""
+end
+
+# Set up link method if provided
+link_method = local_assigns[:method] || :get
+%>
+
+<% if local_assigns[:url].present? %>
+  <%= link_to url, class: btn_class, method: link_method, data: data_attrs_hash do %>
+    <% if local_assigns[:icon].present? %>
+      <svg class="<%= local_assigns[:icon_only] ? "h-4 w-4" : "mr-2 -ml-1 h-5 w-5 #{variant == 'primary' ? '' : 'text-gray-500'}" %>" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <%= icon.html_safe %>
+      </svg>
+    <% end %>
+    <% unless local_assigns[:icon_only] %>
+      <%= text %>
+    <% end %>
+  <% end %>
+<% else %>
+  <button class="<%= btn_class %>"<%= data_attrs_str.html_safe %>>
+    <% if local_assigns[:icon].present? %>
+      <svg class="<%= local_assigns[:icon_only] ? "h-4 w-4" : "mr-2 -ml-1 h-5 w-5 #{variant == 'primary' ? '' : 'text-gray-500'}" %>" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <%= icon.html_safe %>
+      </svg>
+    <% end %>
+    <% unless local_assigns[:icon_only] %>
+      <%= text %>
+    <% end %>
+  </button>
+<% end %>

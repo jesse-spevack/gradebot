@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+content_score:
+  student_submission: completed_submission
+  criterion: content_criterion
+  points_earned: 20
+  level: excellent_level
+  reason: "The essay demonstrates excellent content development"
+  evidence: "The introduction clearly establishes the thesis and each paragraph develops a supporting point."
+
+organization_score:
+  student_submission: completed_submission
+  criterion: organization_criterion
+  points_earned: 15
+  level: average_level
+  reason: "The essay shows adequate organization but lacks smooth transitions"
+  evidence: "While paragraphs are generally well-structured, transitions between ideas could be improved."

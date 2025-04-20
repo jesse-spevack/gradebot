@@ -1,3 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
 GradeBot is an AI-powered assignment grading tool that automates feedback for student work in Google Docs. The app streamlines the grading process for educators by analyzing student submissions against assignment
 prompts and grading rubrics.
 
@@ -19,6 +24,7 @@ Tech Stack
 - Background Processing: Solid Queue
 - Deployment: Docker/Kamal
 - Monitoring: Custom admin dashboards for LLM costs and job status
+- Testing: Minitest and YML Testing Fixtures
 
 Architecture Features
 

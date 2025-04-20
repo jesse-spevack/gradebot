@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+writing_structure:
+  recordable: pending_submission (StudentSubmission)
+  content: "Clear and structured writing"
+  reason: "The submission follows a logical structure with well-organized paragraphs."
+
+vocabulary_usage:
+  recordable: completed_submission (StudentSubmission)
+  content: "Strong vocabulary"
+  reason: "The student demonstrates an extensive vocabulary appropriate for the grade level."

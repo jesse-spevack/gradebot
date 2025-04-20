@@ -1,0 +1,59 @@
+<% content_for :header do %>
+  <%= render "shared/page_header", 
+             title: "Your Grading Tasks",
+             subtitle: "Track and manage your assignment grading progress" %>
+<% end %>
+
+<% content_for :content do %>
+  <%# Full width button for mobile, below header %>
+  <div class="lg:hidden mb-4">
+    <%= link_to new_grading_task_path, 
+        class: "w-full flex items-center justify-center px-4 py-3 text-base font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-sm transition-colors duration-150" do %>
+      <%= render "shared/icons/plus", class: "h-5 w-5 mr-2" %>
+      New Task
+    <% end %>
+  </div>
+
+  <%# Hide FAB on smaller screens, show only on lg+ %>
+  <div class="hidden lg:block">
+    <%= render "shared/floating_action_button", path: new_grading_task_path, icon: "plus", title: "New Grading Task" %>
+  </div>
+  
+  <%= render "shared/card" do %>
+    <% if @grading_tasks.any? %>
+      <% 
+        headers = ["Assignment", "Prompt", "Created"]
+        columns = [
+          { attribute: :display_name, type: :icon_text, icon: 'clipboard', class: "font-medium text-gray-900" },
+          { attribute: :assignment_prompt, truncate: 150, class: "text-gray-600" },
+          { attribute: :created_at, type: :time_ago, class: "text-gray-500" }
+        ]
+      %>
+      
+      <%# Mobile View: Cards (hidden on lg and up) %>
+      <div class="lg:hidden divide-y divide-gray-200">
+        <% @grading_tasks.each do |task| %>
+          <%= render partial: "shared/index_card", locals: { 
+                  item: task,
+                  columns: columns,
+                  link_to: ->(item) { grading_task_path(item) } 
+                } %>
+        <% end %>
+      </div>
+
+      <%# Desktop View: Table (hidden below lg) %>
+      <div class="hidden lg:block">
+        <%= render partial: "shared/index_table", locals: { 
+                headers: headers, 
+                items: @grading_tasks, 
+                row_partial_path: "shared/index_table_row",
+                row_locals: { columns: columns, link_to: ->(item) { grading_task_path(item) } }
+              } %>
+      </div>
+    <% else %>
+      <%= render "grading_tasks/empty_state" %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%= render "shared/page_wrapper" %>

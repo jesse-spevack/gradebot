@@ -1,0 +1,14 @@
+<h1>Grading Task: <%= @grading_task.id %></h1>
+
+<%# Subscribe to rubric updates %>
+<%= turbo_stream_from "rubric_#{@grading_task.rubric.id}" %>
+
+
+<h2>Rubric Status</h2>
+<p>Initial Status: <%= @grading_task.rubric.display_status %></p>
+
+<div id="rubric_container_<%= @grading_task.rubric.id %>">
+    <%= render 'live_status', rubric: @grading_task.rubric %>
+</div> 
+
+<% console %>

@@ -1,0 +1,109 @@
+<%# ============================================================ %>
+<%# Grading Task Card Partial                                   %>
+<%# ============================================================ %>
+<%# This component displays a single grading task with all its    %>
+<%# relevant information and appropriate action buttons based     %>
+<%# on the task's status.                                        %>
+<%#                                                              %>
+<%# Parameters:                                                  %>
+<%# - grading_task: A TemporaryGradingTaskData struct containing: %>
+<%#   - id: Unique identifier for the grading task               %>
+<%#   - name: The title of the grading task                      %>
+<%#   - status: Current status (draft, in_progress, complete)    %>
+<%#   - course: The course name                                  %>
+<%#   - grade_level: The grade level (e.g., 11)                  %>
+<%#   - due_date: When the task is due                           %>
+<%#   - student_count: Number of students                        %>
+<%#   - graded_count: Number of graded submissions               %>
+<%#   - time_info: Remaining time or completion date             %>
+<%#   - last_edited_at: Last modification timestamp              %>
+<%# ============================================================ %>
+<div class="bg-white rounded-lg shadow-md p-5 transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-lg">
+  <%# Main card layout with responsive flex column/row structure %>
+  <div class="flex flex-col md:flex-row md:items-start md:justify-between">
+    <%# Left content section with task details %>
+    <div class="flex-1">
+      <%# Task title and status badge %>
+      <div class="flex items-center">
+        <h4 class="text-lg font-medium text-gray-900"><%= grading_task.name %></h4>
+        <%= render partial: 'shared/badge', locals: { status: grading_task.status, text: grading_task.status.titleize } %>
+      </div>
+      
+      <%# Course info and due date section - changes based on task status %>
+      <% if grading_task.status == "draft" %>
+        <%# Draft tasks don't have a due date assigned yet %>
+        <p class="text-sm text-gray-500 mt-1">Grade <%= grading_task.grade_level %> <%= grading_task.course %> • Not assigned yet</p>
+      <% elsif grading_task.due_date %>
+        <p class="text-sm text-gray-500 mt-1">Grade <%= grading_task.grade_level %> <%= grading_task.course %> • 
+          <% if grading_task.status == "complete" %>
+            <%# For completed tasks, show when it was completed %>
+            Completed <%= grading_task.due_date.strftime("%b %-d") %>
+          <% else %>
+            <%# For in-progress tasks, show the due date %>
+            Due <%= grading_task.due_date.strftime("%b %-d, %Y") %>
+          <% end %>
+        </p>
+      <% end %>
+      
+      <%# Task metadata section with statistics and info - changes based on task status %>
+      <div class="flex flex-wrap items-center mt-3 text-sm text-gray-600">
+        <% if grading_task.status != "draft" %>
+          <%# For non-draft tasks (in_progress, complete), show student stats %>
+          <div class="flex items-center mr-6 mb-2">
+            <svg class="h-4 w-4 text-gray-400 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <%= render 'shared/icons/users' %>
+            </svg>
+            <span><%= grading_task.student_count %> students</span>
+          </div>
+          <div class="flex items-center mr-6 mb-2">
+            <svg class="h-4 w-4 text-gray-400 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <%= render 'shared/icons/checkmark' %>
+            </svg>
+            <span><%= grading_task.graded_count %> graded</span>
+          </div>
+          <div class="flex items-center mb-2">
+            <svg class="h-4 w-4 text-gray-400 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <%= render 'shared/icons/clock' %>
+            </svg>
+            <span><%= grading_task.time_info %></span>
+          </div>
+        <% else %>
+          <%# For draft tasks, only show last edited date %>
+          <div class="flex items-center mr-6 mb-2">
+            <svg class="h-4 w-4 text-gray-400 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <%= render 'shared/icons/pencil' %>
+            </svg>
+            <span>Last edited <%= grading_task.last_edited_at.strftime("%b %-d, %Y") %></span>
+          </div>
+        <% end %>
+      </div>
+    </div>
+    
+    <%# Action buttons section - different actions based on task status %>
+    <div class="flex items-center mt-4 md:mt-0 md:ml-6 space-x-2">
+      <% if grading_task.status == "draft" %>
+        <%# Draft tasks show edit buttons %>
+        <%= render partial: 'shared/button', locals: { 
+            variant: 'icon',
+            icon_only: true,
+            icon: render('shared/icons/pencil')
+        } %>
+        <%= render partial: 'shared/button', locals: { 
+            variant: 'action',
+            text: 'Continue Editing'
+        } %>
+      <% else %>
+        <%# Non-draft tasks show view buttons %>
+        <%= render partial: 'shared/button', locals: { 
+            variant: 'icon',
+            icon_only: true,
+            icon: render('shared/icons/eye')
+        } %>
+        <%= render partial: 'shared/button', locals: { 
+            variant: 'action',
+            text: 'View Details'
+        } %>
+      <% end %>
+    </div>
+  </div>
+</div>

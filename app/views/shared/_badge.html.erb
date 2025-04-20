@@ -1,0 +1,24 @@
+<%#
+  This partial renders a badge with appropriate styling
+  
+  Parameters:
+  - status: The status value to display (string)
+  - text: The text to display in the badge (string)
+%>
+
+<%
+color_mapping = {
+  "in_progress" => "yellow",
+  "pending" => "yellow",
+  "complete" => "green",
+  "draft" => "gray",
+  "archived" => "gray"
+}
+
+color = color_mapping[status.to_s.downcase] || "gray"
+margin = local_assigns[:margin] || "ml-3"
+%>
+
+<span class="<%= margin %> px-3 py-1 text-xs font-medium rounded-full bg-<%= color %>-100 text-<%= color %>-800 transition-all duration-200 ease-in-out hover:scale-105">
+  <%= text %>
+</span>

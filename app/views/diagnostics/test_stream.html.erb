@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Turbo Stream Channel Test</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+  <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+  <%= javascript_importmap_tags %>
+  
+  <style>
+    .flash { padding: 1rem; margin: 1rem 0; border-radius: 0.25rem; }
+    .flash-success { background-color: #d1fae5; color: #065f46; }
+    .flash-error { background-color: #fee2e2; color: #b91c1c; }
+    .debug-section { margin-top: 2rem; padding: 1rem; background-color: #f3f4f6; border-radius: 0.25rem; }
+    code { font-family: monospace; background-color: #f1f1f1; padding: 0.1rem 0.3rem; border-radius: 3px; }
+  </style>
+</head>
+
+<body class="p-8 bg-gray-50">
+  <%# Subscribe to the specified Turbo Stream channel %>
+  <%= turbo_stream_from @full_channel %>
+  
+  <div class="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow">
+    <h1 class="text-2xl font-bold mb-6">Turbo Stream Channel Test</h1>
+    
+    <div id="connection-status" class="flash flash-success mb-4">
+      ✅ Connected to Turbo Stream channel: <code><%= @full_channel %></code>
+    </div>
+    
+    <div id="last-update-time" class="text-sm text-gray-500 mb-4">
+      Page loaded at: <%= Time.current.strftime("%Y-%m-%d %H:%M:%S") %>
+    </div>
+    
+    <div class="mb-8">
+      <h2 class="text-xl font-semibold mb-4">Channel Information</h2>
+      <div class="border border-gray-200 rounded-lg p-4">
+        <div class="grid grid-cols-1 gap-2">
+          <div>
+            <span class="font-semibold">Base Channel:</span> 
+            <code><%= @channel %></code>
+          </div>
+          <div>
+            <span class="font-semibold">ID:</span> 
+            <code><%= @id %></code>
+          </div>
+          <div>
+            <span class="font-semibold">Full Channel:</span> 
+            <code><%= @full_channel %></code>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="mb-8">
+      <h2 class="text-xl font-semibold mb-4">Received Messages</h2>
+      <div id="messages" class="border border-gray-200 rounded-lg p-4 min-h-32 max-h-96 overflow-y-auto">
+        <div class="text-gray-500 italic">Waiting for messages...</div>
+      </div>
+    </div>
+    
+    <div class="debug-section">
+      <h3 class="text-lg font-semibold mb-2">Debug Information</h3>
+      <p class="mb-2">To test sending messages to this channel, run the ActionCable diagnostic script:</p>
+      <pre class="bg-gray-800 text-white p-4 rounded overflow-x-auto mb-4">rails runner scripts/test_actioncable.rb <%= @full_channel %></pre>
+      
+      <div id="event-log" class="bg-gray-100 p-4 rounded max-h-60 overflow-y-auto">
+        <h4 class="text-md font-semibold mb-1">Event Log:</h4>
+        <ul id="event-log-entries" class="list-disc pl-5">
+          <li>Page loaded at <%= Time.current.strftime("%H:%M:%S") %></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Debug script to watch Turbo Stream events
+    document.addEventListener("turbo:before-stream-render", function(event) {
+      // Update the last update time
+      const timeDisplay = document.getElementById("last-update-time");
+      const now = new Date();
+      const timeString = now.toISOString().split('T')[1].slice(0, 8);
+      timeDisplay.innerHTML = `Last update: ${timeString}`;
+      
+      // Log the event
+      const logEntries = document.getElementById("event-log-entries");
+      const entry = document.createElement("li");
+      entry.innerHTML = `Turbo Stream event at ${timeString} - Target: ${event.target.getAttribute("target")}, Action: ${event.target.getAttribute("action")}`;
+      logEntries.appendChild(entry);
+      
+      // Auto-scroll the log
+      const eventLog = document.getElementById("event-log");
+      eventLog.scrollTop = eventLog.scrollHeight;
+    });
+    
+    // Handle regular ActionCable messages (non-turbo-stream)
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof Turbo !== "undefined" && Turbo.cable) {
+        console.log("✅ Turbo.cable available, looking for subscriptions");
+        
+        // Check subscriptions
+        const subscriptions = Turbo.cable.subscriptions.subscriptions;
+        console.log(`Found ${subscriptions.length} Turbo subscriptions`);
+        
+        // Listen for regular messages on this channel
+        subscriptions.forEach(subscription => {
+          try {
+            const identifier = JSON.parse(subscription.identifier);
+            console.log("Checking subscription:", identifier);
+            
+            // For each subscription, enhance the received callback
+            const originalReceived = subscription.received;
+            subscription.received = function(data) {
+              console.log("Received data on subscription:", data);
+              
+              // Call original handler
+              if (originalReceived) {
+                originalReceived.call(this, data);
+              }
+              
+              // If this is plain data (not a Turbo Stream), append it to messages
+              if (data && !data.includes && !data.startsWith && typeof data === "object") {
+                const messages = document.getElementById("messages");
+                const messageEl = document.createElement("div");
+                messageEl.classList.add("border-b", "border-gray-200", "py-2");
+                
+                // Format the message
+                messageEl.innerHTML = `
+                  <div class="text-xs text-gray-500">${data.time || new Date().toLocaleTimeString()}</div>
+                  <div class="bg-blue-50 p-2 rounded mt-1 text-sm">
+                    <pre class="whitespace-pre-wrap">${JSON.stringify(data, null, 2)}</pre>
+                  </div>
+                `;
+                
+                // Remove placeholder if it exists
+                const placeholder = messages.querySelector(".italic");
+                if (placeholder) {
+                  messages.removeChild(placeholder);
+                }
+                
+                // Add the message and scroll
+                messages.appendChild(messageEl);
+                messages.scrollTop = messages.scrollHeight;
+                
+                // Add to event log
+                const logEntries = document.getElementById("event-log-entries");
+                const entry = document.createElement("li");
+                entry.innerHTML = `Plain message received at ${new Date().toLocaleTimeString()}`;
+                logEntries.appendChild(entry);
+              }
+            };
+          } catch (e) {
+            console.error("Error processing subscription:", e);
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html> 

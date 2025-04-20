@@ -1,0 +1,216 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+# Your rule content
+
+- You can @ files here
+- You can use markdown but dont have to
+
+# GradeBot Implementation Lessons
+
+## JSON Task Management
+
+- When editing tasks.json, always validate the JSON structure before submitting
+- Use targeted edits for specific sections rather than replacing large chunks
+- Maintain proper dependency chains when adding or reordering tasks
+- Update dependent task IDs when inserting new tasks between existing ones
+
+## UI Framework
+
+- Use conditional rendering with ERB (`<% if condition %>`) rather than class toggling for state changes
+- The status_badge partial accepts a hide_processing_spinner parameter to customize spinner visibility
+- For document icons, wrap SVG icons in styled divs rather than using img tags
+- Match existing patterns for conditional messaging and status indicators
+
+## Service Architecture Patterns
+
+- Follow consistent service naming conventions:
+  - `StatusManagerService` for state transitions
+  - `CreationService` for object creation
+  - `ProcessorService` for processing operations
+  - `BroadcasterService` for UI notifications
+
+- Services should be single-purpose with clear interfaces:
+  ```ruby
+  module Namespace
+    class ServiceNameService
+      def self.call(params)
+        new(params).call
+      end
+      
+      def initialize(params)
+        @param1 = params[:param1]
+        @errors = []
+      end
+      
+      def call
+        # implementation
+      end
+    end
+  end
+  ```
+
+## State Management Patterns
+
+- Centralize state transitions in dedicated StatusManagerService classes:
+  - Define explicit VALID_TRANSITIONS constant for allowed state paths
+  - Implement validation logic to prevent invalid transitions
+  - Include proper error handling and logging
+  - Provide helper methods for common transitions (e.g., transition_to_processing)
+
+- Status manager implementation pattern:
+  ```ruby
+  class ModelName::StatusManagerService
+    VALID_TRANSITIONS = {
+      pending: [:processing],
+      processing: [:complete, :failed],
+      failed: [:pending]
+    }.freeze
+    
+    def self.transition_to_status(model)
+      new(model).transition_to(:status)
+    end
+    
+    def transition_to(status, error_message = nil)
+      # Validation and transition logic
+    end
+  end
+  ```
+
+## Testing Best Practices
+
+- Focus on testing outcomes rather than implementation details:
+  - Verify actual database state changes instead of method calls
+  - Assert that status transitions happen correctly
+  - Check error conditions result in appropriate states
+
+- We use Rails fixtures exclusively, NOT FactoryBot:
+  - Always review existing fixtures in test/fixtures/*.yml before creating tests
+  - Use descriptive fixture references (e.g., `users(:admin)`, not `users(:one)`)
+  - Don't assume fixture data - verify what's defined in the fixture files first
+  - Create test data in the test itself when necessary, but prefer fixtures for common cases
+  - Avoid making up fixtures that don't exist in the YAML files
+  - Consider adding new fixtures for reusable test data rather than creating objects in multiple tests
+  - Example: `@teacher = users(:teacher)` and `@student = users(:student)`
+
+- Test structure for status transitions:
+  ```ruby
+  test "transitions from pending to processing successfully" do
+    # Setup
+    @object.update!(status: :pending)
+    
+    # Exercise
+    result = Object::StatusManagerService.transition_to_processing(@object)
+    
+    # Verify
+    assert result
+    @object.reload
+    assert_equal "processing", @object.status
+  end
+  ```
+
+- Test invalid transitions explicitly:
+  ```ruby
+  test "prevents invalid transition from pending to complete" do
+    # Setup
+    @object.update!(status: :pending)
+    
+    # Exercise & Verify
+    assert_raises(Object::StatusManagerService::InvalidTransitionError) do
+      Object::StatusManagerService.transition_to_complete(@object)
+    end
+    
+    # Verify state wasn't changed
+    @object.reload
+    assert_equal "pending", @object.status
+  end
+  ```
+
+## Processor Service Patterns
+
+- ProcessorService responsibilities:
+  - Find and validate input objects
+  - Coordinate processing steps in the correct order
+  - Handle error cases and transaction management
+  - Delegate status transitions to StatusManagerService
+  - Return processed objects with updated state
+
+- Error handling in processor services:
+  - Catch and log errors at the top level
+  - Update status to failed via StatusManagerService
+  - Include descriptive error messages
+  - Re-raise with wrapped, domain-specific exceptions
+
+## UI Update Patterns
+
+- Prepare status changes for real-time updates:
+  - Call BroadcasterService after successful status transitions
+  - Design broadcaster services to handle different status types
+  - Keep status updates separate from processing logic
+  - Include empty placeholder methods for future implementation
+
+## Terminology Consistency
+
+- Use consistent status terminology throughout the application:
+  - `pending` for initial state awaiting processing
+  - `processing` for active processing state
+  - `complete`/`completed` for successful completion
+  - `failed` for error states
+
+## Real-time Update Pattern
+
+- Use Turbo Streams for real-time UI updates rather than JavaScript
+- The pattern for real-time updates involves:
+  1. A service that manages state changes (StatusManagerService)
+  2. A broadcaster service that sends updates (BroadcasterService)
+  3. Turbo Stream templates that handle the updates
+  4. Proper stream targets in the view
+
+## Processing Background Jobs
+
+- Always use background jobs for LLM operations rather than synchronous processing
+- Never put LLM API calls in the controller or direct request path
+
+## UI State Management
+
+- Use conditional view rendering based on model state
+- Match loading animations and messaging across similar components
+- Consider different loading messages based on context (creating vs analyzing)
+- Always provide visual feedback during background operations
+
+## Error Handling Best Practices
+
+- Background jobs should handle errors gracefully and update UI state
+- Services should have clear failure paths that update model status
+- UI should display appropriate error states when operations fail
+- Broadcast error states to the UI for real-time updates
+
+## Project Management Best Practices
+
+- Complete a structured review at the end of each task implementation:
+  - Review the code changes against the requirements
+  - Identify patterns and approaches that were effective
+  - Update lessons.mdc with new learnings and best practices
+  - Document architectural decisions and their rationale
+
+- Identify refactoring opportunities during review:
+  - Look for repeated patterns that could be abstracted
+  - Note areas where code complexity could be reduced
+  - Flag inconsistencies in implementation approaches
+  - Create new tasks for significant refactoring work
+
+- Maintain comprehensive documentation:
+  - Update readme.md with architectural changes and new features
+  - Keep changelog.md current with itemized changes and dates
+  - Document service interfaces and responsibilities
+  - Explain the reasoning behind significant design decisions
+
+- Knowledge transfer process:
+  - Capture learnings immediately after implementation while fresh
+  - Focus on patterns that can be reused across the application
+  - Document both successful approaches and pitfalls to avoid
+  - Keep conventions and terminology consistent across documentation
+

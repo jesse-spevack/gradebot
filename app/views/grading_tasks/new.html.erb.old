@@ -1,0 +1,98 @@
+<% content_for :header do %>
+  <div class="text-center">
+    <h1 class="text-4xl font-bold tracking-tight text-blue-950 sm:text-5xl mb-4">
+      Create New Grading Task
+    </h1>
+    <p class="text-lg text-gray-600">
+      Welcome back, <%= Current.session.user.name %>! Let's grade some assignments.
+    </p>
+  </div>
+<% end %>
+
+<% content_for :content do %>
+  <%= render "shared/card" do %>
+    <div id="new_grading_task">
+      <%= form_with(model: @grading_task, class: "space-y-8", data: { controller: "assignment-form", turbo: false }) do |f| %>
+        <% if @grading_task.errors.any? %>
+          <div class="mb-6 border-l-4 border-red-500 bg-red-50 px-4 py-3">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+                </svg>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-800">
+                  <%= pluralize(@grading_task.errors.count, "error") %> prevented this grading task from being saved:
+                </h3>
+                <ul class="mt-2 list-disc pl-5 text-sm text-red-700">
+                  <% @grading_task.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                  <% end %>
+                </ul>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <div class="divide-y divide-gray-200">
+          <!-- Assignment Details Section -->
+          <section class="py-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-1">Assignment Details</h2>
+            <p class="text-sm text-gray-600 mb-4">Paste your assignment prompt to help GradeBot understand what to look for.</p>
+
+            <div>
+              <%= f.label :assignment_prompt, class: "block text-sm font-medium text-gray-700 mb-2" %>
+              <%= f.text_area :assignment_prompt,
+                  class: "block w-full border border-gray-300 bg-transparent py-2 px-3 text-gray-900 focus:border-blue-600 focus:ring-1 focus:ring-blue-600",
+                  placeholder: "Example: Write a 500-word essay analyzing the main themes in The Great Gatsby...",
+                  rows: 6,
+                  style: "resize: vertical; min-height: 160px;",
+                  data: {
+                    action: "input->assignment-form#validatePrompt",
+                    "assignment-form-target": "prompt"
+                  } %>
+              <div data-assignment-form-target="error" class="hidden mt-2 text-sm font-medium text-red-600"></div>
+            </div>
+          </section>
+
+          <!-- Grading Rubric -->
+          <section class="py-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-1">Grading Rubric</h2>
+            <p class="text-sm text-gray-600 mb-4">Paste your grading rubric to help GradeBot evaluate assignments consistently.</p>
+
+            <div>
+              <%= f.label :grading_rubric, class: "block text-sm font-medium text-gray-700 mb-2" %>
+              <%= f.text_area :grading_rubric,
+                  class: "block w-full border border-gray-300 bg-transparent py-2 px-3 text-gray-900 focus:border-blue-600 focus:ring-1 focus:ring-blue-600",
+                  placeholder: "Paste your grading rubric here...",
+                  rows: 6,
+                  style: "resize: vertical; min-height: 150px;",
+                  data: {
+                    action: "input->assignment-form#validateRubric",
+                    "assignment-form-target": "rubric"
+                  } %>
+              <div data-assignment-form-target="rubricError" class="hidden mt-2 text-sm font-medium text-red-600"></div>
+            </div>
+          </section>
+
+          <!-- Folder Selection Section -->
+          <section class="py-6">
+            <%= render 'shared/document_picker', form: f %>
+          </section>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="flex items-center justify-end gap-4 pt-6">
+          <%= link_to "Cancel", grading_tasks_path, 
+              class: "text-sm font-medium text-gray-700 hover:text-gray-900" %>
+          <%= f.submit "Create Grading Task",
+              class: "inline-flex items-center px-6 py-3 text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500",
+              data: { disable_with: "Creating..." } %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>
+
+<%= render "shared/page_wrapper" %>

@@ -1,17 +1,20 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["button", "documentData", "documentCount", "documentCountText", "error", "instructions"]
+  static targets = ["button", "documentData", "documentCountText", "error", "instructions", "submitButton", "countError"]
   static classes = ["error", "hidden"]
+  static values = { maxDocuments: { type: Number, default: 35 } }
   
   connect() {
-    if (this.hasDocumentCountTarget) {
-      this.documentCountTarget.classList.add(this.hiddenClass)
-    }
-
     if (this.hasInstructionsTarget) {
       this.instructionsTarget.classList.remove(this.hiddenClass)
     }
+    
+    // Find submit button if it hasn't been explicitly targeted
+    if (!this.hasSubmitButtonTarget) {
+      this.submitButton = document.querySelector('input[type="submit"]')
+    }
+    
     // Check if window.gapi exists
     if (!window.gapi) {
       console.error("Google API (gapi) not found in window")
@@ -153,10 +156,34 @@ export default class extends Controller {
         this.handleDocumentsSelection(docs);
       } else {
         // No documents selected, ensure count is hidden
-        if (this.hasDocumentCountTarget) {
-          this.documentCountTarget.classList.add(this.hiddenClass);
-        }
+        this.hideDocumentList();
       }
+    }
+  }
+  
+  hideDocumentList() {
+    // Show instructions when no documents are selected
+    if (this.hasInstructionsTarget) {
+      this.instructionsTarget.classList.remove(this.hiddenClass);
+    }
+    
+    // Show the select button when no documents are selected
+    if (this.hasButtonTarget) {
+      this.buttonTarget.classList.remove(this.hiddenClass);
+    }
+    
+    // Hide any count errors
+    if (this.hasCountErrorTarget) {
+      this.countErrorTarget.classList.add(this.hiddenClass);
+    }
+    
+    // Enable submit button if it exists
+    this.enableSubmitButton();
+    
+    // Hide the document list
+    const documentListContainer = document.getElementById('selected-documents');
+    if (documentListContainer) {
+      documentListContainer.classList.add('hidden');
     }
   }
   
@@ -174,28 +201,91 @@ export default class extends Controller {
       };
     });
 
+    // Update hidden field with JSON data
     this.documentDataTarget.value = JSON.stringify(documentData);
-    // Update document count if the target exists
-    if (this.hasDocumentCountTarget && this.hasDocumentCountTextTarget) {
-      if (documentData.length > 0) {
-        // Update count and show the count display
-        this.documentCountTextTarget.textContent = documentData.length;
-        this.documentCountTarget.classList.remove(this.hiddenClass);
-        
-        // Hide instructions when documents are selected
-        if (this.hasInstructionsTarget) {
-          this.instructionsTarget.classList.add(this.hiddenClass);
-        }
-      } else {
-        // Hide count display when no documents are selected
-        this.documentCountTarget.classList.add(this.hiddenClass);
-        
-        // Show instructions when no documents are selected
-        if (this.hasInstructionsTarget) {
-          this.instructionsTarget.classList.remove(this.hiddenClass);
+    
+    // Update the document count
+    if (this.hasDocumentCountTextTarget) {
+      this.documentCountTextTarget.textContent = documentData.length;
+    }
+    
+    // Check if we exceed the maximum allowed documents
+    const tooManyDocuments = documentData.length > this.maxDocumentsValue;
+    
+    // Handle UI updates based on whether documents are selected
+    if (documentData.length > 0) {
+      // Hide instructions when documents are selected
+      if (this.hasInstructionsTarget) {
+        this.instructionsTarget.classList.add(this.hiddenClass);
+      }
+      
+      // Hide the select button when documents are selected
+      if (this.hasButtonTarget) {
+        this.buttonTarget.classList.add(this.hiddenClass);
+      }
+      
+      // Show or hide count error
+      if (this.hasCountErrorTarget) {
+        if (tooManyDocuments) {
+          this.countErrorTarget.classList.remove(this.hiddenClass);
+          this.disableSubmitButton();
+        } else {
+          this.countErrorTarget.classList.add(this.hiddenClass);
+          this.enableSubmitButton();
         }
       }
+      
+      // Update the document list and show it
+      this.updateDocumentList(documentData);
+    } else {
+      this.hideDocumentList();
     }
+  }
+  
+  disableSubmitButton() {
+    const submitButton = this.hasSubmitButtonTarget ? this.submitButtonTarget : this.submitButton;
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+    }
+  }
+  
+  enableSubmitButton() {
+    const submitButton = this.hasSubmitButtonTarget ? this.submitButtonTarget : this.submitButton;
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+  }
+  
+  updateDocumentList(documents) {
+    const documentListContainer = document.getElementById('selected-documents');
+    const documentList = document.getElementById('document-list');
+    
+    if (!documentListContainer || !documentList) return;
+    
+    // Clear current list
+    documentList.innerHTML = '';
+    
+    // Add each document to the list
+    documents.forEach(doc => {
+      const listItem = document.createElement('li');
+      listItem.className = 'flex items-center text-sm text-gray-600';
+      
+      listItem.innerHTML = `
+        <svg class="mr-2 h-4 w-4 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <a href="${doc.url}" target="_blank" class="text-blue-600 hover:text-blue-800 truncate" title="${doc.name}">
+          ${doc.name}
+        </a>
+      `;
+      
+      documentList.appendChild(listItem);
+    });
+    
+    // Show the container
+    documentListContainer.classList.remove('hidden');
   }
   
   handleError(message) {

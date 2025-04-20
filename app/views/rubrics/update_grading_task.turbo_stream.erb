@@ -1,0 +1,22 @@
+<%# Update the rubric container %>
+<%= turbo_stream.replace "rubric_container_#{rubric.id}" do %>
+  <div id="rubric_container_<%= rubric.id %>" class="border border-gray-200 rounded-lg p-5 transition-all duration-300 ease-in-out bg-white hover:translate-y-[-2px] hover:shadow-lg">
+    <%= render partial: 'grading_tasks/rubric_card', locals: { rubric: rubric } %>
+  </div>
+<% end %>
+
+<%# Update any status badges with this rubric ID %>
+<%= turbo_stream.replace "rubric_status_badge_#{rubric.id}" do %>
+  <div id="rubric_status_badge_<%= rubric.id %>" class="inline-block">
+    <%= render partial: 'shared/status_badge', locals: { 
+      status: rubric.display_status, 
+      size: 'sm',
+      hide_processing_spinner: false
+    } %>
+  </div>
+<% end %>
+
+<%# Add debug event to event log if it exists %>
+<%= turbo_stream.append "event-log-entries" do %>
+  <li>Rubric status updated to <strong><%= rubric.status %></strong> at <%= Time.current.strftime("%H:%M:%S") %></li>
+<% end if false # Only append if element exists %> 

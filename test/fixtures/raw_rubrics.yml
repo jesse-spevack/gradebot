@@ -1,0 +1,9 @@
+math_raw_rubric:
+  content: |
+    Math Problem Solving Rubric
+    100 points total
+    - Calculation (40 points)
+    - Problem-solving approach (30 points)
+    - Work shown (30 points)
+  grading_task: one
+  rubric: research_rubric

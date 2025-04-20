@@ -27,10 +27,15 @@ class Grading::GradingService
     return GradingResponse.error("LLM grading is not enabled. Please contact an administrator.") unless LLM::Configuration.enabled?
 
     content = Grading::ContentCleaner.clean(document_content)
+
+    # Get the feedback tone from the grading task if available
+    feedback_tone = submission&.grading_task&.feedback_tone
+
     prompt = PromptBuilder.build(:grading, {
       document_content: content,
       assignment_prompt: assignment_prompt,
-      grading_rubric: grading_rubric
+      grading_rubric: grading_rubric,
+      feedback_tone: feedback_tone
     })
 
     Rails.logger.info("LLM prompt: #{prompt}")

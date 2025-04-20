@@ -1,0 +1,77 @@
+<!-- Rubric Card Content -->
+<div class="flex items-center justify-between mb-4">
+  <div class="flex items-center">
+    <svg class="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+    </svg>
+    <h3 class="font-medium text-gray-900">Rubric</h3>
+  </div>
+  <!-- Status badge: changes based on status -->
+  <div class="flex items-center space-x-4">
+    <div id="rubric_status_badge_<%= rubric.id %>" class="inline-flex items-center">
+      <%= render partial: 'shared/status_badge', locals: { 
+        status: rubric.display_status, 
+        size: 'sm',
+        hide_processing_spinner: false
+      } %>
+    </div>
+  </div>
+</div>
+
+<!-- Rubric content: changes based on status -->
+<% if rubric.complete? %>
+  <div id="rubricNormal">
+    <div class="mb-4">
+      <% if rubric.criteria.any? %>
+        <% rubric.criteria.each do |criterion| %>
+          <div class="flex items-center text-sm text-gray-600 mb-1">
+            <span class="w-24"><%= criterion.title %>:</span>
+            <span class="font-medium"><%= criterion.points %> points</span>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="flex items-center text-sm text-gray-600 mb-1">
+          <span class="font-medium">Rubric criteria generated successfully</span>
+        </div>
+      <% end %>
+    </div>
+    <button id="viewRubricBtn" class="w-full mt-2 inline-flex items-center justify-center px-4 py-2 border border-blue-300 shadow-sm text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 ease-in-out">
+      View Rubric
+      <svg class="ml-2 -mr-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+      </svg>
+    </button>
+  </div>
+<% elsif rubric.failed? %>
+  <!-- Rubric failed state -->
+  <div id="rubricFailed">
+    <div class="flex flex-col items-center justify-center py-4">
+      <div class="mb-3 relative">
+        <div class="text-red-500">
+          <svg class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+      </div>
+      <p class="text-sm text-gray-600 text-center">There was an error creating your rubric. Try recreating the Grading Task.</p>
+    </div>
+  </div>
+<% else %>
+  <!-- Rubric processing state -->
+  <div id="rubricProcessing">
+    <div class="flex flex-col items-center justify-center py-4">
+      <div class="mb-3 relative">
+        <div class="animate-pulse text-blue-500">
+          <%= render partial: 'shared/icons/sparkles', locals: { class_name: 'h-12 w-12' } %>
+        </div>
+      </div>
+      <p class="text-sm text-gray-600 text-center">
+        <% if rubric.raw_rubric.present? %>
+          GradeBot is analyzing your rubric...
+        <% else %>
+          GradeBot is creating your rubric...
+        <% end %>
+      </p>
+    </div>
+  </div>
+<% end %> 
