@@ -1,11 +1,11 @@
 # Task ID: 8
-# Title: Create RubricCriterionLevel Model and Migration
-# Status: pending
+# Title: Create StudentWorkCriterionLevel Model and Migration
+# Status: in-progress
 # Dependencies: 6, 7
 # Priority: high
 # Description: Implement the join model between StudentWork, Criterion, and Level.
 # Details:
-Create RubricCriterionLevel model with explanation (text). Add belongs_to associations for student_work, criterion, and level. Add validations to ensure uniqueness of criterion per student_work. Create and run migration. Create fixture and model tests.
+Create StudentWorkCriterionLevel model with explanation (text). Add belongs_to associations for student_work, criterion, and level. Add validations to ensure uniqueness of criterion per student_work. Create and run migration. Create fixture and model tests.
 
 # Test Strategy:
 Test associations with student_work, criterion, and level. Test uniqueness validation for criterion per student_work.

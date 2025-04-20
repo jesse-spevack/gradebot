@@ -186,15 +186,15 @@
     },
     {
       "id": 8,
-      "title": "Create RubricCriterionLevel Model and Migration",
+      "title": "Create StudentWorkCriterionLevel Model and Migration",
       "description": "Implement the join model between StudentWork, Criterion, and Level.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         6,
         7
       ],
       "priority": "high",
-      "details": "Create RubricCriterionLevel model with explanation (text). Add belongs_to associations for student_work, criterion, and level. Add validations to ensure uniqueness of criterion per student_work. Create and run migration. Create fixture and model tests.",
+      "details": "Create StudentWorkCriterionLevel model with explanation (text). Add belongs_to associations for student_work, criterion, and level. Add validations to ensure uniqueness of criterion per student_work. Create and run migration. Create fixture and model tests.",
       "testStrategy": "Test associations with student_work, criterion, and level. Test uniqueness validation for criterion per student_work."
     },
     {
@@ -453,7 +453,7 @@
         28
       ],
       "priority": "medium",
-      "details": "Create StudentWork::UpdateService that takes parsed student work feedback data and a student work record. Service should update student work qualitative feedback and create associated FeedbackItem, RubricCriterionLevel, and StudentWorkCheck records in a transaction. Implement proper type assignment for feedback items. Add validation for required data. Implement error handling and rollback.",
+      "details": "Create StudentWork::UpdateService that takes parsed student work feedback data and a student work record. Service should update student work qualitative feedback and create associated FeedbackItem, StudentWorkCriterionLevel, and StudentWorkCheck records in a transaction. Implement proper type assignment for feedback items. Add validation for required data. Implement error handling and rollback.",
       "testStrategy": "Test update with valid and invalid inputs. Test creation of associated records. Test transaction rollback on error."
     },
     {
