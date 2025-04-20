@@ -201,13 +201,13 @@
       "id": 9,
       "title": "Create FeedbackItem Model and Migration",
       "description": "Implement the FeedbackItem model with attributes and associations.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         7
       ],
       "priority": "high",
-      "details": "Create FeedbackItem model with type (enum: strength, opportunity), title (string), description (text), and evidence (text). Add belongs_to :student_work association. Add validations for title and type presence. Create and run migration. Create fixture and model tests.",
-      "testStrategy": "Test validations for title and type presence. Test association with student_work. Test enum functionality for type."
+      "details": "Create FeedbackItem model with kind (enum: strength, opportunity), title (string), description (text), and evidence (text). Add polymorphic belongs_to :feedbackable association. Add validations for title, description, kind, and feedbackable presence. Create and run migration. Create fixture and model tests.",
+      "testStrategy": "Test validations for required fields. Test polymorphic association. Test enum functionality for kind."
     },
     {
       "id": 10,
