@@ -3,7 +3,6 @@ description:
 globs:
 alwaysApply: true
 ---
-
 # GradeBot Implementation Lessons
 
 ## JSON Task Management
@@ -74,6 +73,10 @@ alwaysApply: true
     end
   end
   ```
+
+## Model Conventions
+
+- Always add `has_prefix_id :prefix` (from the [prefixed_ids](https://github.com/excid3/prefixed_ids) gem) to new models. Choose a short, descriptive prefix. See [app/models/rubric.rb](mdc:app/models/rubric.rb) for an example (`has_prefix_id :rb`).
 
 ## Testing Best Practices
 
