@@ -1,0 +1,17 @@
+doc_1:
+  assignment: valid_assignment
+  google_doc_id: "goog_doc_id_111"
+  title: "Essay Draft 1"
+  url: "https://docs.google.com/document/d/goog_doc_id_111/edit"
+
+doc_2:
+  assignment: valid_assignment
+  google_doc_id: "goog_doc_id_222"
+  title: "Essay Draft 2"
+  url: "https://docs.google.com/document/d/goog_doc_id_222/edit"
+
+doc_3:
+  assignment: valid_assignment
+  google_doc_id: "goog_doc_id_333"
+  title: "Essay Draft 3"
+  url: "https://docs.google.com/document/d/goog_doc_id_333/edit"

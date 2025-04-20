@@ -83,10 +83,24 @@ For the Google Docs integration we use the `drive.file` scope.
 * Description  
 * Position
 
+#### SelectedDocument
+
+* _Note: Renamed from `DocumentSelection` (used in legacy GradingTask flow) to avoid naming conflicts during the parallel refactor._
+* _Purpose: This model tracks documents selected via the Google Picker for a specific `Assignment` in the refactored workflow, keeping it separate from the legacy `DocumentSelection`/`GradingTask` process._
+* Belongs to an assignment
+* google_doc_id (string)
+* title (string)
+* url (string)
+
+We are only storing google_doc, title, and url because this is what we need at this point for the UI (title, url) and to create student_works (google_doc_id).
+
+When processing student work, we use the `student_work.selected_document.google_doc_id` to fetch the document content and validate that it does not exceed the maximum number of words.
+If it does, we will set the student work status to failure.
+
 #### Student Work
 
 * Belongs to an assignment  
-* Belongs to a document selection  
+* Belongs to a selected document  
 * Has many student work criterion levels  
 * Has many feedback items  
 * Qualitative feedback as text  

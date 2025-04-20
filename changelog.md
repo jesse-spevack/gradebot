@@ -32,6 +32,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implement `AssignmentSummary` model with attributes (`student_work_count`, `qualitative_insights`), associations (`assignment`, polymorphic `feedback_items`), validations (presence for all attributes, numericality for count), and prefixed ID (`asum_`).
 - Add migration for `assignment_summaries` table with required columns and default for count.
 - Add model tests and fixtures for `AssignmentSummary`.
+- Implement `SelectedDocument` model (renamed from legacy `DocumentSelection`) with attributes (`google_doc_id`, `title`, `url`), association (`assignment`), validations (presence, uniqueness on `google_doc_id`), and prefixed ID (`sd_`).
+- Add migration for `selected_documents` table with required columns and unique index.
+- Add model tests and fixtures for `SelectedDocument`.
+- Update PRD and tasks to reflect `SelectedDocument` renaming and purpose.
 
 ## [2026-04-19]
 ### Added
