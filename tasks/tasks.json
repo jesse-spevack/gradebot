@@ -260,27 +260,27 @@
     },
     {
       "id": 14,
-      "title": "Create Assignment Form View",
-      "description": "Build the form for creating new assignments.",
-      "status": "pending",
+      "title": "Implement Assignment Controller",
+      "description": "Create the controller for handling assignment creation and display.",
+      "status": "done",
       "dependencies": [
         13
       ],
       "priority": "high",
-      "details": "Create a form view at /assignments/new with fields for title (text input), subject (text input), grade level (select dropdown), and instructions (textarea). Add radio buttons for 'Generate rubric' or 'Paste rubric' options. Include a textarea for manual rubric input that appears conditionally when 'Paste rubric' is selected. Add a feedback tone dropdown with options: encouraging, neutral/objective, and critical. Use Stimulus for form interaction handling. Add a 'Submit for grading' button.",
-      "testStrategy": "Test form rendering with all required fields. Test conditional display of rubric textarea. Test form submission with both rubric options."
+      "details": "Create AssignmentsController with new, create, show, and index actions. Implement new action to display form. Implement create action to process form submission and create Assignment record. Add strong parameters for assignment attributes. Add before_action to ensure authentication. Implement redirect to assignment show page after creation.",
+      "testStrategy": "Test controller actions with valid and invalid parameters. Test authentication requirement. Test redirect after creation."
     },
     {
       "id": 15,
-      "title": "Implement Assignment Controller",
-      "description": "Create the controller for handling assignment creation and display.",
+      "title": "Create Assignment Form View",
+      "description": "Build the form for creating new assignments.",
       "status": "pending",
       "dependencies": [
         14
       ],
       "priority": "high",
-      "details": "Create AssignmentsController with new, create, show, and index actions. Implement new action to display form. Implement create action to process form submission and create Assignment record. Add strong parameters for assignment attributes. Add before_action to ensure authentication. Implement redirect to assignment show page after creation.",
-      "testStrategy": "Test controller actions with valid and invalid parameters. Test authentication requirement. Test redirect after creation."
+      "details": "Create a form view at /assignments/new with fields for title (text input), subject (text input), grade level (select dropdown), and instructions (textarea). Add radio buttons for 'Generate rubric' or 'Paste rubric' options. Include a textarea for manual rubric input that appears conditionally when 'Paste rubric' is selected. Add a feedback tone dropdown with options: encouraging, neutral/objective, and critical. Use Stimulus for form interaction handling. Add a 'Submit for grading' button.",
+      "testStrategy": "Test form rendering with all required fields. Test conditional display of rubric textarea. Test form submission with both rubric options."
     },
     {
       "id": 16,
@@ -289,7 +289,7 @@
       "status": "pending",
       "dependencies": [
         12,
-        15
+        14
       ],
       "priority": "high",
       "details": "Create SelectedDocument::BulkCreationService that takes an array of Google document IDs and an assignment. Service should fetch document metadata, validate document size (<2000 words), and create SelectedDocument records in a single database transaction. Implement word count calculation for validation.",
@@ -565,7 +565,7 @@
       "description": "Build the view for displaying assignment details and processing status.",
       "status": "pending",
       "dependencies": [
-        15,
+        14,
         35
       ],
       "priority": "medium",
@@ -675,7 +675,7 @@
       "description": "Build the view for displaying all assignments with analytics.",
       "status": "pending",
       "dependencies": [
-        15
+        14
       ],
       "priority": "low",
       "details": "Create assignments index page with list of all assignments. Add filter and sort options. Implement analytics section with streak tracking and assignment counts. Create GitHub-style contribution graph showing daily grading activity. Add pagination for large assignment lists. Implement responsive design for mobile use.",

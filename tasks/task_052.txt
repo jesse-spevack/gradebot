@@ -1,11 +1,11 @@
 # Task ID: 52
-# Title: Create Privacy, Terms, and AI Pages
+# Title: Create Subscription Model and Migration
 # Status: pending
-# Dependencies: 1
+# Dependencies: 50
 # Priority: low
-# Description: Build static pages describing data usage policies.
+# Description: Implement the Subscription model for tracking user subscriptions.
 # Details:
-Create privacy policy page describing data collection and usage. Build terms of service page outlining user agreements. Add AI page explaining LLM usage and data handling. Implement responsive design for all pages. Add links to these pages in the application footer.
+Create Subscription model with plan_type (enum: free, paid), status (enum: active, canceled, expired), start_date (datetime), end_date (datetime), and stripe_subscription_id (string). Add belongs_to :user association. Implement methods for checking assignment limits. Create and run migration. Add model tests.
 
 # Test Strategy:
-Test page rendering and content. Test responsive design on different screen sizes. Test navigation links to these pages.
+Test model creation and validation. Test association with user. Test methods for checking assignment limits.

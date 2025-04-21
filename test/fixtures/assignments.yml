@@ -1,3 +1,5 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
 valid_assignment:
   title: Sample Assignment
   description: This is a sample assignment
@@ -7,3 +9,13 @@ valid_assignment:
   raw_rubric_text: Clarity - 10 points, Content - 15 points
   total_processing_milliseconds: 1500
   user: teacher # Use existing 'teacher' fixture 
+
+assignment_for_other_user:
+  title: Other User's Assignment
+  description: This is another user's assignment
+  grade_level: "7"
+  subject: Math
+  instructions: Do these math problems...
+  raw_rubric_text: Showing Work - 10 points, Accuracy - 15 points
+  total_processing_milliseconds: 1500
+  user: teacher2 # Use existing 'teacher2' fixture 

@@ -1,0 +1,19 @@
+<div class="container mx-auto px-4">
+  <h1 class="text-2xl font-bold my-4">Assignments</h1>
+
+  <%= link_to "New Assignment", new_assignment_path, class: "mb-4 inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" %>
+
+  <div id="assignments" class="space-y-4">
+    <% @assignments.each do |assignment| %>
+      <div class="p-4 border rounded shadow">
+        <%= link_to assignment.title, assignment_path(assignment), class: "text-lg font-semibold text-blue-600 hover:underline" %>
+        <p class="text-gray-600">Subject: <%= assignment.subject %> | Grade: <%= assignment.grade_level %></p>
+        <p class="text-sm text-gray-500">Created: <%= time_ago_in_words(assignment.created_at) %> ago</p>
+        <%#= link_to "Delete", assignment_path(assignment), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, class: "text-red-600 hover:text-red-800 text-sm" %>
+      </div>
+    <% end %>
+    <% if @assignments.empty? %>
+      <p>No assignments found.</p>
+    <% end %>
+  </div>
+</div>

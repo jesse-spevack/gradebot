@@ -1,11 +1,11 @@
 # Task ID: 36
-# Title: Create Assignment Show Page View
+# Title: Create TimerService
 # Status: pending
-# Dependencies: 15, 33
+# Dependencies: 35
 # Priority: medium
-# Description: Build the view for displaying assignment details and processing status.
+# Description: Implement service for calculating and updating processing time estimates.
 # Details:
-Create assignment show page with sections for assignment details, rubric, student works, and insights. Implement status badge for assignment processing. Add loading indicators for in-progress sections. Create collapsible sections for rubric criteria and levels. Build student work list with status badges and completion links. Add assignment summary section for displaying insights after processing completes.
+Create TimerService class for calculating estimated completion times. Implement methods for initial time calculation based on task counts. Add dynamic adjustment based on completed tasks. Implement real-time updates via BroadcastService. Add persistence of actual processing times.
 
 # Test Strategy:
-Test page rendering with different assignment states. Test responsive design on different screen sizes.
+Test time calculation with various task counts. Test dynamic adjustment with progress updates. Test integration with BroadcastService.

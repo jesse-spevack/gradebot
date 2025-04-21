@@ -1,11 +1,11 @@
 # Task ID: 47
-# Title: Create ContributionGraph
+# Title: Create Assignments Index Page View
 # Status: pending
-# Dependencies: 45, 46
+# Dependencies: 14
 # Priority: low
-# Description: Build the component for displaying GitHub-style contribution graph.
+# Description: Build the view for displaying all assignments with analytics.
 # Details:
-Create ContributionGraph component for visualizing daily grading activity. Implement grid layout with one square per day. Add color intensity scaling based on activity level. Create tooltip for displaying detailed information on hover. Implement month and day labels. Add responsive design for different screen sizes.
+Create assignments index page with list of all assignments. Add filter and sort options. Implement analytics section with streak tracking and assignment counts. Create GitHub-style contribution graph showing daily grading activity. Add pagination for large assignment lists. Implement responsive design for mobile use.
 
 # Test Strategy:
-Test component rendering with different activity patterns. Test color intensity scaling. Test tooltip functionality. Test responsive design on different screen sizes.
+Test page rendering with different assignment counts. Test filter and sort functionality. Test analytics calculations. Test responsive design on different screen sizes.

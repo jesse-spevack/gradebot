@@ -3,32 +3,89 @@ description: Ensures controllers follow a consistent structure with clear action
 globs: app/controllers/**/*.rb
 ---
 # Rails Controller Format
+# Rails Controller Format
 
 Controllers should follow this format:
 - Actions grouped by REST verb (GET, POST, etc.)
 - Clear separation between actions with a newline
 - Private methods at the bottom
-- Strong params defined using private method
-- Use expect for strong params, not require
-- Each action should do one thing well
-- Do not put business logic in the controller - move it to service objects or models instead.
-- Follow the law of delimiter
-- Double check authorization and authentication
+- Strong params defined using a private method (using `params.expect` in Rails 8+).
+- Each action should generally perform only one primary responsibility (e.g., fetching data, creating a resource, redirecting).
+- Avoid complex business logic; delegate to service objects or models.
+- Adhere to the Law of Demeter.
 
-Example:
+- **Authentication:**
+  - Most controllers inherit from `ApplicationController`.
+  - Authentication is typically handled automatically via the `before_action :require_authentication` defined in the `Authentication` concern ([app/controllers/concerns/authentication.rb](mdc:app/controllers/concerns/authentication.rb)), which is included in `ApplicationController`.
+  - Unauthenticated access can be allowed using `allow_unauthenticated_access` where necessary.
+  - Ensure controller tests simulate a logged-in user (e.g., by setting `Current.user`).
+
+- **Authorization:**
+  - Explicitly check authorization where necessary (e.g., ensuring `Current.user` owns the resource being modified or viewed in `show`, `edit`, `update`, `destroy` actions).
+
+- **Strong Parameters (Rails 8+):**
+  - Use `params.expect` for stricter validation of parameter structure.
+
+  ```ruby
+  # Example using params.expect
+  private
+
+  def assignment_params
+    params.expect(
+      assignment: [
+        :title,
+        :subject,
+        # ... other permitted scalar attributes
+        selected_documents: [[:id, :name, :url]] # Expects an array of hashes
+      ]
+    )
+  end
+  ```
+
+Example Structure:
 ```ruby
-class UsersController < ApplicationController
+class AssignmentsController < ApplicationController
+  before_action :set_assignment, only: [:show, :destroy]
+
+  # GET /assignments
   def index
-    @users = User.all
+    @assignments = Current.user.assignments.order(created_at: :desc)
   end
 
+  # GET /assignments/:id
   def show
-    @user = User.find(params[:id])
+    # Authorization handled by set_assignment
+  end
+
+  # GET /assignments/new
+  def new
+    @assignment = Current.user.assignments.build
+  end
+
+  # POST /assignments
+  def create
+    # Use assignment_params with params.expect
+    # Delegate creation logic to a service object ideally
+    # ... handle success/failure ...
+  end
+
+  # DELETE /assignments/:id
+  def destroy
+    # Authorization handled by set_assignment
+    @assignment.destroy
+    redirect_to assignments_url, notice: "Assignment was successfully destroyed."
   end
 
   private
 
-  def user_params
-    params.require(:user).permit(:name, :email)
+  def set_assignment
+    @assignment = Current.user.assignments.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    redirect_to assignments_url, alert: "Assignment not found."
   end
+
+  # Define assignment_params using params.expect here
+  # def assignment_params
+  #   ...
+  # end
 end

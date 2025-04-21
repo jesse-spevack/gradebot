@@ -1,11 +1,11 @@
 # Task ID: 25
-# Title: Create RubricResponseParser
+# Title: Create RubricPromptBuilder
 # Status: pending
-# Dependencies: 24
+# Dependencies: 22, 24
 # Priority: medium
-# Description: Implement the response parser for rubric generation.
+# Description: Implement the prompt builder for rubric generation.
 # Details:
-Create RubricResponseParser class that inherits from BaseResponseParser. Implement parse_response method that extracts rubric criteria and levels from JSON response. Add validation for required fields. Implement error handling for malformed responses. Format data for database storage.
+Create RubricPromptBuilder class that inherits from BasePromptBuilder. Implement build_prompt method that formats assignment details and raw rubric text (if provided) into a structured prompt for rubric generation. Add template selection logic based on presence of raw rubric text. Implement JSON output formatting instructions.
 
 # Test Strategy:
-Test parsing with valid and invalid JSON responses. Test validation of required fields. Test error handling for malformed responses.
+Test prompt building with and without raw rubric text. Test JSON formatting instructions. Test prompt length calculation.

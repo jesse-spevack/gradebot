@@ -1,11 +1,11 @@
 # Task ID: 37
-# Title: Create RubricComponent
+# Title: Create AssignmentProcessingJob
 # Status: pending
-# Dependencies: 36
+# Dependencies: 24, 35, 36
 # Priority: medium
-# Description: Build the Stimulus controller and partial for displaying the rubric.
+# Description: Implement background job for managing the assignment processing workflow.
 # Details:
-Create RubricComponent with Stimulus controller for handling user interactions. Implement collapsible sections for criteria and levels. Add loading state for rubric generation. Create partial for rendering criteria and levels. Implement real-time updates via Action Cable subscription. Add animations for state transitions.
+Create AssignmentProcessingJob that inherits from ApplicationJob. Implement perform method that initializes and executes the parent ProcessingPipeline. Add creation and coordination of child pipelines for rubric generation, student work feedback, and assignment summary. Implement progress tracking and status updates. Add error handling and retry configuration.
 
 # Test Strategy:
-Test component rendering with different rubric states. Test collapsible functionality. Test real-time updates with simulated broadcasts.
+Test job execution with mock pipelines. Test coordination of child pipelines. Test progress tracking and status updates. Test error handling and retry functionality.

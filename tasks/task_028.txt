@@ -1,11 +1,11 @@
 # Task ID: 28
-# Title: Create StudentWorkResponseParser
+# Title: Implement Content Validation in Pipeline
 # Status: pending
-# Dependencies: 27
+# Dependencies: 24, 7
 # Priority: medium
-# Description: Implement the response parser for student work feedback.
+# Description: Add step to StudentWork processing pipeline to validate content length.
 # Details:
-Create StudentWorkResponseParser class that inherits from BaseResponseParser. Implement parse_response method that extracts qualitative feedback, feedback items, rubric criterion levels, and checks from JSON response. Add validation for required fields. Implement error handling for malformed responses. Format data for database storage.
+Modify the StudentWork feedback processing pipeline (Task 24) to fetch document content via API and validate its length (e.g., word count or token count < limit). If validation fails, update StudentWork status to 'failed' and create a ProcessingFailure record.
 
 # Test Strategy:
-Test parsing with valid and invalid JSON responses. Test validation of required fields. Test error handling for malformed responses.
+Test pipeline modification with documents exceeding the limit, ensure status update and failure recording.

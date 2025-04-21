@@ -1,11 +1,11 @@
 # Task ID: 26
-# Title: Create Rubric::CreationService
+# Title: Create RubricResponseParser
 # Status: pending
 # Dependencies: 25
 # Priority: medium
-# Description: Implement service for creating rubric structure from parsed response.
+# Description: Implement the response parser for rubric generation.
 # Details:
-Create Rubric::CreationService that takes parsed rubric data and an assignment. Service should create Rubric record with associated Criterion and Level records in a transaction. Implement proper position ordering for criteria and levels. Add validation for required data. Implement error handling and rollback.
+Create RubricResponseParser class that inherits from BaseResponseParser. Implement parse_response method that extracts rubric criteria and levels from JSON response. Add validation for required fields. Implement error handling for malformed responses. Format data for database storage.
 
 # Test Strategy:
-Test creation with valid and invalid inputs. Test proper position ordering. Test transaction rollback on error.
+Test parsing with valid and invalid JSON responses. Test validation of required fields. Test error handling for malformed responses.

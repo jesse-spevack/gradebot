@@ -47,4 +47,7 @@ Rails.application.routes.draw do
     resources :document_actions, only: [ :create ]
   end
   resources :features, only: [ :index ]
+
+  # Refactored Assignment flow
+  resources :assignments, only: [ :index, :new, :create, :show, :destroy ]
 end
