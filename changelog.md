@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [2025-04-20]
+Implemented foundational models for rubric-based assessment, student work evaluation, and the assignments management interface.
 ### Added
 - Implement `Criterion` model with attributes (`title`, `description`, `position`), associations (`rubric`, `levels`), validation (`title`), and prefixed ID (`crit_`).
 - Add migration for `criteria` table, enforcing `NOT NULL` on `title` and `rubric_id`.
@@ -36,6 +37,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add migration for `selected_documents` table with required columns and unique index.
 - Add model tests and fixtures for `SelectedDocument`.
 - Update PRD and tasks to reflect `SelectedDocument` renaming and purpose.
+- Implement `AssignmentsController` with actions for index, new, create, show, and destroy.
+- Create views for assignments including index page with assignment lists, new form with fields for creating assignments, and show page for displaying assignment details.
+- Add authentication tests to ensure proper access control for assignment management.
+- Set up routes for assignments resource.
 
 ## [2026-04-19]
 ### Added

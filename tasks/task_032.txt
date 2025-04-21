@@ -1,11 +1,11 @@
 # Task ID: 32
-# Title: Create AssignmentSummary::CreationService
+# Title: Create SummaryPromptBuilder
 # Status: pending
-# Dependencies: 31
+# Dependencies: 22, 24
 # Priority: medium
-# Description: Implement service for creating assignment summary from parsed response.
+# Description: Implement the prompt builder for assignment summary generation.
 # Details:
-Create AssignmentSummary::CreationService that takes parsed summary data and an assignment. Service should create AssignmentSummary record with associated FeedbackItem records in a transaction. Add calculation of student_work_count. Implement error handling and rollback.
+Create SummaryPromptBuilder class that inherits from BasePromptBuilder. Implement build_prompt method that combines assignment details, rubric structure, and aggregated student work feedback into a prompt for summary generation. Add aggregation logic for common strengths and weaknesses. Implement JSON output formatting instructions.
 
 # Test Strategy:
-Test creation with valid and invalid inputs. Test student_work_count calculation. Test transaction rollback on error.
+Test prompt building with various input combinations. Test aggregation logic for feedback. Test JSON formatting instructions.

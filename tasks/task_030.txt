@@ -1,11 +1,11 @@
 # Task ID: 30
-# Title: Create SummaryPromptBuilder
+# Title: Create StudentWorkResponseParser
 # Status: pending
-# Dependencies: 22, 23
+# Dependencies: 29
 # Priority: medium
-# Description: Implement the prompt builder for assignment summary generation.
+# Description: Implement the response parser for student work feedback.
 # Details:
-Create SummaryPromptBuilder class that inherits from BasePromptBuilder. Implement build_prompt method that combines assignment details, rubric structure, and aggregated student work feedback into a prompt for summary generation. Add aggregation logic for common strengths and weaknesses. Implement JSON output formatting instructions.
+Create StudentWorkResponseParser class that inherits from BaseResponseParser. Implement parse_response method that extracts qualitative feedback, feedback items, rubric criterion levels, and checks from JSON response. Add validation for required fields. Implement error handling for malformed responses. Format data for database storage.
 
 # Test Strategy:
-Test prompt building with various input combinations. Test aggregation logic for feedback. Test JSON formatting instructions.
+Test parsing with valid and invalid JSON responses. Test validation of required fields. Test error handling for malformed responses.

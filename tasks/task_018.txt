@@ -5,7 +5,7 @@
 # Priority: high
 # Description: Implement service for handling the complete assignment creation process.
 # Details:
-Create Assignment::InitializerService that orchestrates the complete assignment creation process. Service should handle assignment creation, call DocumentSelection::BulkCreationService and StudentWork::BulkCreationService, and enqueue AssignmentProcessingJob. Implement error handling and rollback for failed operations.
+Create Assignment::InitializerService that orchestrates the complete assignment creation process. Service should handle assignment creation, call SelectedDocument::BulkCreationService and StudentWork::BulkCreationService, and enqueue AssignmentProcessingJob. Implement error handling and rollback for failed operations.
 
 # Test Strategy:
 Test the complete flow with valid and invalid inputs. Test error handling and rollback. Test job enqueuing.

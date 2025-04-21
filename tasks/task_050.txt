@@ -1,11 +1,11 @@
 # Task ID: 50
-# Title: Create Subscription Model and Migration
+# Title: Setup Stripe Integration
 # Status: pending
-# Dependencies: 48
+# Dependencies: 1
 # Priority: low
-# Description: Implement the Subscription model for tracking user subscriptions.
+# Description: Implement Stripe API integration for subscription management.
 # Details:
-Create Subscription model with plan_type (enum: free, paid), status (enum: active, canceled, expired), start_date (datetime), end_date (datetime), and stripe_subscription_id (string). Add belongs_to :user association. Implement methods for checking assignment limits. Create and run migration. Add model tests.
+Initialize Stripe API client with test credentials. Create configuration for subscription plans (free: 1 assignment/month, paid: 300 assignments/month). Implement webhook endpoint for subscription events. Add secure handling of Stripe API keys. Create test mode toggle for development and testing.
 
 # Test Strategy:
-Test model creation and validation. Test association with user. Test methods for checking assignment limits.
+Test API integration with Stripe test mode. Test webhook handling with simulated events. Test secure key handling.

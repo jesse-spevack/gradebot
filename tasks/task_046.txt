@@ -1,11 +1,11 @@
 # Task ID: 46
-# Title: Create StreakTracker
+# Title: Create FeedbackSender
 # Status: pending
 # Dependencies: 45
 # Priority: low
-# Description: Implement service for tracking consecutive days with grading tasks.
+# Description: Implement controller and service for sending feedback to Google Docs.
 # Details:
-Create StreakTracker service for calculating consecutive days with grading activity. Implement methods for streak calculation based on completed student works. Add persistence for streak data. Create visualization component for displaying streak information. Implement real-time updates for streak changes.
+Create FeedbackSender controller with action for sending feedback to Google Docs. Implement service for formatting and combining feedback elements. Add configuration for feedback inclusion options. Create success/error response handling. Implement progress indicator for sending operation.
 
 # Test Strategy:
-Test streak calculation with various activity patterns. Test persistence of streak data. Test visualization component with different streak values.
+Test controller action with valid and invalid parameters. Test service for formatting different feedback combinations. Test success/error response handling.

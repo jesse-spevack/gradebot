@@ -1,11 +1,11 @@
 # Task ID: 24
-# Title: Create RubricPromptBuilder
+# Title: Create ProcessingPipeline Abstraction
 # Status: pending
 # Dependencies: 22, 23
-# Priority: medium
-# Description: Implement the prompt builder for rubric generation.
+# Priority: high
+# Description: Implement the ProcessingPipeline abstraction for orchestrating LLM workflows.
 # Details:
-Create RubricPromptBuilder class that inherits from BasePromptBuilder. Implement build_prompt method that formats assignment details and raw rubric text (if provided) into a structured prompt for rubric generation. Add template selection logic based on presence of raw rubric text. Implement JSON output formatting instructions.
+Create ProcessingPipeline class to orchestrate LLM processing workflow. Implement methods for building prompts, making LLM requests, tracking processing time, parsing responses, storing results, managing status (including recording failures using ProcessingFailure model), and broadcasting updates. Add error handling, retry mechanisms, and timeout configuration.
 
 # Test Strategy:
-Test prompt building with and without raw rubric text. Test JSON formatting instructions. Test prompt length calculation.
+Test pipeline execution with mock ProcessingTask. Test each step of the workflow independently. Test error handling, failure recording, and retry mechanisms with simulated failures.

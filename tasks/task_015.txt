@@ -1,11 +1,11 @@
 # Task ID: 15
-# Title: Implement Assignment Controller
+# Title: Create Assignment Form View
 # Status: pending
 # Dependencies: 14
 # Priority: high
-# Description: Create the controller for handling assignment creation and display.
+# Description: Build the form for creating new assignments.
 # Details:
-Create AssignmentsController with new, create, show, and index actions. Implement new action to display form. Implement create action to process form submission and create Assignment record. Add strong parameters for assignment attributes. Add before_action to ensure authentication. Implement redirect to assignment show page after creation.
+Create a form view at /assignments/new with fields for title (text input), subject (text input), grade level (select dropdown), and instructions (textarea). Add radio buttons for 'Generate rubric' or 'Paste rubric' options. Include a textarea for manual rubric input that appears conditionally when 'Paste rubric' is selected. Add a feedback tone dropdown with options: encouraging, neutral/objective, and critical. Use Stimulus for form interaction handling. Add a 'Submit for grading' button.
 
 # Test Strategy:
-Test controller actions with valid and invalid parameters. Test authentication requirement. Test redirect after creation.
+Test form rendering with all required fields. Test conditional display of rubric textarea. Test form submission with both rubric options.

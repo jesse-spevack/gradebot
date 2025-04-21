@@ -1,11 +1,11 @@
 # Task ID: 12
-# Title: Create DocumentSelection Model and Migration
-# Status: in-progress
+# Title: Create SelectedDocument Model and Migration
+# Status: done
 # Dependencies: 3
 # Priority: high
-# Description: Implement the DocumentSelection model for Google Doc selection.
+# Description: Implement the SelectedDocument model for Google Doc selection.
 # Details:
-Create DocumentSelection model with google_doc_id (string), title (string), content (text), and word_count (integer). Add belongs_to :assignment association. Add validations for google_doc_id presence and uniqueness. Create and run migration. Create fixture and model tests.
+Create SelectedDocument model with google_doc_id (string, required), title (string, required), and url (string, required). Add belongs_to :assignment association. Add validations for google_doc_id (presence, uniqueness) and assignment, title, url (presence). Create and run migration. Create fixture and model tests.
 
 # Test Strategy:
-Test validations for google_doc_id presence and uniqueness. Test association with assignment.
+Test validations for required fields and google_doc_id uniqueness. Test association with assignment.

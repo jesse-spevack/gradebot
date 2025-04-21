@@ -4,6 +4,7 @@ class User < ApplicationRecord
   has_many :sessions
   has_many :grading_tasks
   has_many :user_tokens, dependent: :destroy
+  has_many :assignments, dependent: :destroy
 
   validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :name, presence: true

@@ -1,11 +1,11 @@
 # Task ID: 48
-# Title: Setup Stripe Integration
+# Title: Create StreakTracker
 # Status: pending
-# Dependencies: 1
+# Dependencies: 47
 # Priority: low
-# Description: Implement Stripe API integration for subscription management.
+# Description: Implement service for tracking consecutive days with grading tasks.
 # Details:
-Initialize Stripe API client with test credentials. Create configuration for subscription plans (free: 1 assignment/month, paid: 300 assignments/month). Implement webhook endpoint for subscription events. Add secure handling of Stripe API keys. Create test mode toggle for development and testing.
+Create StreakTracker service for calculating consecutive days with grading activity. Implement methods for streak calculation based on completed student works. Add persistence for streak data. Create visualization component for displaying streak information. Implement real-time updates for streak changes.
 
 # Test Strategy:
-Test API integration with Stripe test mode. Test webhook handling with simulated events. Test secure key handling.
+Test streak calculation with various activity patterns. Test persistence of streak data. Test visualization component with different streak values.

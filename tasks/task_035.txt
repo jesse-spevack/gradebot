@@ -1,11 +1,11 @@
 # Task ID: 35
-# Title: Create AssignmentProcessingJob
+# Title: Create BroadcastService
 # Status: pending
-# Dependencies: 23, 33, 34
+# Dependencies: 1
 # Priority: medium
-# Description: Implement background job for managing the assignment processing workflow.
+# Description: Implement service for broadcasting real-time updates to the UI.
 # Details:
-Create AssignmentProcessingJob that inherits from ApplicationJob. Implement perform method that initializes and executes the parent ProcessingPipeline. Add creation and coordination of child pipelines for rubric generation, student work feedback, and assignment summary. Implement progress tracking and status updates. Add error handling and retry configuration.
+Create BroadcastService class for sending real-time updates via Action Cable. Implement methods for broadcasting rubric updates, student work status changes, and assignment completion. Add channel configurations for assignment-specific updates. Implement serialization of broadcast data.
 
 # Test Strategy:
-Test job execution with mock pipelines. Test coordination of child pipelines. Test progress tracking and status updates. Test error handling and retry functionality.
+Test broadcasting with mock channel. Test serialization of different data types. Test channel configuration for assignment-specific updates.

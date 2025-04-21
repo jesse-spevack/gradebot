@@ -1,11 +1,11 @@
 # Task ID: 51
-# Title: Create SubscriptionLimitEnforcer
+# Title: Create SubscriptionsController
 # Status: pending
 # Dependencies: 50
 # Priority: low
-# Description: Implement service for enforcing subscription assignment limits.
+# Description: Build controller for handling subscription management.
 # Details:
-Create SubscriptionLimitEnforcer service for checking and enforcing assignment limits. Implement methods for counting assignments within the current month. Add integration with assignments controller to prevent creation when limit is reached. Create upgrade prompts for free tier users who reach their limit.
+Create SubscriptionsController with actions for plan selection, checkout, success, and cancel. Implement integration with Stripe Checkout for payment processing. Add session handling for checkout flow. Create success and cancel pages. Implement error handling for failed checkout attempts.
 
 # Test Strategy:
-Test limit enforcement with different subscription types. Test assignment counting within current month. Test integration with assignments controller.
+Test controller actions with valid and invalid parameters. Test integration with Stripe Checkout. Test success and cancel flows. Test error handling for failed checkout attempts.

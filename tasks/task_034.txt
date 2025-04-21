@@ -1,11 +1,11 @@
 # Task ID: 34
-# Title: Create TimerService
+# Title: Create AssignmentSummary::CreationService
 # Status: pending
 # Dependencies: 33
 # Priority: medium
-# Description: Implement service for calculating and updating processing time estimates.
+# Description: Implement service for creating assignment summary from parsed response.
 # Details:
-Create TimerService class for calculating estimated completion times. Implement methods for initial time calculation based on task counts. Add dynamic adjustment based on completed tasks. Implement real-time updates via BroadcastService. Add persistence of actual processing times.
+Create AssignmentSummary::CreationService that takes parsed summary data and an assignment. Service should create AssignmentSummary record with associated FeedbackItem records in a transaction. Add calculation of student_work_count. Implement error handling and rollback.
 
 # Test Strategy:
-Test time calculation with various task counts. Test dynamic adjustment with progress updates. Test integration with BroadcastService.
+Test creation with valid and invalid inputs. Test student_work_count calculation. Test transaction rollback on error.

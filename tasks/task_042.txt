@@ -1,11 +1,11 @@
 # Task ID: 42
-# Title: Create FeedbackEditorComponent
+# Title: Create InsightsComponent
 # Status: pending
-# Dependencies: 41
-# Priority: low
-# Description: Build the Stimulus controller for editing feedback content.
+# Dependencies: 38
+# Priority: medium
+# Description: Build the Stimulus controller and partial for displaying assignment insights.
 # Details:
-Create FeedbackEditorComponent with Stimulus controller for handling edit/save functionality. Implement toggle between view and edit modes. Add form submission handling. Create partial for rendering feedback editor. Implement validation for edited content. Add success/error messaging for save operations.
+Create InsightsComponent with Stimulus controller for handling user interactions. Implement collapsible sections for different insight categories. Add visualization for common strengths and weaknesses. Create partial for rendering insight data. Implement conditional display based on assignment completion status.
 
 # Test Strategy:
-Test component functionality for toggling between view and edit modes. Test form submission. Test validation for edited content. Test success/error messaging.
+Test component rendering with different insight data. Test collapsible functionality. Test conditional display based on assignment status.

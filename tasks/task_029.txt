@@ -1,11 +1,11 @@
 # Task ID: 29
-# Title: Create StudentWork::UpdateService
+# Title: Create StudentWorkPromptBuilder
 # Status: pending
-# Dependencies: 28
+# Dependencies: 22, 24, 28
 # Priority: medium
-# Description: Implement service for updating student work with feedback data.
+# Description: Implement the prompt builder for student work feedback.
 # Details:
-Create StudentWork::UpdateService that takes parsed student work feedback data and a student work record. Service should update student work qualitative feedback and create associated FeedbackItem, StudentWorkCriterionLevel, and StudentWorkCheck records in a transaction. Implement proper type assignment for feedback items. Add validation for required data. Implement error handling and rollback.
+Create StudentWorkPromptBuilder class that inherits from BasePromptBuilder. Implement build_prompt method that combines student work content, assignment details, and rubric structure into a prompt for feedback generation. Add feedback tone customization based on assignment settings. Implement JSON output formatting instructions.
 
 # Test Strategy:
-Test update with valid and invalid inputs. Test creation of associated records. Test transaction rollback on error.
+Test prompt building with different feedback tones. Test handling of long student work content. Test JSON formatting instructions.
