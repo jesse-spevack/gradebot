@@ -1,0 +1,120 @@
+---
+description: Design guidelines for consistent UI implementation across the GradeBot application
+globs: app/views/**/*.html.erb, app/components/**/*.html.erb, app/assets/stylesheets/**/*.css
+alwaysApply: true
+---
+
+# GradeBot Design System
+
+## Layout & Structure
+
+- **Page Container Structure**
+  - Use `bg-gray-50 min-h-screen` for page backgrounds
+  - Contain page content in `max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8`
+  - Section headers should have `mb-6` spacing
+  ```html
+  <div class="bg-gray-50 min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Content here -->
+    </div>
+  </div>
+  ```
+
+- **Card Components**
+  - Use consistent card styling: `bg-white rounded-lg shadow-md p-6 transition-all hover:shadow-lg`
+  - Add `mb-6` for vertical spacing between cards
+  - Card headers should use flex layout with icons: `flex items-center mb-4`
+  ```html
+  <div class="bg-white rounded-lg shadow-md p-6 transition-all hover:shadow-lg mb-6">
+    <div class="flex items-center mb-4">
+      <%= render "shared/icons/icon_name", aria_hidden: true, focusable: false, class: "h-5 w-5 mr-2 text-blue-500" %>
+      <h4 class="text-lg font-medium leading-6 text-gray-900">Card Title</h4>
+    </div>
+    <!-- Card content -->
+  </div>
+  ```
+
+## Typography
+
+- **Headings**
+  - Page titles: `text-xl font-semibold text-gray-900`
+  - Card titles: `text-lg font-medium leading-6 text-gray-900`
+  - Section titles: `font-medium text-gray-900`
+  - Use Title Case for all headers (capitalize each major word)
+
+- **Body Text**
+  - Primary text: `text-sm text-gray-700`
+  - Secondary/helper text: `text-sm text-gray-500`
+  - Form labels: `block text-sm font-medium text-gray-700 mb-1`
+  - Use sentence case for form labels (capitalize only the first word)
+
+## Colors
+
+- **Primary Colors**
+  - Primary blue: `bg-blue-600 hover:bg-blue-700 text-white`
+  - Text links: `text-blue-600 hover:text-blue-700`
+  - Icons: `text-blue-500`
+
+- **Neutral Colors**
+  - Page background: `bg-gray-50`
+  - Card background: `bg-white`
+  - Primary text: `text-gray-900`
+  - Secondary text: `text-gray-700`
+  - Tertiary text: `text-gray-500`
+
+## Components
+
+- **Buttons**
+  - Primary buttons should use: `inline-flex items-center justify-center gap-x-2 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700`
+  - Include icons with `size-4 text-white` class and appropriate spacing
+  ```html
+  <%= link_to path, class: "inline-flex items-center justify-center gap-x-2 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700" do %>
+    <svg class="size-4 text-white"><!-- icon path --></svg>
+    <span>Button Text</span>
+  <% end %>
+  ```
+
+- **Form Elements**
+  - Text inputs: `w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm`
+  - Select inputs: Same as text inputs
+  - Textareas: Same as text inputs with appropriate row count
+  - Labels: `block text-sm font-medium text-gray-700 mb-1`
+
+- **Icons**
+  - Use shared partials from `app/views/shared/icons/`
+  - Standard size in text: `h-4 w-4`
+  - Standard size in headers: `h-5 w-5 mr-2 text-blue-500`
+  - Always include accessibility attributes: `aria_hidden: true, focusable: false`
+
+## Responsive Design
+
+- **Mobile-First Approach**
+  - Design for mobile first, then enhance for larger screens
+  - Use responsive prefixes (sm:, md:, lg:, xl:) for breakpoint-specific styling
+  - Avoid fixed heights when possible
+
+- **Grid System**
+  - Use Tailwind's grid system for complex layouts
+  - Single column on mobile, multi-column on larger screens
+  ```html
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Content -->
+  </div>
+  ```
+
+## Best Practices
+
+- **Consistency**
+  - Maintain consistent spacing, typography, and color usage
+  - Reuse component patterns rather than creating new variations
+  - Follow existing patterns when adding new features
+
+- **Accessibility**
+  - Ensure sufficient color contrast
+  - Include appropriate ARIA attributes
+  - Make interactive elements keyboard accessible
+
+- **Performance**
+  - Avoid custom CSS when Tailwind utilities are available
+  - Use SVG icons instead of icon fonts
+  - Keep DOM nesting to a reasonable depth

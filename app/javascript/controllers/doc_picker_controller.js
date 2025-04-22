@@ -1,13 +1,13 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["button", "documentData", "documentCount", "documentCountText", "error", "instructions"]
+  static targets = ["button", "documentData", "documentCountText", "error", "instructions", "selectedDocumentsContainer", "documentList", "selectButtonContainer"]
   static classes = ["error", "hidden"]
   
   connect() {
-    if (this.hasDocumentCountTarget) {
-      this.documentCountTarget.classList.add(this.hiddenClass)
-    }
+    // No need to hide documentCountTextTarget here,
+    // the parent selectedDocumentsContainer starts hidden
+    // and updateDocumentList manages its visibility.
 
     if (this.hasInstructionsTarget) {
       this.instructionsTarget.classList.remove(this.hiddenClass)
@@ -153,8 +153,8 @@ export default class extends Controller {
         this.handleDocumentsSelection(docs);
       } else {
         // No documents selected, ensure count is hidden
-        if (this.hasDocumentCountTarget) {
-          this.documentCountTarget.classList.add(this.hiddenClass);
+        if (this.hasDocumentCountTextTarget) {
+          this.documentCountTextTarget.textContent = 0;
         }
       }
     }
@@ -175,29 +175,73 @@ export default class extends Controller {
     });
 
     this.documentDataTarget.value = JSON.stringify(documentData);
-    // Update document count if the target exists
-    if (this.hasDocumentCountTarget && this.hasDocumentCountTextTarget) {
+    
+    // Update the visual list (also handles showing/hiding the selected docs container)
+    this.updateDocumentList(documentData);
+
+    // Update document count text if the target exists
+    if (this.hasDocumentCountTextTarget) {
       if (documentData.length > 0) {
-        // Update count and show the count display
         this.documentCountTextTarget.textContent = documentData.length;
-        this.documentCountTarget.classList.remove(this.hiddenClass);
-        
-        // Hide instructions when documents are selected
-        if (this.hasInstructionsTarget) {
-          this.instructionsTarget.classList.add(this.hiddenClass);
-        }
       } else {
-        // Hide count display when no documents are selected
-        this.documentCountTarget.classList.add(this.hiddenClass);
-        
-        // Show instructions when no documents are selected
-        if (this.hasInstructionsTarget) {
-          this.instructionsTarget.classList.remove(this.hiddenClass);
-        }
+        // Reset count to 0 if no documents are selected
+        this.documentCountTextTarget.textContent = 0;
+      }
+    }
+    
+    // Show/hide instructions based on document selection
+    if (this.hasInstructionsTarget) {
+      if (documentData.length > 0) {
+        this.instructionsTarget.classList.add(this.hiddenClass);
+      } else {
+        this.instructionsTarget.classList.remove(this.hiddenClass);
+      }
+    }
+    
+    // Show/hide the initial 'Select student work' button container
+    if (this.hasSelectButtonContainerTarget) {
+      if (documentData.length > 0) {
+        this.selectButtonContainerTarget.classList.add(this.hiddenClass);
+      } else {
+        this.selectButtonContainerTarget.classList.remove(this.hiddenClass);
       }
     }
   }
   
+  updateDocumentList(documents) {
+    // Use targets instead of document.getElementById
+    if (!this.hasSelectedDocumentsContainerTarget || !this.hasDocumentListTarget) return;
+    
+    // Clear current list
+    this.documentListTarget.innerHTML = '';
+    
+    // Add each document to the list
+    documents.forEach(doc => {
+      const listItem = document.createElement('li');
+      listItem.className = 'flex items-center text-sm text-gray-600';
+      
+      // Simple document icon SVG
+      listItem.innerHTML = `
+        <svg class="mr-2 h-4 w-4 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <a href="${doc.url}" target="_blank" class="text-blue-600 hover:text-blue-800 truncate" title="${doc.name}">
+          ${doc.name}
+        </a>
+      `;
+      
+      this.documentListTarget.appendChild(listItem);
+    });
+    
+    // Show the container if documents were selected
+    if (documents.length > 0) {
+      this.selectedDocumentsContainerTarget.classList.remove(this.hiddenClass);
+    } else {
+      // Optionally hide if no documents are selected (though handlePickerResponse might handle this already)
+      this.selectedDocumentsContainerTarget.classList.add(this.hiddenClass);
+    }
+  }
+
   handleError(message) {
     console.error("Error:", message);
     
