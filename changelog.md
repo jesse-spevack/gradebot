@@ -11,6 +11,7 @@ Enhanced the Google Document Picker UI and improved design system consistency ac
 - Added comprehensive design system rules in `.cursor/rules/design.mdc` to ensure UI consistency
 - Implemented dynamic UI updates for the document selection interface
 - New navbar section for Assignments under "Beta features"
+- Added `feedback_tone` attribute to the `Assignment` model (defaulting to 'constructive') to allow configuration of feedback style.
 ### Changed
 - Completely redid the Assignments form
 - Enhanced the Google Document Picker to show/hide buttons based on selection state
@@ -26,7 +27,7 @@ Implemented foundational models for rubric-based assessment, student work evalua
 - Add migration for `criteria` table, enforcing `NOT NULL` on `title` and `rubric_id`.
 - Add model tests and fixtures for `Criterion`.
 - Add `criterion`/`criteria` inflection rule.
-- Update `fixtures.mdc` rule to prevent invalid fixtures.
+- Update `fixtures.mdc` rule to prevent non-conforming fixtures.
 - Implement `Level` model with attributes (`title`, `description`, `position`), association (`criterion`), validation (`title`), and prefixed ID (`lvl_`).
 - Add migration for `levels` table, enforcing `NOT NULL` on `title` and `criterion_id`.
 - Add model tests and fixtures for `Level`.
