@@ -16,22 +16,7 @@ class AssignmentsController < ApplicationController
 
   # POST /assignments
   def create
-    # TODO: Define expected params structure based on form submission (Task 15)
-    # expected_params = params.expect(
-    #   assignment: [
-    #     :title, :subject, :grade_level, :instructions,
-    #     :raw_rubric_text, :generate_rubric_flag, # Rubric options
-    #     selected_documents: [[:id, :name, :url]] # Array of hashes from picker
-    #   ]
-    # )
-    # assignment_attrs = expected_params[:assignment].except(:selected_documents, :generate_rubric_flag, :raw_rubric_text)
-    # selected_docs_data = expected_params[:assignment][:selected_documents]
-    # Handle rubric choice...
-
-    # TEMPORARY: Use permit for basic fields until params.expect structure is known
-    assignment_attrs = params.require(:assignment).permit(:title, :subject, :grade_level, :instructions, :raw_rubric_text)
-
-    @assignment = Current.user.assignments.build(assignment_attrs)
+    @assignment = Current.user.assignments.build(assignment_params)
 
     # TODO: Replace direct save with call to Assignment::InitializerService (Task 18)
     # which should handle Assignment creation, SelectedDocument creation, and Job enqueuing.
@@ -69,8 +54,29 @@ class AssignmentsController < ApplicationController
     redirect_to assignments_url, alert: "Assignment not found."
   end
 
-  # TODO: Define proper assignment_params using params.expect when form structure is clear
-  # def assignment_params
-  #   ...
-  # end
+  # Define proper assignment_params using params.permit
+  def assignment_params
+    params.require(:assignment).permit(
+      :title,
+      :subject,
+      :grade_level,
+      :description,
+      :instructions,
+      :feedback_tone,
+      :raw_rubric_text
+    )
+  end
+
+  def rubric_params
+    params.require(:assignment).permit(
+      :rubric_option,
+      :raw_rubric_text
+    )
+  end
+
+  def selected_documents_params
+    params.require(:assignment).permit(
+      :document_data
+    )
+  end
 end

@@ -429,3 +429,26 @@ While some of this functionality (LLM requests, login, picker, some of the domai
    4. Monthly limit progress  
    5. GitHub-style contribution graph  
 7. Individual student works can be re-processed if they failed for some reason
+
+---
+
+# Decision log
+
+## Assignment Form UX & Architecture Decisions (2025-04-21)
+
+- **Field Structure:**
+  - The assignment form uses flat attributes (title, description, subject, grade level, instructions) matching the Assignment model. No nested attributes or form object is used at this stage, as the flow is simple and direct.
+- **Rubric Selection:**
+  - A toggle switch is used for "Generate with AI" (default) vs. "I have a rubric". Only if the latter is selected does a textarea appear for rubric input. The placeholder is: "Paste your rubric here, don't worry about formatting."
+- **Google Picker:**
+  - The form integrates the Google Picker for selecting up to 35 student documents. The selected document data is submitted as a hidden field and handled in the controller. There is a dedicated section in the form for displaying selected documents.
+- **Feedback Tone:**
+  - Instead of a dropdown, a slider bar is used to select among three feedback tone options: Encouraging, Objective/Neutral, Critical. This provides a more engaging and intuitive UX.
+- **Icon Usage:**
+  - All icons in the form are rendered as Rails partials from the `/icons` directory for maintainability and reusability.
+- **Form Model Rationale:**
+  - A form object is not used at this stage. The flat model approach is sufficient because only the Assignment and document data are being submitted. If future requirements introduce complex multi-model coordination or cross-field validations, a form object or service object can be introduced.
+- **Validation:**
+  - Validation errors are displayed tastefully at the top of the form, following Tailwind and application style conventions.
+- **Submission:**
+  - The form submits via POST. Stimulus controllers are used for rubric toggle, Google Picker, and feedback tone slider interactivity.

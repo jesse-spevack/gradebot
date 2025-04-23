@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2025-04-22]
+Enhanced the Google Document Picker UI and improved design system consistency across the application.
+### Added
+- Created a shared Google icon partial at `app/views/shared/icons/_google.html.erb`
+- Added comprehensive design system rules in `.cursor/rules/design.mdc` to ensure UI consistency
+- Implemented dynamic UI updates for the document selection interface
+- New navbar section for Assignments under "Beta features"
+- Added `feedback_tone` attribute to the `Assignment` model (defaulting to 'constructive') to allow configuration of feedback style.
+### Changed
+- Completely redid the Assignments form
+- Enhanced the Google Document Picker to show/hide buttons based on selection state
+- Updated the Assignments index page to match the design system of the new assignment form
+- Improved button styling to use consistent inline-flex pattern with proper spacing
+- Fixed form structure to ensure all form elements are properly contained within the form tag
+- Standardized card styling with consistent shadows, padding, and hover effects
+
 ## [2025-04-20]
 Implemented foundational models for rubric-based assessment, student work evaluation, and the assignments management interface.
 ### Added
@@ -11,7 +27,7 @@ Implemented foundational models for rubric-based assessment, student work evalua
 - Add migration for `criteria` table, enforcing `NOT NULL` on `title` and `rubric_id`.
 - Add model tests and fixtures for `Criterion`.
 - Add `criterion`/`criteria` inflection rule.
-- Update `fixtures.mdc` rule to prevent invalid fixtures.
+- Update `fixtures.mdc` rule to prevent non-conforming fixtures.
 - Implement `Level` model with attributes (`title`, `description`, `position`), association (`criterion`), validation (`title`), and prefixed ID (`lvl_`).
 - Add migration for `levels` table, enforcing `NOT NULL` on `title` and `criterion_id`.
 - Add model tests and fixtures for `Level`.

@@ -273,20 +273,20 @@
     {
       "id": 15,
       "title": "Create Assignment Form View",
-      "description": "Build the form for creating new assignments.",
-      "status": "pending",
+      "description": "Build the form for creating new assignments with enhanced UX, Google Picker integration, and improved grading settings.",
+      "status": "done",
       "dependencies": [
         14
       ],
       "priority": "high",
-      "details": "Create a form view at /assignments/new with fields for title (text input), subject (text input), grade level (select dropdown), and instructions (textarea). Add radio buttons for 'Generate rubric' or 'Paste rubric' options. Include a textarea for manual rubric input that appears conditionally when 'Paste rubric' is selected. Add a feedback tone dropdown with options: encouraging, neutral/objective, and critical. Use Stimulus for form interaction handling. Add a 'Submit for grading' button.",
-      "testStrategy": "Test form rendering with all required fields. Test conditional display of rubric textarea. Test form submission with both rubric options."
+      "details": "Implement a new assignment form at /assignments/new with the following features:\n- Flat fields: title, description, subject, grade level (select dropdown), and instructions.\n- Use Tailwind-based cards for each section (assignment details, rubric, student work, grading settings).\n- Add a toggle switch for rubric selection: 'Generate with AI' (default) or 'I have a rubric'. Only show the rubric textarea if 'I have a rubric' is selected. Placeholder: \"Paste your rubric here, don't worry about formatting.\"\n- Integrate Google Picker for selecting up to 35 student documents. Display selected documents in a dedicated section. Submit document data as a hidden field.\n- Implement a feedback tone slider bar with three options: Encouraging, Objective/Neutral, Critical.\n- All icons should be rendered as Rails partials from the /icons directory.\n- Use Stimulus controllers for rubric toggle, document picker, and feedback tone slider interactivity.\n- Display validation errors tastefully at the top of the form.\n- No nested attributes or form object required at this stage; use the Assignment model and handle document data in the controller.\n- Submit the form via POST.\n",
+      "testStrategy": "Test form rendering with all required fields and cards. Test rubric toggle switch and conditional textarea display. Test Google Picker integration and document display. Test feedback tone slider bar. Test form submission with both rubric options and with/without selected documents. Test validation error display."
     },
     {
       "id": 16,
       "title": "Create SelectedDocument::BulkCreationService",
       "description": "Implement service for creating multiple selected documents in one transaction.",
-      "status": "pending",
+      "status": "in-progress",
       "dependencies": [
         12,
         14
@@ -325,7 +325,7 @@
       "id": 19,
       "title": "Create LLM BaseClient Implementation",
       "description": "Implement the base client for LLM requests with cost tracking.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         1
       ],
