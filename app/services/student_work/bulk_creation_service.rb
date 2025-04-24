@@ -29,15 +29,10 @@ class StudentWork::BulkCreationService
 
     return false if student_works_attributes.empty?
 
-    # Although insert_all is atomic, keep transaction for explicit control
-    # and potential future steps within the same transaction.
-    ActiveRecord::Base.transaction do
-      StudentWork.insert_all(student_works_attributes)
-    end
+    StudentWork.insert_all!(student_works_attributes)
 
     true # Return true on success
   rescue StandardError => e # Catch potential DB errors from insert_all
-    # Log error or handle as needed
     Rails.logger.error "StudentWork bulk creation failed during insert_all: #{e.message}"
     false # Return false on failure
   end

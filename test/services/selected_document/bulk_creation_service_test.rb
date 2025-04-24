@@ -13,7 +13,7 @@ class SelectedDocument::BulkCreationServiceTest < ActiveSupport::TestCase
 
   test "creates selected documents for valid input" do
     assert_difference "SelectedDocument.count", 2 do
-      SelectedDocument::BulkCreationService.new(assignment: @assignment, documents: @valid_documents).call
+      SelectedDocument::BulkCreationService.new(assignment: @assignment, documents_data: @valid_documents).call
     end
     doc = SelectedDocument.find_by(google_doc_id: "doc1")
     assert_equal @assignment, doc.assignment
@@ -24,7 +24,7 @@ class SelectedDocument::BulkCreationServiceTest < ActiveSupport::TestCase
   test "raises error if more than 35 documents" do
     too_many = Array.new(36) { |i| { google_doc_id: "doc#{i}", url: "https://docs.google.com/document/d/doc#{i}", title: "Essay #{i}" } }
     assert_raises(SelectedDocument::BulkCreationService::TooManyDocumentsError) do
-      SelectedDocument::BulkCreationService.new(assignment: @assignment, documents: too_many).call
+      SelectedDocument::BulkCreationService.new(assignment: @assignment, documents_data: too_many).call
     end
   end
 end

@@ -1,6 +1,6 @@
 # Task ID: 18
 # Title: Create Assignment::InitializerService
-# Status: pending
+# Status: in-progress
 # Dependencies: 16, 17
 # Priority: high
 # Description: Implement service for handling the complete assignment creation process.

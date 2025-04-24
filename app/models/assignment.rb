@@ -5,6 +5,7 @@ class Assignment < ApplicationRecord
   has_one :rubric, dependent: :destroy
   has_many :student_works, dependent: :destroy
   has_one :assignment_summary, dependent: :destroy
+  has_many :selected_documents, dependent: :destroy
 
   # Grade levels for assignment form
   GRADE_LEVELS = [ "5", "6", "7", "8", "9", "10", "11", "12", "university" ].freeze
