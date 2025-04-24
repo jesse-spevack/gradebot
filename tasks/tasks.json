@@ -286,7 +286,7 @@
       "id": 16,
       "title": "Create SelectedDocument::BulkCreationService",
       "description": "Implement service for creating multiple selected documents in one transaction.",
-      "status": "in-progress",
+      "status": "done",
       "dependencies": [
         12,
         14

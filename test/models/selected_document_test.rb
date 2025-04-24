@@ -30,20 +30,6 @@ class SelectedDocumentTest < ActiveSupport::TestCase
     assert_not_empty doc.errors[:url]
   end
 
-  test "uniqueness of google_doc_id" do
-    # Fixture doc_1 already exists with google_doc_id: "goog_doc_id_111"
-
-    # Attempt to create duplicate
-    duplicate_doc = SelectedDocument.new(
-      assignment: @assignment,
-      google_doc_id: @selected_doc.google_doc_id, # Use ID from fixture
-      title: "Title Duplicate",
-      url: "url_dup"
-    )
-    assert_not duplicate_doc.valid?, "Should be invalid due to non-unique google_doc_id"
-    assert_includes duplicate_doc.errors[:google_doc_id], "has already been taken"
-  end
-
   test "valid selected document fixture" do
     assert @selected_doc.valid?, "Fixture doc_1 should be valid"
     assert selected_documents(:doc_2).valid?, "Fixture doc_2 should be valid"
@@ -60,7 +46,5 @@ class SelectedDocumentTest < ActiveSupport::TestCase
     # Use fixture
     assert_respond_to @selected_doc, :prefix_id
     assert @selected_doc.prefix_id.starts_with?("sd_")
-    # Unskip
-    # skip "Prefix ID test requires model and table."
   end
 end

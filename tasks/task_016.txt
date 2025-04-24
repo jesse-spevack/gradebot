@@ -1,6 +1,6 @@
 # Task ID: 16
 # Title: Create SelectedDocument::BulkCreationService
-# Status: in-progress
+# Status: done
 # Dependencies: 12, 14
 # Priority: high
 # Description: Implement service for creating multiple selected documents in one transaction.
