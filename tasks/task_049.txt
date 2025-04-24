@@ -1,11 +1,11 @@
 # Task ID: 49
-# Title: Create ContributionGraph
+# Title: Create StreakTracker
 # Status: pending
-# Dependencies: 47, 48
+# Dependencies: 48
 # Priority: low
-# Description: Build the component for displaying GitHub-style contribution graph.
+# Description: Implement service for tracking consecutive days with grading tasks.
 # Details:
-Create ContributionGraph component for visualizing daily grading activity. Implement grid layout with one square per day. Add color intensity scaling based on activity level. Create tooltip for displaying detailed information on hover. Implement month and day labels. Add responsive design for different screen sizes.
+Create StreakTracker service for calculating consecutive days with grading activity. Implement methods for streak calculation based on completed student works. Add persistence for streak data. Create visualization component for displaying streak information. Implement real-time updates for streak changes.
 
 # Test Strategy:
-Test component rendering with different activity patterns. Test color intensity scaling. Test tooltip functionality. Test responsive design on different screen sizes.
+Test streak calculation with various activity patterns. Test persistence of streak data. Test visualization component with different streak values.

@@ -1,11 +1,11 @@
 # Task ID: 37
-# Title: Create AssignmentProcessingJob
+# Title: Create TimerService
 # Status: pending
-# Dependencies: 24, 35, 36
+# Dependencies: 36
 # Priority: medium
-# Description: Implement background job for managing the assignment processing workflow.
+# Description: Implement service for calculating and updating processing time estimates.
 # Details:
-Create AssignmentProcessingJob that inherits from ApplicationJob. Implement perform method that initializes and executes the parent ProcessingPipeline. Add creation and coordination of child pipelines for rubric generation, student work feedback, and assignment summary. Implement progress tracking and status updates. Add error handling and retry configuration.
+Create TimerService class for calculating estimated completion times. Implement methods for initial time calculation based on task counts. Add dynamic adjustment based on completed tasks. Implement real-time updates via BroadcastService. Add persistence of actual processing times.
 
 # Test Strategy:
-Test job execution with mock pipelines. Test coordination of child pipelines. Test progress tracking and status updates. Test error handling and retry functionality.
+Test time calculation with various task counts. Test dynamic adjustment with progress updates. Test integration with BroadcastService.

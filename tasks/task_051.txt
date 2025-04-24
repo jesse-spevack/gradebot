@@ -1,11 +1,11 @@
 # Task ID: 51
-# Title: Create SubscriptionsController
+# Title: Setup Stripe Integration
 # Status: pending
-# Dependencies: 50
+# Dependencies: 1
 # Priority: low
-# Description: Build controller for handling subscription management.
+# Description: Implement Stripe API integration for subscription management.
 # Details:
-Create SubscriptionsController with actions for plan selection, checkout, success, and cancel. Implement integration with Stripe Checkout for payment processing. Add session handling for checkout flow. Create success and cancel pages. Implement error handling for failed checkout attempts.
+Initialize Stripe API client with test credentials. Create configuration for subscription plans (free: 1 assignment/month, paid: 300 assignments/month). Implement webhook endpoint for subscription events. Add secure handling of Stripe API keys. Create test mode toggle for development and testing.
 
 # Test Strategy:
-Test controller actions with valid and invalid parameters. Test integration with Stripe Checkout. Test success and cancel flows. Test error handling for failed checkout attempts.
+Test API integration with Stripe test mode. Test webhook handling with simulated events. Test secure key handling.

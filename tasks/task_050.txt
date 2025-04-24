@@ -1,11 +1,11 @@
 # Task ID: 50
-# Title: Setup Stripe Integration
+# Title: Create ContributionGraph
 # Status: pending
-# Dependencies: 1
+# Dependencies: 48, 49
 # Priority: low
-# Description: Implement Stripe API integration for subscription management.
+# Description: Build the component for displaying GitHub-style contribution graph.
 # Details:
-Initialize Stripe API client with test credentials. Create configuration for subscription plans (free: 1 assignment/month, paid: 300 assignments/month). Implement webhook endpoint for subscription events. Add secure handling of Stripe API keys. Create test mode toggle for development and testing.
+Create ContributionGraph component for visualizing daily grading activity. Implement grid layout with one square per day. Add color intensity scaling based on activity level. Create tooltip for displaying detailed information on hover. Implement month and day labels. Add responsive design for different screen sizes.
 
 # Test Strategy:
-Test API integration with Stripe test mode. Test webhook handling with simulated events. Test secure key handling.
+Test component rendering with different activity patterns. Test color intensity scaling. Test tooltip functionality. Test responsive design on different screen sizes.

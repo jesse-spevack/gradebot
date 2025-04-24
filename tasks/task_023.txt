@@ -1,11 +1,11 @@
 # Task ID: 23
-# Title: Create ProcessingFailure Model
+# Title: Create ProcessingTask Abstraction
 # Status: pending
-# Dependencies: 22
+# Dependencies: 20, 21
 # Priority: high
-# Description: Implement model to store details about processing failures.
+# Description: Implement the ProcessingTask abstraction for LLM processing tasks.
 # Details:
-Create ProcessingFailure model with polymorphic association `failable`, `reason` (text), and other attributes as needed. Add tests and fixtures. Models like StudentWork, AssignmentSummary etc. will `has_many :processing_failures, as: :failable`.
+Create ProcessingTask class to encapsulate LLM processing configuration and context. Implement methods for storing task-specific data, prompt template selection, response parser selection, storage service selection, and broadcaster selection. Add methods for tracking processing time and user attribution.
 
 # Test Strategy:
-Test polymorphic association, validations, data storage.
+Test task initialization with various configurations. Test method selection logic for different task types. Test processing time tracking.

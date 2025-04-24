@@ -1,11 +1,11 @@
 # Task ID: 54
-# Title: Create Privacy, Terms, and AI Pages
+# Title: Create SubscriptionLimitEnforcer
 # Status: pending
-# Dependencies: 1
+# Dependencies: 53
 # Priority: low
-# Description: Build static pages describing data usage policies.
+# Description: Implement service for enforcing subscription assignment limits.
 # Details:
-Create privacy policy page describing data collection and usage. Build terms of service page outlining user agreements. Add AI page explaining LLM usage and data handling. Implement responsive design for all pages. Add links to these pages in the application footer.
+Create SubscriptionLimitEnforcer service for checking and enforcing assignment limits. Implement methods for counting assignments within the current month. Add integration with assignments controller to prevent creation when limit is reached. Create upgrade prompts for free tier users who reach their limit.
 
 # Test Strategy:
-Test page rendering and content. Test responsive design on different screen sizes. Test navigation links to these pages.
+Test limit enforcement with different subscription types. Test assignment counting within current month. Test integration with assignments controller.

@@ -1,11 +1,11 @@
 # Task ID: 30
-# Title: Create StudentWorkResponseParser
+# Title: Create StudentWorkPromptBuilder
 # Status: pending
-# Dependencies: 29
+# Dependencies: 23, 25, 29
 # Priority: medium
-# Description: Implement the response parser for student work feedback.
+# Description: Implement the prompt builder for student work feedback.
 # Details:
-Create StudentWorkResponseParser class that inherits from BaseResponseParser. Implement parse_response method that extracts qualitative feedback, feedback items, rubric criterion levels, and checks from JSON response. Add validation for required fields. Implement error handling for malformed responses. Format data for database storage.
+Create StudentWorkPromptBuilder class that inherits from BasePromptBuilder. Implement build_prompt method that combines student work content, assignment details, and rubric structure into a prompt for feedback generation. Add feedback tone customization based on assignment settings. Implement JSON output formatting instructions.
 
 # Test Strategy:
-Test parsing with valid and invalid JSON responses. Test validation of required fields. Test error handling for malformed responses.
+Test prompt building with different feedback tones. Test handling of long student work content. Test JSON formatting instructions.

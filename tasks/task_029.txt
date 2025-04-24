@@ -1,11 +1,11 @@
 # Task ID: 29
-# Title: Create StudentWorkPromptBuilder
+# Title: Implement Content Validation in Pipeline
 # Status: pending
-# Dependencies: 22, 24, 28
+# Dependencies: 25, 7
 # Priority: medium
-# Description: Implement the prompt builder for student work feedback.
+# Description: Add step to StudentWork processing pipeline to validate content length.
 # Details:
-Create StudentWorkPromptBuilder class that inherits from BasePromptBuilder. Implement build_prompt method that combines student work content, assignment details, and rubric structure into a prompt for feedback generation. Add feedback tone customization based on assignment settings. Implement JSON output formatting instructions.
+Modify the StudentWork feedback processing pipeline (Task 24) to fetch document content via API and validate its length (e.g., word count or token count < limit). If validation fails, update StudentWork status to 'failed' and create a ProcessingFailure record.
 
 # Test Strategy:
-Test prompt building with different feedback tones. Test handling of long student work content. Test JSON formatting instructions.
+Test pipeline modification with documents exceeding the limit, ensure status update and failure recording.

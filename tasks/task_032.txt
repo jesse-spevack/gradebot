@@ -1,11 +1,11 @@
 # Task ID: 32
-# Title: Create SummaryPromptBuilder
+# Title: Create StudentWork::UpdateService
 # Status: pending
-# Dependencies: 22, 24
+# Dependencies: 31
 # Priority: medium
-# Description: Implement the prompt builder for assignment summary generation.
+# Description: Implement service for updating student work with feedback data.
 # Details:
-Create SummaryPromptBuilder class that inherits from BasePromptBuilder. Implement build_prompt method that combines assignment details, rubric structure, and aggregated student work feedback into a prompt for summary generation. Add aggregation logic for common strengths and weaknesses. Implement JSON output formatting instructions.
+Create StudentWork::UpdateService that takes parsed student work feedback data and a student work record. Service should update student work qualitative feedback and create associated FeedbackItem, StudentWorkCriterionLevel, and StudentWorkCheck records in a transaction. Implement proper type assignment for feedback items. Add validation for required data. Implement error handling and rollback.
 
 # Test Strategy:
-Test prompt building with various input combinations. Test aggregation logic for feedback. Test JSON formatting instructions.
+Test update with valid and invalid inputs. Test creation of associated records. Test transaction rollback on error.

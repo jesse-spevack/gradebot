@@ -1,11 +1,11 @@
 # Task ID: 53
-# Title: Create SubscriptionLimitEnforcer
+# Title: Create Subscription Model and Migration
 # Status: pending
-# Dependencies: 52
+# Dependencies: 51
 # Priority: low
-# Description: Implement service for enforcing subscription assignment limits.
+# Description: Implement the Subscription model for tracking user subscriptions.
 # Details:
-Create SubscriptionLimitEnforcer service for checking and enforcing assignment limits. Implement methods for counting assignments within the current month. Add integration with assignments controller to prevent creation when limit is reached. Create upgrade prompts for free tier users who reach their limit.
+Create Subscription model with plan_type (enum: free, paid), status (enum: active, canceled, expired), start_date (datetime), end_date (datetime), and stripe_subscription_id (string). Add belongs_to :user association. Implement methods for checking assignment limits. Create and run migration. Add model tests.
 
 # Test Strategy:
-Test limit enforcement with different subscription types. Test assignment counting within current month. Test integration with assignments controller.
+Test model creation and validation. Test association with user. Test methods for checking assignment limits.

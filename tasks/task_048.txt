@@ -1,11 +1,11 @@
 # Task ID: 48
-# Title: Create StreakTracker
+# Title: Create Assignments Index Page View
 # Status: pending
-# Dependencies: 47
+# Dependencies: 14
 # Priority: low
-# Description: Implement service for tracking consecutive days with grading tasks.
+# Description: Build the view for displaying all assignments with analytics.
 # Details:
-Create StreakTracker service for calculating consecutive days with grading activity. Implement methods for streak calculation based on completed student works. Add persistence for streak data. Create visualization component for displaying streak information. Implement real-time updates for streak changes.
+Create assignments index page with list of all assignments. Add filter and sort options. Implement analytics section with streak tracking and assignment counts. Create GitHub-style contribution graph showing daily grading activity. Add pagination for large assignment lists. Implement responsive design for mobile use.
 
 # Test Strategy:
-Test streak calculation with various activity patterns. Test persistence of streak data. Test visualization component with different streak values.
+Test page rendering with different assignment counts. Test filter and sort functionality. Test analytics calculations. Test responsive design on different screen sizes.

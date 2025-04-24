@@ -1,11 +1,11 @@
 # Task ID: 52
-# Title: Create Subscription Model and Migration
+# Title: Create SubscriptionsController
 # Status: pending
-# Dependencies: 50
+# Dependencies: 51
 # Priority: low
-# Description: Implement the Subscription model for tracking user subscriptions.
+# Description: Build controller for handling subscription management.
 # Details:
-Create Subscription model with plan_type (enum: free, paid), status (enum: active, canceled, expired), start_date (datetime), end_date (datetime), and stripe_subscription_id (string). Add belongs_to :user association. Implement methods for checking assignment limits. Create and run migration. Add model tests.
+Create SubscriptionsController with actions for plan selection, checkout, success, and cancel. Implement integration with Stripe Checkout for payment processing. Add session handling for checkout flow. Create success and cancel pages. Implement error handling for failed checkout attempts.
 
 # Test Strategy:
-Test model creation and validation. Test association with user. Test methods for checking assignment limits.
+Test controller actions with valid and invalid parameters. Test integration with Stripe Checkout. Test success and cancel flows. Test error handling for failed checkout attempts.
