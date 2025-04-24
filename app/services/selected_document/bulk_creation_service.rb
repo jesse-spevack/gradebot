@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# Orchestrates the bulk creation of selected documents associated with an assignment.
+# Handles the creation of multiple selected documents in a single transaction.
 class SelectedDocument::BulkCreationService
   MAX_DOCUMENTS = 35
 
@@ -7,22 +9,22 @@ class SelectedDocument::BulkCreationService
 
   # Params:
   # - assignment: Assignment instance
-  # - documents: array of hashes with keys :google_doc_id, :url, :title
+  # - documents_data: array of hashes with keys :google_doc_id, :url, :title
   #
   # Example:
-  #   documents = [
+  #   documents_data = [
   #     { google_doc_id: "abc123", url: "https://docs.google.com/...", title: "Essay 1" },
   #     ...
   #   ]
-  def initialize(assignment:, documents:)
+  def initialize(assignment:, documents_data:)
     @assignment = assignment
-    @documents = documents
+    @documents_data = documents_data
   end
 
   def call
-    raise TooManyDocumentsError, "Cannot select more than #{MAX_DOCUMENTS} documents" if @documents.size > MAX_DOCUMENTS
+    raise TooManyDocumentsError, "Cannot select more than #{MAX_DOCUMENTS} documents" if @documents_data.size > MAX_DOCUMENTS
 
-    values = @documents.map do |doc|
+    values = @documents_data.map do |doc|
       {
         assignment_id: @assignment.id,
         google_doc_id: doc[:google_doc_id],
@@ -31,6 +33,11 @@ class SelectedDocument::BulkCreationService
       }
     end
 
-    SelectedDocument.insert_all!(values)
+    # Use insert_all! with returning to get the IDs of the created records
+    result = SelectedDocument.insert_all!(values, returning: [ :id ])
+
+    # Fetch the newly created records using the returned IDs
+    returned_ids = result.rows.flatten
+    SelectedDocument.where(id: returned_ids)
   end
 end

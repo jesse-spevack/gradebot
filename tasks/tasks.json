@@ -312,7 +312,7 @@
       "id": 18,
       "title": "Create Assignment::InitializerService",
       "description": "Implement service for handling the complete assignment creation process.",
-      "status": "pending",
+      "status": "in-progress",
       "dependencies": [
         16,
         17

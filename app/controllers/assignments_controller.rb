@@ -16,15 +16,27 @@ class AssignmentsController < ApplicationController
 
   # POST /assignments
   def create
-    @assignment = Current.user.assignments.build(assignment_params)
+    # Use the strong params method to get permitted document data
+    document_data = selected_documents_params.map { |p| p.to_h.symbolize_keys }
 
-    # TODO: Replace direct save with call to Assignment::InitializerService (Task 18)
-    # which should handle Assignment creation, SelectedDocument creation, and Job enqueuing.
+    # Prepare service input
+    service_input = Assignment::InitializerService::Input.new(
+      current_user: Current.user,
+      assignment_params: assignment_params, # Use permitted params
+      document_data: document_data
+    )
 
-    if @assignment.save
-      # TODO: Potentially kick off background job here if not using InitializerService yet
-      redirect_to @assignment, notice: "Assignment was successfully created."
+    # Instantiate and call the service
+    service = Assignment::InitializerService.new(input: service_input)
+    result_assignment = service.call
+
+    if result_assignment
+      redirect_to result_assignment, notice: "Assignment was successfully created."
     else
+      # Assign the (invalid) assignment from the service for the form
+      @assignment = service.assignment
+      # Need to re-initialize @assignment if service.assignment is nil (e.g., error before build)
+      @assignment ||= Current.user.assignments.build(assignment_params) # Rebuild if service didn't even get to build
       render :new, status: :unprocessable_entity
     end
   end
@@ -75,8 +87,10 @@ class AssignmentsController < ApplicationController
   end
 
   def selected_documents_params
-    params.require(:assignment).permit(
-      :document_data
-    )
+    # Permit an array of hashes, each with the specified keys.
+    # Use fetch with a default empty array to handle cases where it's not sent.
+    params.require(:assignment).fetch(:document_data, []).map do |doc_params|
+      doc_params.permit(:google_doc_id, :title, :url)
+    end
   end
 end

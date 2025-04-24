@@ -5,8 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [2025-04-23]
-Implemented bulk creation for assignment-selected Google Docs and removed uniqueness constraint on document IDs.
 ### Added
+- Implemented `Assignment::InitializerService` to orchestrate the creation of Assignments, Selected Documents, and Student Works within a single transaction, including enqueuing `AssignmentProcessingJob`.
+- Added integration tests for `Assignment::InitializerService` covering success and invalid parameter scenarios.
+- Added `has_many :selected_documents` association to the `Assignment` model.
 - Implemented `SelectedDocument::BulkCreationService` for efficient bulk creation of selected documents associated with assignments, using `insert_all!` for performance.
 - Service enforces a maximum of 35 documents per assignment and stores doc ID, URL, and title.
 - Added comprehensive tests for valid creation, limit enforcement, and transactional integrity.
@@ -14,6 +16,10 @@ Implemented bulk creation for assignment-selected Google Docs and removed unique
 - Implemented `Assignments::BulkCreationService` to create Assignment records for each selected Google Document (Task 15).
 - Added `google_doc_id` and `url` to `selected_documents` table (Task 16).
 ### Changed
+- Refactored `AssignmentsController#create` to utilize `Assignment::InitializerService`.
+- Corrected `selected_documents_params` in `AssignmentsController` to properly permit an array of document hashes.
+- Standardized the keyword argument for passing document data to services as `document_data`.
+- Refactored `Assignment::InitializerService` to return the `Assignment` object on success and `false` on failure/rollback, and added an `attr_reader` for the assignment object.
 - Removed unique index on `google_doc_id` from `selected_documents` to allow the same Google Doc to be selected for multiple assignments.
 - Updated migration and schema to reflect non-unique index on `google_doc_id`.
 
