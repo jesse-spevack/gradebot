@@ -1,8 +1,10 @@
 one:
   assignment: valid_assignment # From assignments.yml
+  selected_document: doc_1    # Added reference
   status: :pending
 
 two:
   assignment: valid_assignment # From assignments.yml
+  selected_document: doc_2    # Added reference
   qualitative_feedback: "Excellent work!"
-  status: :completed 
+  status: :completed

@@ -10,6 +10,9 @@ Implemented bulk creation for assignment-selected Google Docs and removed unique
 - Implemented `SelectedDocument::BulkCreationService` for efficient bulk creation of selected documents associated with assignments, using `insert_all!` for performance.
 - Service enforces a maximum of 35 documents per assignment and stores doc ID, URL, and title.
 - Added comprehensive tests for valid creation, limit enforcement, and transactional integrity.
+- Implemented `StudentWork::BulkCreationService` for efficient creation of multiple `StudentWork` records from `SelectedDocument` records using `insert_all` (Task 17).
+- Implemented `Assignments::BulkCreationService` to create Assignment records for each selected Google Document (Task 15).
+- Added `google_doc_id` and `url` to `selected_documents` table (Task 16).
 ### Changed
 - Removed unique index on `google_doc_id` from `selected_documents` to allow the same Google Doc to be selected for multiple assignments.
 - Updated migration and schema to reflect non-unique index on `google_doc_id`.

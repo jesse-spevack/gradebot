@@ -1,17 +1,17 @@
 doc_1:
   assignment: valid_assignment
-  google_doc_id: "goog_doc_id_111"
-  title: "Essay Draft 1"
-  url: "https://docs.google.com/document/d/goog_doc_id_111/edit"
+  google_doc_id: "google_doc_id_1"
+  title: "Document 1 Title"
+  url: "https://docs.google.com/document/d/google_doc_id_1/edit"
 
 doc_2:
   assignment: valid_assignment
-  google_doc_id: "goog_doc_id_222"
-  title: "Essay Draft 2"
-  url: "https://docs.google.com/document/d/goog_doc_id_222/edit"
+  google_doc_id: "google_doc_id_2" # Needs to be unique if DB constraint exists, but we removed it. Still good practice.
+  title: "Document 2 Title"
+  url: "https://docs.google.com/document/d/google_doc_id_2/edit"
 
 doc_3:
   assignment: valid_assignment
-  google_doc_id: "goog_doc_id_333"
-  title: "Essay Draft 3"
-  url: "https://docs.google.com/document/d/goog_doc_id_333/edit"
+  google_doc_id: "google_doc_id_333"
+  title: "Document 3 Title"
+  url: "https://docs.google.com/document/d/google_doc_id_333/edit"
