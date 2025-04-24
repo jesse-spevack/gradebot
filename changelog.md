@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2025-04-23]
+Implemented bulk creation for assignment-selected Google Docs and removed uniqueness constraint on document IDs.
+### Added
+- Implemented `SelectedDocument::BulkCreationService` for efficient bulk creation of selected documents associated with assignments, using `insert_all!` for performance.
+- Service enforces a maximum of 35 documents per assignment and stores doc ID, URL, and title.
+- Added comprehensive tests for valid creation, limit enforcement, and transactional integrity.
+### Changed
+- Removed unique index on `google_doc_id` from `selected_documents` to allow the same Google Doc to be selected for multiple assignments.
+- Updated migration and schema to reflect non-unique index on `google_doc_id`.
+
 ## [2025-04-22]
 Enhanced the Google Document Picker UI and improved design system consistency across the application.
 ### Added

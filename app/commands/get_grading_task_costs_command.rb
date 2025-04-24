@@ -4,7 +4,7 @@ class GetGradingTaskCostsCommand < CommandBase
   private
 
   def execute
-    if start_date > end_date
+    if start_date && end_date && start_date > end_date
       @errors << "Invalid date range: start date must be before end date"
       return nil
     end

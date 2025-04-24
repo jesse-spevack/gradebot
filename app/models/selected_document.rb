@@ -7,7 +7,7 @@ class SelectedDocument < ApplicationRecord
 
   # Validations
   validates :assignment, presence: true
-  validates :google_doc_id, presence: true, uniqueness: true
+  validates :google_doc_id, presence: true
   validates :url, presence: true
   validates :title, presence: true
 end
