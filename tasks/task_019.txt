@@ -1,11 +1,11 @@
 # Task ID: 19
-# Title: Create LLM BaseClient Implementation
-# Status: done
-# Dependencies: 1
-# Priority: high
-# Description: Implement the base client for LLM requests with cost tracking.
+# Title: Test Assignment Creation Form End-to-End
+# Status: pending
+# Dependencies: 18
+# Priority: medium
+# Description: Verify that submitting the assignment creation form creates the Assignment, SelectedDocument, and StudentWork records correctly, and that the relevant log statement appears.
 # Details:
-Create BaseClient class for LLM requests that handles authentication, request formatting, and response parsing. Implement methods for sending prompts to LLMs. Add token counting for prompt and completion. Implement event publication for request completion. Add timing mechanisms for performance tracking.
+Create a system test or a manual test script. The test should log in as a user, navigate to the new assignment form, fill it out (including selecting documents), submit it, and verify the creation of the Assignment, associated SelectedDocument records, and associated StudentWork records in the database. Also verify that the 'Assignment successfully created' log message or similar confirmation appears (e.g., flash notice).
 
 # Test Strategy:
-Test client initialization with valid and invalid credentials. Test request formatting and response parsing. Test token counting accuracy. Test event publication for completed requests.
+Execute the system test or manual script. Check database records for the created Assignment, SelectedDocument(s), and StudentWork(s). Check application logs/UI for the expected success confirmation.

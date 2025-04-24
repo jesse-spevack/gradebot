@@ -1,11 +1,11 @@
 # Task ID: 28
-# Title: Implement Content Validation in Pipeline
+# Title: Create Rubric::CreationService
 # Status: pending
-# Dependencies: 24, 7
+# Dependencies: 27
 # Priority: medium
-# Description: Add step to StudentWork processing pipeline to validate content length.
+# Description: Implement service for creating rubric structure from parsed response.
 # Details:
-Modify the StudentWork feedback processing pipeline (Task 24) to fetch document content via API and validate its length (e.g., word count or token count < limit). If validation fails, update StudentWork status to 'failed' and create a ProcessingFailure record.
+Create Rubric::CreationService that takes parsed rubric data and an assignment. Service should create Rubric record with associated Criterion and Level records in a transaction. Implement proper position ordering for criteria and levels. Add validation for required data. Implement error handling and rollback.
 
 # Test Strategy:
-Test pipeline modification with documents exceeding the limit, ensure status update and failure recording.
+Test creation with valid and invalid inputs. Test proper position ordering. Test transaction rollback on error.

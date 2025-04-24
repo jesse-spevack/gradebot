@@ -1,11 +1,11 @@
 # Task ID: 31
-# Title: Create StudentWork::UpdateService
+# Title: Create StudentWorkResponseParser
 # Status: pending
 # Dependencies: 30
 # Priority: medium
-# Description: Implement service for updating student work with feedback data.
+# Description: Implement the response parser for student work feedback.
 # Details:
-Create StudentWork::UpdateService that takes parsed student work feedback data and a student work record. Service should update student work qualitative feedback and create associated FeedbackItem, StudentWorkCriterionLevel, and StudentWorkCheck records in a transaction. Implement proper type assignment for feedback items. Add validation for required data. Implement error handling and rollback.
+Create StudentWorkResponseParser class that inherits from BaseResponseParser. Implement parse_response method that extracts qualitative feedback, feedback items, rubric criterion levels, and checks from JSON response. Add validation for required fields. Implement error handling for malformed responses. Format data for database storage.
 
 # Test Strategy:
-Test update with valid and invalid inputs. Test creation of associated records. Test transaction rollback on error.
+Test parsing with valid and invalid JSON responses. Test validation of required fields. Test error handling for malformed responses.

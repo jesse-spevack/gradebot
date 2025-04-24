@@ -1,11 +1,11 @@
 # Task ID: 36
-# Title: Create TimerService
+# Title: Create BroadcastService
 # Status: pending
-# Dependencies: 35
+# Dependencies: 1
 # Priority: medium
-# Description: Implement service for calculating and updating processing time estimates.
+# Description: Implement service for broadcasting real-time updates to the UI.
 # Details:
-Create TimerService class for calculating estimated completion times. Implement methods for initial time calculation based on task counts. Add dynamic adjustment based on completed tasks. Implement real-time updates via BroadcastService. Add persistence of actual processing times.
+Create BroadcastService class for sending real-time updates via Action Cable. Implement methods for broadcasting rubric updates, student work status changes, and assignment completion. Add channel configurations for assignment-specific updates. Implement serialization of broadcast data.
 
 # Test Strategy:
-Test time calculation with various task counts. Test dynamic adjustment with progress updates. Test integration with BroadcastService.
+Test broadcasting with mock channel. Test serialization of different data types. Test channel configuration for assignment-specific updates.

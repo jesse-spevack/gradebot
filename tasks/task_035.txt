@@ -1,11 +1,11 @@
 # Task ID: 35
-# Title: Create BroadcastService
+# Title: Create AssignmentSummary::CreationService
 # Status: pending
-# Dependencies: 1
+# Dependencies: 34
 # Priority: medium
-# Description: Implement service for broadcasting real-time updates to the UI.
+# Description: Implement service for creating assignment summary from parsed response.
 # Details:
-Create BroadcastService class for sending real-time updates via Action Cable. Implement methods for broadcasting rubric updates, student work status changes, and assignment completion. Add channel configurations for assignment-specific updates. Implement serialization of broadcast data.
+Create AssignmentSummary::CreationService that takes parsed summary data and an assignment. Service should create AssignmentSummary record with associated FeedbackItem records in a transaction. Add calculation of student_work_count. Implement error handling and rollback.
 
 # Test Strategy:
-Test broadcasting with mock channel. Test serialization of different data types. Test channel configuration for assignment-specific updates.
+Test creation with valid and invalid inputs. Test student_work_count calculation. Test transaction rollback on error.
