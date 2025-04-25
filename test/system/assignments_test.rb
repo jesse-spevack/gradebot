@@ -17,8 +17,8 @@ class AssignmentsTest < ApplicationSystemTestCase
 
     # Prepare document data (simulating Google Picker selection)
     selected_docs = [
-      { google_doc_id: "doc_id_1", title: "Student Work 1.gdoc", url: "https://docs.google.com/document/d/doc_id_1/edit" },
-      { google_doc_id: "doc_id_2", title: "Student Work 2.gdoc", url: "https://docs.google.com/document/d/doc_id_2/edit" }
+      { id: "doc_id_1", name: "Student Work 1.gdoc", url: "https://docs.google.com/document/d/doc_id_1/edit" },
+      { id: "doc_id_2", name: "Student Work 2.gdoc", url: "https://docs.google.com/document/d/doc_id_2/edit" }
     ]
     document_data_json = selected_docs.to_json
 
@@ -74,8 +74,8 @@ class AssignmentsTest < ApplicationSystemTestCase
 
     # Verify selected document details (optional but recommended)
     created_assignment.selected_documents.order(:google_doc_id).each_with_index do |doc, index|
-      assert_equal selected_docs[index][:google_doc_id], doc.google_doc_id
-      assert_equal selected_docs[index][:title], doc.title
+      assert_equal selected_docs[index][:id], doc.google_doc_id
+      assert_equal selected_docs[index][:name], doc.title
       assert_equal selected_docs[index][:url], doc.url
     end
   end

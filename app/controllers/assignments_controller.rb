@@ -33,10 +33,12 @@ class AssignmentsController < ApplicationController
     if result_assignment
       redirect_to result_assignment, notice: "Assignment was successfully created."
     else
-      # Assign the (invalid) assignment from the service for the form
-      @assignment = service.assignment
-      # Need to re-initialize @assignment if service.assignment is nil (e.g., error before build)
-      @assignment ||= Current.user.assignments.build(assignment_params) # Rebuild if service didn't even get to build
+      # Rebuild the assignment object with submitted params for form redisplay
+      @assignment = Current.user.assignments.build(assignment_params)
+      # Add a generic error message if the service failed
+      # (A more specific error could be passed back from the service if needed)
+      @assignment.errors.add(:base, "Assignment could not be created. Please check the details and selected documents.")
+
       render :new, status: :unprocessable_entity
     end
   end
@@ -87,29 +89,37 @@ class AssignmentsController < ApplicationController
   end
 
   def selected_documents_params
-    # Permit an array of hashes, each with the specified keys.
-    # Use fetch with a default empty array string to handle cases where it's not sent.
-    raw_data = params.require(:assignment).fetch(:document_data, '[]')
+    raw_data = params.require(:assignment).fetch(:document_data, "[]")
 
-    # Parse the JSON string into a Ruby array of hashes
     parsed_data = begin
       JSON.parse(raw_data)
     rescue JSON::ParserError
-      [] # Return empty array if JSON is invalid
+      Rails.logger.error("Failed to parse document_data JSON: #{raw_data}")
+      []
     end
 
-    # Ensure it's an array before mapping
     unless parsed_data.is_a?(Array)
+      Rails.logger.warn("Parsed document_data is not an array: #{parsed_data.inspect}")
       return []
     end
 
-    # Manually permit keys for each hash in the parsed array
+    # Transform and permit keys for each hash in the parsed array
     parsed_data.map do |doc_hash|
       unless doc_hash.is_a?(Hash)
+        Rails.logger.warn("Skipping non-hash element in document_data: #{doc_hash.inspect}")
         next nil # Skip if element is not a hash
       end
-      # Use slice to select only the permitted keys, converting keys to strings for safety
-      doc_hash.stringify_keys.slice('google_doc_id', 'title', 'url')
+
+      # Transform keys and convert to symbols for the service
+      transformed_hash = {
+        google_doc_id: doc_hash["id"],
+        title: doc_hash["name"], # Transform 'name' to 'title'
+        url: doc_hash["url"]
+      }
+
+      # Select only the expected keys (already done by transformation)
+      # No explicit permit needed here as we constructed the hash manually
+      transformed_hash
     end.compact # Remove any nil elements resulting from non-hash items
   end
 end
