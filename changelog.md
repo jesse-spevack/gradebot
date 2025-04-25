@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2025-04-24]
+
+### Fixed
+- Corrected assignment creation errors caused by unpermitted parameters (`rubric_option`) being passed to `Assignment.new`. Parameter filtering is now handled correctly in `AssignmentsController`.
+- Fixed feedback tone selection: The form slider now correctly updates the `assignment[feedback_tone]` hidden field using a Stimulus controller (`feedback_tone_slider_controller.js`), ensuring the selected tone ("encouraging", "neutral/objective", or "critical") is saved.
+- Resolved "Unpermitted parameters" warnings in logs by removing unused form fields (`rubric_option`, `feedback_tone_slider`) and permitting `document_data` in `AssignmentsController` while still processing it via a helper method.
+
+### Changed
+- Refactored `Assignment::InitializerService` to use a dedicated input object (`Assignment::InitializerServiceInput`), improving clarity and separating parameter handling from service logic.
+- Updated `AssignmentsController` to use the new `Assignment::InitializerServiceInput` object.
+- Simplified `feedback_tone_slider_controller.js` to directly map slider values to tone strings based on `Assignment::FEEDBACK_TONES`.
+- Removed unused `assignment[rubric_option]` and `assignment[feedback_tone_slider]` fields from the new assignment form (`assignments/new.html.erb`).
+- Added a `self.call` convenience method to `SelectedDocument::BulkCreationService`.
+
+
 ## [2025-04-23]
 ### Added
 - Implemented `Assignment::InitializerService` to orchestrate the creation of Assignments, Selected Documents, and Student Works within a single transaction, including enqueuing `AssignmentProcessingJob`.

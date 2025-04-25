@@ -16,6 +16,10 @@ class SelectedDocument::BulkCreationService
   #     { google_doc_id: "abc123", url: "https://docs.google.com/...", title: "Essay 1" },
   #     ...
   #   ]
+  def self.call(assignment:, documents_data:)
+    new(assignment: assignment, documents_data: documents_data).call
+  end
+
   def initialize(assignment:, documents_data:)
     @assignment = assignment
     @documents_data = documents_data
@@ -27,9 +31,9 @@ class SelectedDocument::BulkCreationService
     values = @documents_data.map do |doc|
       {
         assignment_id: @assignment.id,
-        google_doc_id: doc[:google_doc_id],
+        google_doc_id: doc[:id],
         url: doc[:url],
-        title: doc[:title]
+        title: doc[:name]
       }
     end
 

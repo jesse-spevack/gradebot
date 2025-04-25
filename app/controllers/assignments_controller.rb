@@ -16,27 +16,12 @@ class AssignmentsController < ApplicationController
 
   # POST /assignments
   def create
-    # Use the strong params method to get permitted document data
-    document_data = selected_documents_params.map { |p| p.to_h.symbolize_keys }
+    @assignment = Assignment::InitializerService.call(input: initializer_service_input)
 
-    # Prepare service input
-    service_input = Assignment::InitializerService::Input.new(
-      current_user: Current.user,
-      assignment_params: assignment_params, # Use permitted params
-      document_data: document_data
-    )
-
-    # Instantiate and call the service
-    service = Assignment::InitializerService.new(input: service_input)
-    result_assignment = service.call
-
-    if result_assignment
-      redirect_to result_assignment, notice: "Assignment was successfully created."
+    if @assignment
+      redirect_to @assignment, notice: "Assignment was successfully created."
     else
-      # Assign the (invalid) assignment from the service for the form
-      @assignment = service.assignment
-      # Need to re-initialize @assignment if service.assignment is nil (e.g., error before build)
-      @assignment ||= Current.user.assignments.build(assignment_params) # Rebuild if service didn't even get to build
+      @assignment = Current.user.assignments.build(initializer_service_input.to_assignment_params)
       render :new, status: :unprocessable_entity
     end
   end
@@ -66,7 +51,7 @@ class AssignmentsController < ApplicationController
     redirect_to assignments_url, alert: "Assignment not found."
   end
 
-  # Define proper assignment_params using params.permit
+  # Define proper assignment_params using params.permit, only including Assignment attributes
   def assignment_params
     params.require(:assignment).permit(
       :title,
@@ -75,22 +60,23 @@ class AssignmentsController < ApplicationController
       :description,
       :instructions,
       :feedback_tone,
-      :raw_rubric_text
+      :raw_rubric_text,
+      :document_data
     )
   end
 
-  def rubric_params
-    params.require(:assignment).permit(
-      :rubric_option,
-      :raw_rubric_text
-    )
+  def document_data
+    JSON.parse(params.require(:assignment).fetch(:document_data))
+  rescue JSON::ParserError => e
+    Rails.logger.error("Failed to parse document_data: #{e.message}")
+    []
   end
 
-  def selected_documents_params
-    # Permit an array of hashes, each with the specified keys.
-    # Use fetch with a default empty array to handle cases where it's not sent.
-    params.require(:assignment).fetch(:document_data, []).map do |doc_params|
-      doc_params.permit(:google_doc_id, :title, :url)
-    end
+  def initializer_service_input
+    Assignment::InitializerServiceInput.new(
+      current_user: Current.user,
+      assignment_params: assignment_params,
+      document_data: document_data
+    )
   end
 end
