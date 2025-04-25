@@ -1,6 +1,6 @@
 # Task ID: 19
 # Title: Test Assignment Creation Form End-to-End
-# Status: pending
+# Status: in-progress
 # Dependencies: 18
 # Priority: medium
 # Description: Verify that submitting the assignment creation form creates the Assignment, SelectedDocument, and StudentWork records correctly, and that the relevant log statement appears.

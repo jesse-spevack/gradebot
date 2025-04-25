@@ -325,7 +325,7 @@
       "id": 19,
       "title": "Test Assignment Creation Form End-to-End",
       "description": "Verify that submitting the assignment creation form creates the Assignment, SelectedDocument, and StudentWork records correctly, and that the relevant log statement appears.",
-      "status": "pending",
+      "status": "in-progress",
       "dependencies": [
         18
       ],
