@@ -24,6 +24,9 @@ module LLMTestHelpers
   end
 end
 
+# Allow Capybara to connect to its own server
+require "webmock/minitest"
+WebMock.disable_net_connect!(allow_localhost: true)
 module ActiveSupport
   class TestCase
     # Run tests in parallel with specified workers

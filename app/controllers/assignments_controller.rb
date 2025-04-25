@@ -88,9 +88,28 @@ class AssignmentsController < ApplicationController
 
   def selected_documents_params
     # Permit an array of hashes, each with the specified keys.
-    # Use fetch with a default empty array to handle cases where it's not sent.
-    params.require(:assignment).fetch(:document_data, []).map do |doc_params|
-      doc_params.permit(:google_doc_id, :title, :url)
+    # Use fetch with a default empty array string to handle cases where it's not sent.
+    raw_data = params.require(:assignment).fetch(:document_data, '[]')
+
+    # Parse the JSON string into a Ruby array of hashes
+    parsed_data = begin
+      JSON.parse(raw_data)
+    rescue JSON::ParserError
+      [] # Return empty array if JSON is invalid
     end
+
+    # Ensure it's an array before mapping
+    unless parsed_data.is_a?(Array)
+      return []
+    end
+
+    # Manually permit keys for each hash in the parsed array
+    parsed_data.map do |doc_hash|
+      unless doc_hash.is_a?(Hash)
+        next nil # Skip if element is not a hash
+      end
+      # Use slice to select only the permitted keys, converting keys to strings for safety
+      doc_hash.stringify_keys.slice('google_doc_id', 'title', 'url')
+    end.compact # Remove any nil elements resulting from non-hash items
   end
 end
