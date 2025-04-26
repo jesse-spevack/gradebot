@@ -9,13 +9,11 @@ class SelectedDocument::BulkCreationService
 
   # Params:
   # - assignment: Assignment instance
-  # - documents_data: array of hashes with keys :google_doc_id, :url, :title
-  #
-  # Example:
-  #   documents_data = [
-  #     { google_doc_id: "abc123", url: "https://docs.google.com/...", title: "Essay 1" },
-  #     ...
-  #   ]
+  # - documents_data: array of OpenStruct instances with keys :google_doc_id, :url, :title
+  def self.call(assignment:, documents_data:)
+    new(assignment: assignment, documents_data: documents_data).call
+  end
+
   def initialize(assignment:, documents_data:)
     @assignment = assignment
     @documents_data = documents_data
@@ -24,17 +22,26 @@ class SelectedDocument::BulkCreationService
   def call
     raise TooManyDocumentsError, "Cannot select more than #{MAX_DOCUMENTS} documents" if @documents_data.size > MAX_DOCUMENTS
 
-    values = @documents_data.map do |doc|
+
+    values = @documents_data.map do |document_data|
       {
         assignment_id: @assignment.id,
-        google_doc_id: doc[:google_doc_id],
-        url: doc[:url],
-        title: doc[:title]
+        title: document_data.title,
+        google_doc_id: document_data.google_doc_id,
+        url: document_data.url
       }
     end
 
+    Rails.logger.warn("Values\n\n: #{values}")
+
     # Use insert_all! with returning to get the IDs of the created records
+    begin
     result = SelectedDocument.insert_all!(values, returning: [ :id ])
+    rescue StandardError => e
+      Rails.logger.error "Failed to create selected documents: #{e.message}"
+
+      raise
+    end
 
     # Fetch the newly created records using the returned IDs
     returned_ids = result.rows.flatten

@@ -6,8 +6,8 @@ class SelectedDocument::BulkCreationServiceTest < ActiveSupport::TestCase
   setup do
     @assignment = assignments(:valid_assignment)
     @valid_documents = [
-      { google_doc_id: "doc1", url: "https://docs.google.com/document/d/doc1", title: "Essay 1" },
-      { google_doc_id: "doc2", url: "https://docs.google.com/document/d/doc2", title: "Essay 2" }
+      OpenStruct.new(google_doc_id: "doc1", url: "https://docs.google.com/document/d/doc1", title: "Essay 1"),
+      OpenStruct.new(google_doc_id: "doc2", url: "https://docs.google.com/document/d/doc2", title: "Essay 2")
     ]
   end
 
@@ -22,7 +22,7 @@ class SelectedDocument::BulkCreationServiceTest < ActiveSupport::TestCase
   end
 
   test "raises error if more than 35 documents" do
-    too_many = Array.new(36) { |i| { google_doc_id: "doc#{i}", url: "https://docs.google.com/document/d/doc#{i}", title: "Essay #{i}" } }
+    too_many = Array.new(36) { |i| OpenStruct.new(google_doc_id: "doc#{i}", url: "https://docs.google.com/document/d/doc#{i}", title: "Essay #{i}") }
     assert_raises(SelectedDocument::BulkCreationService::TooManyDocumentsError) do
       SelectedDocument::BulkCreationService.new(assignment: @assignment, documents_data: too_many).call
     end

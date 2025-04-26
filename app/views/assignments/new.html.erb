@@ -97,8 +97,6 @@
               Paste rubric
             </span>
           </span>
-          <%# Hidden field stores the actual value ('generate' or 'paste') %>
-          <input type="hidden" name="assignment[rubric_option]" id="rubric_option_field" value="generate"> 
           <button type="button"
             id="rubric-toggle-switch"
             class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-blue-600 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2" 
@@ -192,17 +190,21 @@
         </div>
         <p class="text-sm text-gray-500 mb-4">Fine tune how GradeBot will grade your student work.</p>
 
-        <div class="mb-4" data-controller="feedback-tone-slider">
+        <%# Pass tones array to Stimulus controller %>
+        <div class="mb-4" data-controller="feedback-tone-slider" data-feedback-tone-slider-tones-value="<%= Assignment::FEEDBACK_TONES.to_json %>">
           <label class="block text-gray-700 text-sm font-bold mb-2">Feedback tone</label>
           <div class="flex items-center gap-3">
-            <input type="range" min="0" max="2" step="1" value="0" name="assignment[feedback_tone_slider]" data-feedback-tone-slider-target="slider" data-action="input->feedback-tone-slider#onInput input->feedback-tone-slider#syncHidden" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" aria-label="Feedback Tone" />
+            <%# Removed name attribute, kept Stimulus target/action, updated max value %>
+            <input type="range" min="0" max="<%= Assignment::FEEDBACK_TONES.size - 1 %>" step="1" value="0" data-feedback-tone-slider-target="slider" data-action="input->feedback-tone-slider#updateTone" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" aria-label="Feedback Tone" />
           </div>
+          <%# Added hidden field for the actual feedback_tone value %>
+          <%= form.hidden_field :feedback_tone, data: { feedback_tone_slider_target: "feedbackTone" } %>
           <div class="flex flex-row flex-wrap justify-between mt-2">
-            <span class="text-sm text-gray-500">Encouraging</span>
-            <span class="text-sm text-gray-500">Objective / Neutral</span>
-            <span class="text-sm text-gray-500">Critical</span>
+            <%# Use FEEDBACK_TONES for labels %>
+            <% Assignment::FEEDBACK_TONES.each do |tone| %>
+              <span class="text-sm text-gray-500 capitalize"><%= tone %></span>
+            <% end %>
           </div>
-          <input type="hidden" name="assignment[feedback_tone]" value="encouraging" data-feedback-tone-slider-target="hidden" />
         </div>
         
         <div class="mt-6 flex items-center justify-between">
