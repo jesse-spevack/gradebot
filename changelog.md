@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2025-04-25]
+
+### Fixed
+- Resolved inconsistency in handling selected Google Document data throughout the assignment creation process. The frontend (`doc_picker_controller.js`) now sends data using `title` and `googleDocId` keys, which are correctly parsed by `Assignment::InitializerServiceInput` into `OpenStruct` objects expected by `SelectedDocument::BulkCreationService`.
+
+### Changed
+- Updated `doc_picker_controller.js` to use `title` and `googleDocId` keys for selected document data.
+- Modified `Assignment::InitializerServiceInput#document_data` to parse incoming document hashes (with string keys) and convert them into an array of `OpenStruct`s.
+- Updated `SelectedDocument::BulkCreationService` to expect and process an array of `OpenStruct`s for `documents_data`.
+- Aligned tests (`InitializerServiceTest`, `BulkCreationServiceTest`) with the updated data structures and removed sub-service mocking from the initializer test.
+- Added more detailed logging to `SelectedDocument::BulkCreationService` during `insert_all!`.
+- Minor cleanup in `Assignment::InitializerService`.
+
 ## [2025-04-24]
 
 ### Fixed

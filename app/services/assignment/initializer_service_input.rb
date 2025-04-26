@@ -39,7 +39,14 @@ class Assignment::InitializerServiceInput
   end
 
   def document_data
-    @document_data.map { |datum| datum.symbolize_keys }
+    Rails.logger.warn("Document data\n\n: #{@document_data}")
+    @document_data.map do |datum|
+      OpenStruct.new(
+        title: datum["title"],
+        google_doc_id: datum["googleDocId"],
+        url: datum["url"]
+      )
+    end
   end
 
   def to_assignment_params
