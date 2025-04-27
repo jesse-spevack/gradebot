@@ -12,13 +12,14 @@ class LLMRequest
 
   attr_accessor :prompt, :llm_model_name, :user, :trackable,
                 :request_type, :temperature, :max_tokens,
-                :metadata, :request_id
+                :metadata, :request_id, :top_p
 
   validates :prompt, presence: true
   validates :llm_model_name, presence: true
   validates :request_type, presence: true
   validates :temperature, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 1 }, allow_nil: true
   validates :max_tokens, numericality: { only_integer: true, greater_than: 0 }, allow_nil: true
+  validates :top_p, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 1 }, allow_nil: true
 
   # Initialize a new LLM request with default values
   #
@@ -30,6 +31,7 @@ class LLMRequest
     @metadata ||= {}
     @temperature ||= 0.7
     @max_tokens ||= 1000
+    @top_p ||= 1
   end
 
   # Convert to parameters for LLM API
@@ -40,7 +42,8 @@ class LLMRequest
       prompt: prompt,
       llm_model_name: llm_model_name,
       temperature: temperature,
-      max_tokens: max_tokens
+      max_tokens: max_tokens,
+      top_p: top_p
     }
   end
 

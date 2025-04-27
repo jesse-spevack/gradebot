@@ -56,6 +56,10 @@ gem "google-cloud-storage", require: false
 gem "chartkick"
 gem "groupdate"
 
+# HTTP Client
+gem "faraday", "~> 2.7" # Added for REST API calls
+gem "faraday-retry", "~> 2.2" # Optional: for automatic retries
+
 # Quality of life
 gem "prefixed_ids"
 
@@ -80,8 +84,8 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver", "~> 4.31.0"
   gem "webmock", "~> 3.19"
+  gem "faraday-net_http" # Add adapter for testing/stubbing with webmock
+  gem "mocha", "~> 2.7"
 end
 
 gem "rack-attack", "~> 6.7"
-
-gem "mocha", "~> 2.7", group: :test

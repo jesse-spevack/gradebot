@@ -39,7 +39,7 @@ module LLM
       end
 
       # Get the LLM client
-      llm_client = LLM::ClientFactory.create
+      llm_client = LLM::ClientFactory.create(llm_request.llm_model_name)
 
       # Log client type for debugging
       Rails.logger.debug("LLM client type: #{llm_client.class.name}")

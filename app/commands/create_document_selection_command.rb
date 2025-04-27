@@ -4,8 +4,8 @@ class CreateDocumentSelectionCommand < CommandBase
 
     document_selection_attributes = document_data.map do |doc|
       {
-        document_id: doc["id"],
-        name: doc["name"],
+        document_id: doc["googleDocId"],
+        name: doc["title"],
         url: doc["url"],
         grading_task_id: grading_task.id
       }
