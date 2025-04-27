@@ -16,20 +16,7 @@ class LLM::ClientFactoryTest < ActiveSupport::TestCase
   end
 
   test ".create returns Anthropic client" do
-    client = LLM::ClientFactory.create
-
-    assert_instance_of LLM::Anthropic::Client, client
-  end
-
-  test ".create_with_model returns Anthropic client regardless of model name" do
-    client = LLM::ClientFactory.create_with_model("any-model-name")
-
-    assert_instance_of LLM::Anthropic::Client, client
-  end
-
-  test "works with backward compatibility" do
-    config = LLM::Configuration.model_for(:grade_assignment)
-    client = LLM::ClientFactory.create_with_model(config[:model])
+    client = LLM::ClientFactory.create("claude-3-opus-20240229")
 
     assert_instance_of LLM::Anthropic::Client, client
   end

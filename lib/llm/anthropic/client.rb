@@ -111,8 +111,10 @@ module LLM
             Rails.logger.warn("Anthropic API rate limit exceeded. Retry after: #{retry_after} seconds")
 
             # Raise ApiOverloadError which can be caught by RetryHandler
-            raise ApiOverloadError.new(
+            raise LLM::Errors::ApiOverloadError.new(
               "Anthropic API error (#{response.code}): #{error_msg}",
+              status_code: response.code.to_i,
+              response_body: error_body,
               retry_after: retry_after,
               original_error: original_error
             )

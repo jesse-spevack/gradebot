@@ -1,36 +1,35 @@
 # frozen_string_literal: true
 
+require_relative "anthropic/client"
+require_relative "gemini/client"
 require_relative "errors"
 
 module LLM
-  # Factory class for creating LLM clients
-  #
-  # This factory creates and returns the appropriate Claude client for processing LLM requests.
-  # Currently, the application only uses Claude models.
-  #
-  # @example Create a client
-  #   client = LLM::ClientFactory.create
-  #   # Returns an instance of LLM::Anthropic::Client
-  #
+  # Factory for creating LLM client instances.
+  # Determines the appropriate client based on the requested model.
   class ClientFactory
-    # Create a client instance for processing LLM requests
+    # Creates an instance of the appropriate LLM client.
     #
-    # @return [LLM::Anthropic::Client] an instance of the Anthropic client
-    def self.create
-      # Require the client file
-      require_relative "anthropic/client"
+    # @param model_name [String] The name of the LLM model requested (e.g., "claude-3-haiku-20240307", "gemini-1.5-flash-latest").
+    # @param options [Hash] Optional configuration for the client.
+    # @return [LLM::BaseClient] An instance of the appropriate client.
+    # @raise [LLM::Errors::UnsupportedModelError] If the model family is not recognized.
+    def self.create(model_name, options = {})
+      # TODO: Add more robust model family detection if needed
+      if model_name.nil? || model_name.strip.empty?
+        raise LLM::Errors::UnsupportedModelError, "Model name cannot be blank."
+      end
 
-      # Instantiate the client
-      LLM::Anthropic::Client.new
-    end
-
-    # This method is kept for backward compatibility
-    # It ignores the model_name parameter and always returns an Anthropic client
-    #
-    # @param model_name [String] Ignored parameter (kept for backward compatibility)
-    # @return [LLM::Anthropic::Client] an instance of the Anthropic client
-    def self.create_with_model(model_name)
-      create
+      if model_name.start_with?("claude-")
+        Rails.logger.debug { "Creating Anthropic client for model: #{model_name}" }
+        LLM::Anthropic::Client.new(options)
+      elsif model_name.start_with?("gemini-")
+        Rails.logger.debug { "Creating Gemini client for model: #{model_name}" }
+        LLM::Gemini::Client.new(options)
+      else
+        Rails.logger.error { "Unsupported LLM model family for model: #{model_name}" }
+        raise LLM::Errors::UnsupportedModelError, "Unsupported LLM model family for '#{model_name}'. Supported families start with 'claude-' or 'gemini-'."
+      end
     end
   end
 end

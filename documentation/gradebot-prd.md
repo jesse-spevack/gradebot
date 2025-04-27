@@ -1,16 +1,18 @@
-# 🤖 GradeBot Product Requirements Document
+# 🤖 GradeBot 
+
+## Product Requirements Document
 
 GradeBot is an AI-feedback assistant designed for educators who want to provide better feedback in less time. Gradebot helps teachers focus on planning and insights and transform hours of grading into minutes of strategic review.
 
-## Problem
+### Problem
 
 Grading student work is time consuming work often done outside of regular school hours.
 
-## Target user
+### Target user
 
 The target user is a teacher who has students complete written assignments using Google Docs. This user may already use LLMs to generate assignments, rubrics, and provide feedback, but the process is time consuming and manual.
 
-## How it works
+### How it works
 
 Teachers log in with their Google accounts. The teacher visits the assignment form to create a new assignment. They enter an assignment title and subject, they select a grade level. They then paste instructions into a text area field.
 
@@ -32,7 +34,7 @@ Once all of the student works are completed with feedback, they are assembled al
 
 Teachers can go to their assignments list and see a list of all their previous assignments. In the header, there is a streak indicator showing consecutive days with grading tasks, total number of grading tasks.
 
-There are further gamified elements like a github-style contribution chart which shows 1 square per day of the year. The square gets darker the more student works were graded on that day.
+There are further gamification elements like a github-style contribution chart which shows 1 square per day of the year. The square gets darker the more student works were graded on that day.
 
 Behind the scenes, every time a prompt is sent to an LLM, the cost of the response is tracked such that we can see cost per request and aggregate costs by requests for each assignment and each user.
 
@@ -40,9 +42,9 @@ There is a Stripe integration to handle subscriptions. Every user can get 1 assi
 
 GradeBot has a privacy, terms of service, and ai pages describing specifically what data we collect and how we use it.
 
-## Engineering specification
+### Engineering specification
 
-### Techstack
+#### Techstack
 
 The tech stack for GradeBot is Rails 8+ with stimulus for javascript and tailwind 4+ for styling. We use an sqlite database. We also use solid cache, queue, and cable. We deploy with Kamal to Google Cloud Platform. We manage secrets using Kamal Secrets and the 1Password adapter. We use minitest for testing. We use fixtures for test data.
 
@@ -50,13 +52,13 @@ In general we keep our techstack as simple as possible and avoid taking on unnec
 
 For the Google Docs integration we use the `drive.file` scope.
 
-### Database models
+#### Database models
 
-#### User
+##### User
 
 * Has many assignments
 
-#### Assignment
+##### Assignment
 
 * Belongs to a user  
 * Has one rubric  
@@ -66,24 +68,24 @@ For the Google Docs integration we use the `drive.file` scope.
 * Raw rubric text  
 * Integer - total processing milliseconds
 
-#### Rubric
+##### Rubric
 
 * Has many criteria
 
-#### Criterion
+##### Criterion
 
 * Has many levels  
 * Title  
 * Description  
 * Position
 
-#### Level
+##### Level
 
 * Title  
 * Description  
 * Position
 
-#### SelectedDocument
+##### SelectedDocument
 
 * _Note: Renamed from `DocumentSelection` (used in legacy GradingTask flow) to avoid naming conflicts during the parallel refactor._
 * _Purpose: This model tracks documents selected via the Google Picker for a specific `Assignment` in the refactored workflow, keeping it separate from the legacy `DocumentSelection`/`GradingTask` process._
@@ -97,7 +99,7 @@ We are only storing google_doc, title, and url because this is what we need at t
 When processing student work, we use the `student_work.selected_document.google_doc_id` to fetch the document content and validate that it does not exceed the maximum number of words.
 If it does, we will set the student work status to failure.
 
-#### Student Work
+##### Student Work
 
 * Belongs to an assignment  
 * Belongs to a selected document  
@@ -106,12 +108,12 @@ If it does, we will set the student work status to failure.
 * Qualitative feedback as text  
 * Has many checks
 
-#### Student Work Criterion Level
+##### Student Work Criterion Level
 
 * Join between student work, criteria and level representing how a student did on a particular rubric criteria  
 * Has explanation as text
 
-#### Feedback items
+##### Feedback items
 
 * Type - strength or opportunity  
 * Title  
@@ -119,25 +121,27 @@ If it does, we will set the student work status to failure.
 * Evidence  
 * Belongs to student work
 
-#### Student Work Check
+##### Student Work Check
 
 * Type  
 * Score (0-100)  
 * Explanation  
 * Belongs to student work
 
-#### Assignment summary
+##### Assignment summary
 
 * Belongs to assignment  
 * Student work count  
 * Qualitative insights as text  
 * Has many feedback items
 
-### Architecture
+#### Architecture
 
 GradeBot uses a conventional Rails MVC architecture. It relies on solid queue background workers for handling LLM requests. It also uses a services directory for business logic that is not appropriate for the model or the controller.
 
-#### LLM processing abstraction
+##### LLM processing abstraction
+
+*Note: the processing abstraction is aspirational and not yet built*
 
 GradeBot leverages two abstractions to handle the repeated pattern of:
 
@@ -176,6 +180,82 @@ The ProcessingPipeline provides a standardized workflow for all LLM processing
   * Handles status management  
   * Broadcasts updates  
 * Centralizes error handling, retries and timeouts
+
+#### Detailed LLM System Components and Flow
+
+The codebase implements a robust LLM integration system that handles request processing, error management, cost tracking, and event handling. Here's a comprehensive breakdown of the components and their interactions:
+
+**Core Components**
+
+1.  **Client Architecture**
+    *   `Client` (`app/services/llm/client.rb`): Entry point for LLM requests that validates inputs, checks circuit breaker status, and delegates to specific implementations.
+    *   `BaseClient` (`lib/llm/base_client.rb`): Abstract class providing shared functionality like request logging, timing, and cost tracking. Implements the template method pattern with abstract methods for specific client implementations.
+    *   `AnthropicClient` (`lib/llm/anthropic/client.rb`): Concrete implementation for Anthropic's Claude API that handles model mapping, token counting, and API communication.
+    *   `ClientFactory` (`lib/llm/client_factory.rb`): Creates appropriate client instances, currently defaulting to Anthropic's client.
+
+2.  **Resilience Mechanisms**
+    *   `RetryHandler` (`lib/llm/retry_handler.rb`): Manages retry strategies with exponential backoff for different error types.
+    *   `CircuitBreaker` (`lib/llm/circuit_breaker.rb`): Prevents cascading failures by temporarily stopping operations after multiple errors. Implements closed, open, and half-open states.
+
+3.  **Cost Management**
+    *   `CostCalculator` (`app/services/llm/cost_calculator.rb`): Calculates costs based on token usage and model-specific rates.
+    *   `CostTracker` (`app/services/llm/cost_tracker.rb`): Records cost data to the database.
+    *   `CostTracking` (`app/services/llm/cost_tracking.rb`): Facade providing simplified access to cost tracking functionality.
+    *   `CostTrackingSubscriber` (`app/services/llm/cost_tracking_subscriber.rb`): Listens for request completion events and handles cost tracking.
+
+4.  **Event Management**
+    *   `EventSystem` (`app/services/llm/event_system.rb`): Simple pub/sub system for LLM-related events, with Publisher and Subscriber components.
+
+5.  **Prompt Management** (Note: These files were not explicitly reviewed but are part of the overall system)
+    *   `PromptBuilder` (`app/services/prompt_builder.rb`): Builds prompts for different request types.
+    *   `PromptTemplate` (`app/services/prompt_template.rb`): Renders ERB templates with variables for prompt construction.
+
+**Request Flow**
+
+When a client calls `LLM::Client.generate(llm_request)`:
+
+1.  The request is validated and the circuit breaker is checked.
+2.  `ClientFactory` creates an appropriate client instance (currently `AnthropicClient`).
+3.  `BaseClient#generate` method is invoked:
+    *   Logs the request.
+    *   Calculates prompt token count via the provider-specific `calculate_token_count`.
+    *   Times the execution.
+    *   Delegates the actual API call to the provider-specific `execute_request` method.
+    *   After successful execution, publishes a completion event via `EventSystem`.
+    *   Handles cost tracking event publishing (or direct fallback if publishing fails).
+4.  The provider-specific client (`AnthropicClient#execute_request`) executes the actual API request.
+5.  The response is processed, enriched with metadata (tokens, model), and returned up the call stack.
+
+**Error Handling & Resilience**
+
+The system implements multiple resilience patterns:
+
+*   **Circuit Breaker Pattern**: Prevents cascading failures by temporarily stopping operations after multiple errors (`LLM::CircuitBreaker`).
+*   **Retry Strategy**: Handles transient errors (like rate limits or temporary overloads) with exponential backoff and jitter (`LLM::RetryHandler`).
+*   **Error Classification**: Custom error classes (`LLM::Errors::ApiOverloadError`, `LLM::Errors::AnthropicOverloadError`, `LLM::ServiceUnavailableError`) allow for specific handling by the retry mechanism and circuit breaker.
+
+**Cost Tracking System**
+
+Cost tracking follows an event-driven approach integrated into `BaseClient`:
+
+1.  When `BaseClient#generate` successfully receives a response from `execute_request`, it publishes an `EventSystem::EVENTS[:request_completed]` event containing the request, response (with token data), and context.
+2.  `CostTrackingSubscriber` listens for this event and processes it:
+    *   Extracts token counts from the response metadata.
+    *   Calculates costs using `CostCalculator` based on the model's pricing.
+    *   Records the cost data using `CostTracker`.
+3.  **Fallback**: If event publishing fails within `BaseClient#generate`, it calls `track_cost_directly` to perform the calculation and recording immediately.
+
+**Extension Points**
+
+The system can be extended in several ways:
+
+*   **New LLM Providers**: Create a new client class inheriting from `BaseClient`, implement `#execute_request` and `#calculate_token_count`, and update `ClientFactory` to instantiate it based on configuration or model name.
+*   **Custom Retry Strategies**: Extend `RetryHandler` with new strategies for different error types.
+*   **Enhanced Cost Tracking**: Extend `CostTracker` or `CostCalculator` for more complex metrics or pricing.
+*   **New Event Types**: Add events to `EventSystem::EVENTS` and create corresponding subscribers.
+*   **Prompt Templates**: Add new `.erb` templates under `app/views/prompts/` for different use cases, utilized by `PromptTemplate` and `PromptBuilder`.
+
+This architecture provides a solid foundation for building AI-assisted applications with proper error handling, cost control, and extensibility.
 
 #### Cost tracking system
 
@@ -361,7 +441,7 @@ GradeBot implements a straightforward processing time estimation system to provi
 
 * **Viral Coefficient**: Number of new users referred by existing users  
 * **Word-of-Mouth Rate**: Percentage of new signups attributable to referrals  
-* **School Penetration**: Multiple teachers adopting within same schools/districts
+* **School Coverage**: Multiple teachers adopting within same schools/districts
 
 ### Launch Plan
 

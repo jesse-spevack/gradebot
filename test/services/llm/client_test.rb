@@ -10,13 +10,10 @@ module LLM
     setup do
       @client = Client.new
 
-      # Stub SecureRandom.uuid to return a consistent value for testing
-      SecureRandom.stubs(:uuid).returns("test-uuid")
-
       # Create a test LLMRequest
       @llm_request = LLMRequest.new(
         prompt: "test prompt",
-        llm_model_name: "test-model",
+        llm_model_name: "claude-test-model", # Use a name matching a family
         request_type: "test"
       )
 
@@ -38,11 +35,11 @@ module LLM
 
       # Mock the retry handler to yield once
       mock_retry_handler = mock("RetryHandler")
-      mock_retry_handler.expects(:with_retries).yields.returns(mock_response)
+      mock_retry_handler.expects(:with_retries).with("claude-test-model").yields.returns(mock_response)
       RetryHandler.expects(:new).returns(mock_retry_handler)
 
-      # Mock the client factory
-      LLM::ClientFactory.expects(:create).returns(mock_llm_client)
+      # Mock the client factory to expect the specific model name
+      LLM::ClientFactory.expects(:create).with("claude-test-model").returns(mock_llm_client)
 
       # The client should directly generate the response with the LLMRequest
       mock_llm_client.expects(:generate).with(@llm_request).returns(mock_response)
@@ -75,12 +72,12 @@ module LLM
       mock_llm_client = mock("LLMClient")
       mock_llm_client.expects(:generate).with(@llm_request).returns({ content: "Test response", metadata: {} })
 
-      # Mock the client factory
-      LLM::ClientFactory.expects(:create).returns(mock_llm_client)
+      # Mock the client factory to expect the specific model name
+      LLM::ClientFactory.expects(:create).with("claude-test-model").returns(mock_llm_client)
 
       # Mock the retry handler
       mock_retry_handler = mock("RetryHandler")
-      mock_retry_handler.expects(:with_retries).yields.returns({ content: "Test response", metadata: {} })
+      mock_retry_handler.expects(:with_retries).with("claude-test-model").yields.returns({ content: "Test response", metadata: {} })
       RetryHandler.expects(:new).returns(mock_retry_handler)
 
       # Circuit should still be closed
@@ -99,13 +96,13 @@ module LLM
       # We don't expect record_failure to be called in the client since it's handled in the RetryHandler
       CircuitBreaker.expects(:new).returns(mock_circuit_breaker)
 
-      # Mock the client factory - it will be called before the RetryHandler
+      # Mock the client factory to expect the specific model name
       mock_llm_client = mock("LLMClient")
-      LLM::ClientFactory.expects(:create).returns(mock_llm_client)
+      LLM::ClientFactory.expects(:create).with("claude-test-model").returns(mock_llm_client)
 
       # Mock the retry handler to raise an error
       mock_retry_handler = mock("RetryHandler")
-      mock_retry_handler.expects(:with_retries).raises(LLM::AnthropicOverloadError.new)
+      mock_retry_handler.expects(:with_retries).with("claude-test-model").raises(LLM::AnthropicOverloadError.new)
       RetryHandler.expects(:new).returns(mock_retry_handler)
 
       # Should raise the error

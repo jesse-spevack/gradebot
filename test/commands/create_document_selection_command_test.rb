@@ -5,8 +5,8 @@ class CreateDocumentSelectionCommandTest < ActiveSupport::TestCase
     DocumentSelection.destroy_all
     @grading_task = grading_tasks(:one)
     @document_data = [
-      { "id" => "doc1", "name" => "Document 1", "url" => "https://docs.google.com/document/d/doc1" },
-      { "id" => "doc2", "name" => "Document 2", "url" => "https://docs.google.com/document/d/doc2" }
+      { "googleDocId" => "doc1", "title" => "Document 1", "url" => "https://docs.google.com/document/d/doc1" },
+      { "googleDocId" => "doc2", "title" => "Document 2", "url" => "https://docs.google.com/document/d/doc2" }
     ]
   end
 

@@ -97,7 +97,7 @@ class LLM::Anthropic::ClientTest < ActiveSupport::TestCase
     @mock_http.expects(:request).returns(@mock_response)
 
     # Execute request and expect ApiOverloadError
-    error = assert_raises(ApiOverloadError) do
+    error = assert_raises(LLM::Errors::ApiOverloadError) do
       @client.execute_request(@llm_request)
     end
 
@@ -118,7 +118,7 @@ class LLM::Anthropic::ClientTest < ActiveSupport::TestCase
     @mock_http.expects(:request).returns(@mock_response)
 
     # Execute request and expect ApiOverloadError
-    error = assert_raises(ApiOverloadError) do
+    error = assert_raises(LLM::Errors::ApiOverloadError) do
       @client.execute_request(@llm_request)
     end
 

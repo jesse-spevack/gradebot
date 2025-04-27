@@ -39,7 +39,7 @@ class LLM::AnthropicClientTest < ActiveSupport::TestCase
         body: { error: { type: "rate_limit_exceeded" } }.to_json
       )
 
-    error = assert_raises(ApiOverloadError) do
+    error = assert_raises(LLM::Errors::ApiOverloadError) do
       @client.execute_request(@request)
     end
 

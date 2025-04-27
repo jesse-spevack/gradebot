@@ -13,7 +13,8 @@ begin
       "GOOGLE_CLIENT_ID" => "keys/gradebot/add more/GOOGLE_CLIENT_ID",
       "GOOGLE_CLIENT_SECRET" => "keys/gradebot/add more/GOOGLE_CLIENT_SECRET",
       "GOOGLE_API_KEY" => "keys/gradebot/add more/GOOGLE_API_KEY",
-      "ANTHROPIC_API_KEY" => "keys/gradebot/add more/ANTHROPIC_API_KEY"
+      "ANTHROPIC_API_KEY" => "keys/gradebot/add more/ANTHROPIC_API_KEY",
+      "GOOGLE_AI_KEY" => "keys/gradebot/add more/GOOGLE_AI_KEY"
     }
 
     # Set each environment variable
