@@ -1,6 +1,6 @@
 # Task ID: 21
 # Title: Add Gemini Flash 2.5 Support to LLM Client
-# Status: in-progress
+# Status: done
 # Dependencies: 20
 # Priority: high
 # Description: Extend the LLM client to support the Gemini Flash 2.5 model.
