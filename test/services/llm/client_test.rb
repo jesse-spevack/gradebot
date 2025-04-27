@@ -35,11 +35,11 @@ module LLM
 
       # Mock the retry handler to yield once
       mock_retry_handler = mock("RetryHandler")
-      mock_retry_handler.expects(:with_retries).yields.returns(mock_response)
-      RetryHandler.expects(:new).with(mock_llm_client).returns(mock_retry_handler)
+      mock_retry_handler.expects(:with_retries).with("claude-test-model").yields.returns(mock_response)
+      RetryHandler.expects(:new).returns(mock_retry_handler)
 
       # Mock the client factory to expect the specific model name
-      LLM::ClientFactory.expects(:create).with("claude-test-model", {}).returns(mock_llm_client)
+      LLM::ClientFactory.expects(:create).with("claude-test-model").returns(mock_llm_client)
 
       # The client should directly generate the response with the LLMRequest
       mock_llm_client.expects(:generate).with(@llm_request).returns(mock_response)
@@ -73,12 +73,12 @@ module LLM
       mock_llm_client.expects(:generate).with(@llm_request).returns({ content: "Test response", metadata: {} })
 
       # Mock the client factory to expect the specific model name
-      LLM::ClientFactory.expects(:create).with("claude-test-model", {}).returns(mock_llm_client)
+      LLM::ClientFactory.expects(:create).with("claude-test-model").returns(mock_llm_client)
 
       # Mock the retry handler
       mock_retry_handler = mock("RetryHandler")
-      mock_retry_handler.expects(:with_retries).yields.returns({ content: "Test response", metadata: {} })
-      RetryHandler.expects(:new).with(mock_llm_client).returns(mock_retry_handler)
+      mock_retry_handler.expects(:with_retries).with("claude-test-model").yields.returns({ content: "Test response", metadata: {} })
+      RetryHandler.expects(:new).returns(mock_retry_handler)
 
       # Circuit should still be closed
       circuit_breaker = LLM::CircuitBreaker.new("anthropic:#{@llm_request.llm_model_name}")
@@ -98,12 +98,12 @@ module LLM
 
       # Mock the client factory to expect the specific model name
       mock_llm_client = mock("LLMClient")
-      LLM::ClientFactory.expects(:create).with("claude-test-model", {}).returns(mock_llm_client)
+      LLM::ClientFactory.expects(:create).with("claude-test-model").returns(mock_llm_client)
 
       # Mock the retry handler to raise an error
       mock_retry_handler = mock("RetryHandler")
-      mock_retry_handler.expects(:with_retries).raises(LLM::AnthropicOverloadError.new)
-      RetryHandler.expects(:new).with(mock_llm_client).returns(mock_retry_handler)
+      mock_retry_handler.expects(:with_retries).with("claude-test-model").raises(LLM::AnthropicOverloadError.new)
+      RetryHandler.expects(:new).returns(mock_retry_handler)
 
       # Should raise the error
       assert_raises(LLM::AnthropicOverloadError) do

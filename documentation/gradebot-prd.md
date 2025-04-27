@@ -1,16 +1,18 @@
-# 🤖 GradeBot Product Requirements Document
+# 🤖 GradeBot 
+
+## Product Requirements Document
 
 GradeBot is an AI-feedback assistant designed for educators who want to provide better feedback in less time. Gradebot helps teachers focus on planning and insights and transform hours of grading into minutes of strategic review.
 
-## Problem
+### Problem
 
 Grading student work is time consuming work often done outside of regular school hours.
 
-## Target user
+### Target user
 
 The target user is a teacher who has students complete written assignments using Google Docs. This user may already use LLMs to generate assignments, rubrics, and provide feedback, but the process is time consuming and manual.
 
-## How it works
+### How it works
 
 Teachers log in with their Google accounts. The teacher visits the assignment form to create a new assignment. They enter an assignment title and subject, they select a grade level. They then paste instructions into a text area field.
 
@@ -32,7 +34,7 @@ Once all of the student works are completed with feedback, they are assembled al
 
 Teachers can go to their assignments list and see a list of all their previous assignments. In the header, there is a streak indicator showing consecutive days with grading tasks, total number of grading tasks.
 
-There are further gamified elements like a github-style contribution chart which shows 1 square per day of the year. The square gets darker the more student works were graded on that day.
+There are further gamification elements like a github-style contribution chart which shows 1 square per day of the year. The square gets darker the more student works were graded on that day.
 
 Behind the scenes, every time a prompt is sent to an LLM, the cost of the response is tracked such that we can see cost per request and aggregate costs by requests for each assignment and each user.
 
@@ -40,9 +42,9 @@ There is a Stripe integration to handle subscriptions. Every user can get 1 assi
 
 GradeBot has a privacy, terms of service, and ai pages describing specifically what data we collect and how we use it.
 
-## Engineering specification
+### Engineering specification
 
-### Techstack
+#### Techstack
 
 The tech stack for GradeBot is Rails 8+ with stimulus for javascript and tailwind 4+ for styling. We use an sqlite database. We also use solid cache, queue, and cable. We deploy with Kamal to Google Cloud Platform. We manage secrets using Kamal Secrets and the 1Password adapter. We use minitest for testing. We use fixtures for test data.
 
@@ -50,13 +52,13 @@ In general we keep our techstack as simple as possible and avoid taking on unnec
 
 For the Google Docs integration we use the `drive.file` scope.
 
-### Database models
+#### Database models
 
-#### User
+##### User
 
 * Has many assignments
 
-#### Assignment
+##### Assignment
 
 * Belongs to a user  
 * Has one rubric  
@@ -66,24 +68,24 @@ For the Google Docs integration we use the `drive.file` scope.
 * Raw rubric text  
 * Integer - total processing milliseconds
 
-#### Rubric
+##### Rubric
 
 * Has many criteria
 
-#### Criterion
+##### Criterion
 
 * Has many levels  
 * Title  
 * Description  
 * Position
 
-#### Level
+##### Level
 
 * Title  
 * Description  
 * Position
 
-#### SelectedDocument
+##### SelectedDocument
 
 * _Note: Renamed from `DocumentSelection` (used in legacy GradingTask flow) to avoid naming conflicts during the parallel refactor._
 * _Purpose: This model tracks documents selected via the Google Picker for a specific `Assignment` in the refactored workflow, keeping it separate from the legacy `DocumentSelection`/`GradingTask` process._
@@ -97,7 +99,7 @@ We are only storing google_doc, title, and url because this is what we need at t
 When processing student work, we use the `student_work.selected_document.google_doc_id` to fetch the document content and validate that it does not exceed the maximum number of words.
 If it does, we will set the student work status to failure.
 
-#### Student Work
+##### Student Work
 
 * Belongs to an assignment  
 * Belongs to a selected document  
@@ -106,12 +108,12 @@ If it does, we will set the student work status to failure.
 * Qualitative feedback as text  
 * Has many checks
 
-#### Student Work Criterion Level
+##### Student Work Criterion Level
 
 * Join between student work, criteria and level representing how a student did on a particular rubric criteria  
 * Has explanation as text
 
-#### Feedback items
+##### Feedback items
 
 * Type - strength or opportunity  
 * Title  
@@ -119,25 +121,27 @@ If it does, we will set the student work status to failure.
 * Evidence  
 * Belongs to student work
 
-#### Student Work Check
+##### Student Work Check
 
 * Type  
 * Score (0-100)  
 * Explanation  
 * Belongs to student work
 
-#### Assignment summary
+##### Assignment summary
 
 * Belongs to assignment  
 * Student work count  
 * Qualitative insights as text  
 * Has many feedback items
 
-### Architecture
+#### Architecture
 
 GradeBot uses a conventional Rails MVC architecture. It relies on solid queue background workers for handling LLM requests. It also uses a services directory for business logic that is not appropriate for the model or the controller.
 
-#### LLM processing abstraction
+##### LLM processing abstraction
+
+*Note: the processing abstraction is aspirational and not yet built*
 
 GradeBot leverages two abstractions to handle the repeated pattern of:
 
@@ -437,7 +441,7 @@ GradeBot implements a straightforward processing time estimation system to provi
 
 * **Viral Coefficient**: Number of new users referred by existing users  
 * **Word-of-Mouth Rate**: Percentage of new signups attributable to referrals  
-* **School Penetration**: Multiple teachers adopting within same schools/districts
+* **School Coverage**: Multiple teachers adopting within same schools/districts
 
 ### Launch Plan
 

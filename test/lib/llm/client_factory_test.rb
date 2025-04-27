@@ -16,7 +16,7 @@ class LLM::ClientFactoryTest < ActiveSupport::TestCase
   end
 
   test ".create returns Anthropic client" do
-    client = LLM::ClientFactory.create
+    client = LLM::ClientFactory.create("claude-3-opus-20240229")
 
     assert_instance_of LLM::Anthropic::Client, client
   end

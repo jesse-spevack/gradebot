@@ -21,10 +21,11 @@ module LLM
 
     # Error specifically for API rate limits or overload situations
     class ApiOverloadError < ApiError
-      attr_reader :retry_after
+      attr_reader :retry_after, :original_error
 
-      def initialize(message = "API Overload/Rate Limit Exceeded", status_code: nil, response_body: nil, retry_after: nil)
+      def initialize(message = "API Overload/Rate Limit Exceeded", status_code: nil, response_body: nil, retry_after: nil, original_error: nil)
         @retry_after = retry_after
+        @original_error = original_error
         super(message, status_code: status_code, response_body: response_body)
       end
 
