@@ -349,7 +349,7 @@
       "id": 21,
       "title": "Add Gemini Flash 2.5 Support to LLM Client",
       "description": "Extend the LLM client to support the Gemini Flash 2.5 model.",
-      "status": "in-progress",
+      "status": "done",
       "dependencies": [
         20
       ],
