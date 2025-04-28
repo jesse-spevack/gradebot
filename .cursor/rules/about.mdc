@@ -22,7 +22,6 @@ Tech Stack
 
 Architecture Features
 
-- Command pattern for business logic
 - Service objects for core functionality
 - Status management system for task state transitions
 - Optimistic locking to prevent race conditions
