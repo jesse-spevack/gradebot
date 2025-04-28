@@ -58,7 +58,7 @@ gem "groupdate"
 
 # HTTP Client
 gem "faraday", "~> 2.7" # Added for REST API calls
-gem "faraday-retry", "~> 2.2" # Optional: for automatic retries
+gem "faraday-retry", "~> 2.3" # Optional: for automatic retries
 
 # Quality of life
 gem "prefixed_ids"

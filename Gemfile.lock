@@ -122,7 +122,7 @@ GEM
       logger
     faraday-net_http (3.4.0)
       net-http (>= 0.5.0)
-    faraday-retry (2.2.1)
+    faraday-retry (2.3.1)
       faraday (~> 2.0)
     fugit (1.11.1)
       et-orbi (~> 1, >= 1.2.11)
@@ -191,7 +191,7 @@ GEM
     jbuilder (2.13.0)
       actionview (>= 5.0.0)
       activesupport (>= 5.0.0)
-    json (2.10.2)
+    json (2.11.3)
     jwt (2.10.1)
       base64
     kamal (2.5.3)
@@ -512,7 +512,7 @@ DEPENDENCIES
   debug
   faraday (~> 2.7)
   faraday-net_http
-  faraday-retry (~> 2.2)
+  faraday-retry (~> 2.3)
   google-apis-docs_v1
   google-apis-drive_v3
   google-cloud-storage
