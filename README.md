@@ -10,6 +10,7 @@ Requires Google OAuth credentials and LLM API key.
 
 ## Product vision
 See: [Gradebot-prd](/documentation/gradebot-prd.md)
+See: Gradebot developer tutorial coming soon...
 
 ## Troubleshooting
 
