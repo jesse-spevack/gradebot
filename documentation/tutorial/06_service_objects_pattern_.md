@@ -34,7 +34,7 @@ Imagine a workshop. Instead of having one giant, clunky multi-tool that tries to
 1.  **Single Responsibility:** Each service object does one thing.
 2.  **Plain Ruby:** They are usually simple Ruby classes (sometimes called POROs - Plain Old Ruby Objects), not tightly bound to the web framework like controllers or models.
 3.  **Clear Input/Output:** They typically take specific input (often an object or hash) and return a clear result (like the created `Assignment` object or `true`/`false`).
-4.  **Follows Command Pattern:** Think of calling a service object like issuing a command: "Initialize this assignment!" or "Bulk create these documents!".
+4.  **Follows Command Pattern:** Think of calling a service object like **issuing** a command: "Initialize this assignment!" or "Bulk create these documents!".
 
 This approach keeps controllers thin (focused on web stuff) and models lean (focused on data), making the overall codebase more organized, easier to test, and simpler to maintain.
 
