@@ -361,7 +361,7 @@
       "id": 22,
       "title": "Review and Finalize Cost Tracking System",
       "description": "Double-check the existing cost tracking implementation for completeness and accuracy.",
-      "status": "done",
+      "status": "pending",
       "dependencies": [
         20,
         21
@@ -374,7 +374,7 @@
       "id": 23,
       "title": "Create ProcessingTask Abstraction",
       "description": "Implement the ProcessingTask abstraction for LLM processing tasks.",
-      "status": "in-progress",
+      "status": "pending",
       "dependencies": [
         20,
         21
