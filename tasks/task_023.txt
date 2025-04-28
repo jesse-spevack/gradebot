@@ -1,6 +1,6 @@
 # Task ID: 23
 # Title: Create ProcessingTask Abstraction
-# Status: pending
+# Status: in-progress
 # Dependencies: 20, 21
 # Priority: high
 # Description: Implement the ProcessingTask abstraction for LLM processing tasks.

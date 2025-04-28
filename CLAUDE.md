@@ -21,7 +21,6 @@
 - Follow "arrange-act-assert" pattern
 
 ## Architecture Patterns
-- Command pattern for actions (BaseCommand)
 - Service objects for business logic
 - Status management via StatusManager
 - LLM integration via client abstraction
@@ -43,8 +42,8 @@ Do not chain calls between objects in order to keep boundaries and responsibilit
 ### 4. No meta programming or monkey patching
 Never ever reach for meta programming or monkey patching. There is always a better way to solve the problem.
 
-### 5. Favor the command pattern and service objects
-The command pattern and service objects lend themselves to encapsulation. They are easier to reason about and change than many other design patterns.
+### 5. Favor service objects
+Service objects lend themselves to encapsulation. They are easier to reason about and change than many other design patterns.
 
 ### 6. Keep logic out of views
 There should be almost no logic in the view layer. Anything more complicated than the simplest condition should be delegated to the commands and helper methods.
