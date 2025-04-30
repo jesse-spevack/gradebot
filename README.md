@@ -17,6 +17,14 @@ See: [Gradebot-prd](/documentation/gradebot-prd.md)
 
 1. `kamal deploy` fails on step #12
    - Run `kamal prune all` and then `kamal deploy --verbose` 
+2. When assets are messed up, run `kamal shell`, and then:
+
+```ruby
+rails@34:/rails$ rm -rf /rails/public/assets/*
+rails@34:/rails$ mkdir -p /rails/public/assets
+rails@34:/rails$ chmod -R 777 /rails/public/assets
+rails@34:/rails$       bundle exec rails assets:precompile
+```
    
 ## Competition 
 - [EssayGrader](https://www.essaygrader.ai/)
