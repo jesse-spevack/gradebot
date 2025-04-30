@@ -78,6 +78,7 @@
 
       <!-- Rubric Card -->
       <div class="bg-white rounded-lg shadow-md p-6 transition-all hover:shadow-lg" data-controller="rubric-toggle">
+        <%= hidden_field_tag :rubric_option_field, 'generate', id: 'rubric_option_field' %>
         <div class="flex items-center mb-4">
           <%= render "shared/icons/clipboard_list", aria_hidden: true, focusable: false, class: "h-5 w-5 mr-2 text-blue-500" %>
           <h4 class="text-lg font-medium leading-6 text-gray-900">Rubric</h4>
