@@ -7,4 +7,4 @@ Rails.application.config.assets.version = "1.0"
 # Rails.application.config.assets.paths << Emoji.images_path
 
 # Explicitly compile stylesheets
-Rails.application.config.assets.precompile += %w[ prose.css all.css ]
+Rails.application.config.assets.precompile += %w[ prose.css ]
